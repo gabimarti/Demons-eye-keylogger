@@ -2,26 +2,29 @@
 # -*- coding: utf-8 -*-
 #
 #-----------------------------------------------------------------------------------------------------------
-# Name:        demonseye.py
-# Purpose:     ES - Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
-#              EN - Development of a keylogger for the TFM of the Master in Cybersecurity of La Salle 2019
+# Name:         demonseye.py
+# Purpose:      ES - Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
+#               EN - Development of a keylogger for the TFM of the Master in Cybersecurity of La Salle 2019
 #
-# Author:      Gabriel Marti
-# Contact:     gabimarti at gmail dot com
-# Created:     19/05/2019
-# Copyright:   (c) Gabriel Marti Fuentes 2019
-# License:     GPL
+# Author:       Gabriel Marti
+# email:        gabimarti at gmail dot com
+# GitHub:       https://github.com/gabimarti
+# Created:      19/05/2019
+# Copyright:    (c) Gabriel Marti Fuentes 2019
+# License:      GPL
 #
-# Features:    * Record keystrokes
-#              * Periodic screen capture
-#              * Send data to a remote computer with Monitor App (to do)
-#              * Send data to an email account (to do)
-#              * Send data to a Twitter account (to do)
-#              * Paste data to a Paste service/site (to do)
+# Features:     * Record keystrokes
+#               * Periodic screen capture
+#               * Send data to a remote computer with Monitor App (to do)
+#               * Send data to an email account (to do)
+#               * Send data to a Twitter account (to do)
+#               * Paste data to a Paste service/site (to do)
 #
-# Required:    Install with "pip install module-name-required"
-#              pywin32, pyWinhook, win32gui, requests, vxPython
+# Required:     Install with "pip install module-name-required"
+#               pywin32, pyWinhook, win32gui, requests, vxPython
 #
+# Notes:        This code has been tested, developed and designed to work in a Windows environment.
+#               Its purpose is only educational.
 # Updates:
 #
 #-----------------------------------------------------------------------------------------------------------
