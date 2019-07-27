@@ -4,6 +4,12 @@ nbproject/
 # PyScripter
 pyscripter/
 
+# PyCharm
+.idea/
+
+# Misc files to ignore
+*.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
