@@ -11,6 +11,7 @@ pyscripter/
 cuts_and_old_things/
 *.log
 *.bat
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -24,6 +25,7 @@ env3/
 build/
 develop-eggs/
 dist/
+output/
 downloads/
 eggs/
 .eggs/
