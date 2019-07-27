@@ -9,6 +9,7 @@ pyscripter/
 
 # Misc folders and files to ignore
 cuts_and_old_things/
+wxFormBuilder/
 *.log
 *.bat
 *.out
