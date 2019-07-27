@@ -9,6 +9,7 @@ pyscripter/
 
 # Misc files to ignore
 *.log
+*.bat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
