@@ -12,6 +12,7 @@ cuts_and_old_things/
 *.log
 *.bat
 *.out
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

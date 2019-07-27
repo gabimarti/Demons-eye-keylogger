@@ -2,7 +2,7 @@
 Keylogger proof of concept for the TFM of the La Salle MCS.
 
 # About the code and sources
-This code is part of the Master's Final Project, by Gabriel Martí Fuentes. Created and developed in the year 2019.
+This code is part of the Final Project of the Master in Cybersecurity (2019) by Gabriel Martí Fuentes. The Master is taught at the University of La Salle - Ramon Llull.
 
 For the elaboration of this code, multiple sources have been consulted, including some codes already existing in GitHub, but it is not the branch of any of them. It is prepared from scratch from the ideas and observed code of the other projects.
 
@@ -25,8 +25,13 @@ But, in addition, it is the title of a Deep Purple song (which is a group that I
     * Send data to a Twitter account (to do)
     * Paste data to a Paste service/site (to do)
 
-# Notes
-    This code has been tested, developed and designed to work in a Windows environment.
-    Its purpose is only educational.
+# Final Notes
+This code has been tested, developed and designed to work in a Windows environment.
+Its purpose is only educational.
+
+You can be critical with my code.
+I hardly knew anything about Python before starting this project, so any constructive comment would be welcome.
+
+But don't be cruel. :)
     
     
