@@ -14,6 +14,8 @@ This code is part of the Final Project of the Master in Cybersecurity (2019) by 
 
 For the elaboration of this code, multiple sources have been consulted, including some codes already existing in GitHub, but it is not the branch of any of them. It is prepared from scratch from the ideas and observed code of the other projects.
 
+In the section "Useful references" I mention the most important sources of code and other possible sources of information.
+
 If you have any questions, interest in clarifying anything about the project, or contributing ideas, you can contact me at the following address: gabimarti + github at gmail dot com
 
 # About the name
