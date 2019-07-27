@@ -7,7 +7,8 @@ pyscripter/
 # PyCharm
 .idea/
 
-# Misc files to ignore
+# Misc folders and files to ignore
+cuts_and_old_things/
 *.log
 *.bat
 
