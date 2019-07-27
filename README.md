@@ -25,6 +25,10 @@ But, in addition, it is the title of a Deep Purple song (which is a group that I
     * Send data to a Twitter account (to do)
     * Paste data to a Paste service/site (to do)
 
+# Useful references
+* Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
+* Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
+
 # Final Notes
 This code has been tested, developed and designed to work in a Windows environment.
 Its purpose is only educational.
@@ -34,4 +38,15 @@ I hardly knew anything about Python before starting this project, so any constru
 
 But don't be cruel. :)
     
+# Versions
+* v1.0 fist version. Private. 
+Started on 19/may/2019.
+Finished on ??????
+
+# FAQ
+* Q: Hey! where have you made this banner so beautiful that it appears in the header of the code? 
+  A: http://patorjk.com/software/taag/
+  
+  
     
+
