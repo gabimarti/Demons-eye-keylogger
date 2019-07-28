@@ -1,6 +1,8 @@
+Why are two users contributing to the project on GitHub?
+
 Just don't make distinctions if the updates are from the user "gabimarti" or "foratnegre". 
 I'm myself. :)
 
-They are stupid tests that I have done, since when developing and testing from different equipment (up to 3),
-I create an alternate user in GitHub to verify the operation of the version control.
+The first reason was to test the operation of GitHub with several users and see how the commits worked. Here are many stupid tests that have simply helped me to experiment and understand how version control worked.
 
+The second reason is that the keylogger has been developed mainly within a virtual machine. And in this virtual machine I have not used any personal account, since in addition to the development of the keylogger, I have done other tests with malware and other cybersecurity issues. So as a precaution, connections to GitHub were made with a different account.
