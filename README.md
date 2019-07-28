@@ -49,7 +49,7 @@ I hardly knew anything about Python before starting this project, so any constru
 But don't be cruel. :)
     
 # Versions
-* v1.0 fist version. Private. 
+* v1.0 first version. Private. 
 Started on 19/may/2019.
 Finished on ??????
 
