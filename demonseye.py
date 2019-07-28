@@ -353,7 +353,7 @@ def add_key_to_buffer(event):
 
     key_buffer += ckey
 
-    # incrementa contador de teclas (de momento sin uso definido)
+    # incrementa contador de teclas (de momento sin uso definido) - inc key counter. without use at the moment
     if len(ckey) > 0:
         key_counter += 1
 
