@@ -13,12 +13,11 @@
 # Purpose:      ES - Desarrollo de un keylogger para el TFM del Master en Ciberseguridad de La Salle 2019
 #               EN - Development of a keylogger for the TFM of the Master in Cybersecurity of La Salle 2019
 #
-# Author:       Gabriel Marti
+# Author:       Gabriel Marti Fuentes
 # email:        gabimarti at gmail dot com
 # GitHub:       https://github.com/gabimarti
 # Created:      19/05/2019
-# Copyright:    (c) Gabriel Marti Fuentes 2019
-# License:      GPL
+# License:      GPLv3
 #
 # Features:     * Record keystrokes
 #               * Periodic screen capture

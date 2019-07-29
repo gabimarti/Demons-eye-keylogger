@@ -5,12 +5,11 @@
 # Name:         demonseye-monitor.py
 # Purpose:      Receive keylogger data (keystrokes and screenshots).
 #
-# Author:       Gabriel Marti
+# Author:       Gabriel Marti Fuentes
 # email:        gabimarti at gmail dot com
 # GitHub:       https://github.com/gabimarti
 # Created:      27/07/2019
-# Copyright:    (c) Gabriel Marti Fuentes 2019
-# License:      GPL
+# License:      GPLv3
 #-----------------------------------------------------------------------------------------------------------
 #
 

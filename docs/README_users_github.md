@@ -1,4 +1,4 @@
-Why are two users contributing to the project on GitHub?
+# Why are two users contributing to the project on GitHub?
 
 Just don't make distinctions if the updates are from the user "gabimarti" or "foratnegre". 
 I'm myself. :)
