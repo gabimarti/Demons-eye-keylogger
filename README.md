@@ -38,6 +38,7 @@ But, in addition, it is the title of a Deep Purple song (which is a group that I
 # Useful references
 * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
 * Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
+* PyLoggy https://github.com/D4Vinci/PyLoggy
 
 # Final Notes
 This code has been tested, developed and designed to work in a Windows environment.
