@@ -27,6 +27,8 @@ In this case, the fact of being able to see what another person writes is someth
 
 But, in addition, it is the title of a Deep Purple song (which is a group that I like), and this becomes the second reason.
 
+The same is explained in the FAQ.
+
 # Features     
     * Record keystrokes
     * Periodic screen capture
@@ -34,6 +36,7 @@ But, in addition, it is the title of a Deep Purple song (which is a group that I
     * Send data to an email account (to do)
     * Send data to a Twitter account (to do)
     * Paste data to a Paste service/site (to do)
+    * Server included for remote monitoring on the same local network. (doing)
 
 # Useful references
 * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger

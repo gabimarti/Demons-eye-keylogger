@@ -7,6 +7,14 @@
     If you have any questions to ask me, do not hesitate to do so.
 ---+---
 
+Q: Why this name?
+
+A: For two reasons. The first is because a keylogger is a diabolical program that allows you to see what other people write on their computer. And the second one is motivated by the fact that while I develop I like to listen to music from groups like Deep Purple, which precisely has a song with this name.
+
+Listen to the song here: https://www.youtube.com/watch?v=ZwdVcMrYUrA
+
+---+---
+
 Q: Hey! where have you made this banner so beautiful that it appears in the header of the code? 
 
 A: http://patorjk.com/software/taag/
