@@ -38,6 +38,10 @@ net_range = NET_ADDRESS                                             # Network Ra
 port_list = []                                                      # Port list for command line test
 timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
 
+# Scan a host (ip), for open ports in port_list
+# optionally, sends a message to host and wait response
+# can activate more verbosity for errors and control messages
+# can define a timeout for connection
 class HostScan(threading.Thread):
     def __init__(self, ip, port_list, message = "", verbose=True, timeout = DEFAULT_TIMEOUT):
         threading.Thread.__init__(self)
@@ -88,9 +92,10 @@ class HostScan(threading.Thread):
         # Write out the ports that are open
         self.write()
 
-
+# Scan a range of IPs for open ports
+# Get CIDR net_gange, List of port_list, message to send, verbosity
 class RangeScan(threading.Thread):
-    def __init__(self,net_range,port_list,message,verbose=True):
+    def __init__(self, net_range, port_list, message, verbose=True, timeout = DEFAULT_TIMEOUT):
         threading.Thread.__init__(self)
         self.active_hosts = []                                      # IP Host list with at least one open port
         self.ip_net = ipaddress.ip_network(net_range)               # Create the network
@@ -112,32 +117,7 @@ class RangeScan(threading.Thread):
             thread.join()
 
 
-
-# Connects to IP, port, send message and returns response
-def client_connect(ip, port, message):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # ipv4 (AF_INET) tcp (SOCK_STREAM)
-    client.settimeout(DEFAULT_TIMEOUT)
-
-    try:
-        client.connect((ip, port))
-        client.send(message)
-        response = client.recv(BUFFER_SIZE)
-    except socket.error:
-        response = "CLOSED PORT"
-    finally:
-        client.close()
-
-    return response
-
-# Scan a network range and returns the first IP that has this port open
-def network_scan(net_range, port, message):
-    ip_net = ipaddress.ip_network(net_range)        # Create the network
-    all_hosts = list(ip_net.hosts())                # Generate all hosts in network
-
-    for ip in all_hosts:                            # Scan the network range
-        print("Scan IP %s at port %d with message %s = %s" % (ip, port, message, client_connect(str(ip),port,message)))
-
-
+# Parse command line parameters
 def parse_params():
     parser = argparse.ArgumentParser(description='Demon\'s Eye Keylogger Network Search',
                                      epilog='You can also use it to scan specific ports on a network.')
