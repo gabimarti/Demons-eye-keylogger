@@ -4,6 +4,9 @@
 #-----------------------------------------------------------------------------------------------------------
 # Name:         demonseye-net-search.py
 # Purpose:      Search for possible active keyloggers in a network range.
+#               Alternatively, it can be used as a normal network scanner, since it allows you to specify
+#               which ports you want to check. It uses multithreading techniques so you can check
+#               65535 computers in approximately 95 seconds.
 #
 # Author:       Gabriel Marti Fuentes
 # email:        gabimarti at gmail dot com
@@ -28,12 +31,14 @@ PORT_LIST_SCAN = [ KEYLOGGER_PORT ]                                 # List of po
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to indentify to keylogger
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
+ENCODING = 'utf-8'                                                  # Encodinf for message sended
+VERBOSE_LEVELS = [ "none", "error", "insane debug" ]                # Verbose levels
 
 ########################################################
 # VARIABLES
 ########################################################
 threadList = []                                                     # List of active threads
-verbose = False                                                     # Verbosity disabled, enabled
+verbose = 0                                                         # Verbosity disabled, enabled
 net_range = NET_ADDRESS                                             # Network Range for command line test
 port_list = []                                                      # Port list for command line test
 timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
@@ -43,22 +48,20 @@ timeout = DEFAULT_TIMEOUT                                           # Timeout on
 # can activate more verbosity for errors and control messages
 # can define a timeout for connection
 class HostScan(threading.Thread):
-    def __init__(self, ip, port_list, message = "", verbose=True, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, ip, port_list, message = "", verbose = True, timeout = DEFAULT_TIMEOUT):
         threading.Thread.__init__(self)
-        socket.setdefaulttimeout(timeout)
         self.open_ports = []
-        # Ports from 1-65535
-        # self.ports = range(1, 0xffff + 1)
-        self.ports = port_list
-        # self.host = socket.gethostname()
-        # self.ip = socket.gethostbyname(self.host)
+        self.ports = port_list                              # All ports can be self.ports = range(1, 0xffff + 1)
         self.ip = ip                                        # ip to scan
         self.message = message                              # message to send
         self.threads = []                                   # Thread list
+        self.timeout = timeout                              # Timeout - alternative: socket.setdefaulttimeout(timeout)
+        self.verbose = verbose                              # Verbose
 
     def scan(self, host, port):
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)           # ipv4 (AF_INET) tcp (SOCK_STREAM)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       # ipv4 (AF_INET) tcp (SOCK_STREAM)
+            s.settimeout(self.timeout)                                  # Sets timeout
             s.connect((host, port))
             if len(self.message)>0:
                 s.send(self.message)
@@ -67,7 +70,8 @@ class HostScan(threading.Thread):
                 response = ""
             self.open_ports.append("Host %s Port %s [Open] %s" % (host, port, response))
         except Exception as ex:
-            print("host %s port %d exception %s " % (host, port, ex))
+            if self.verbose >= 1:
+                print("Host %s Port %d Exception %s " % (host, port, ex))
             pass
         finally:
             s.close()
@@ -78,7 +82,8 @@ class HostScan(threading.Thread):
 
     def run(self):
         self.threads = []
-
+        if self.verbose >= 2:
+            print("Start scan " + str(self.ip))
         # Enumerate ports list and scan and add to thread
         for i, port in enumerate(self.ports):
             s = threading.Thread(target=self.scan, args=(self.ip, port))
@@ -95,7 +100,7 @@ class HostScan(threading.Thread):
 # Scan a range of IPs for open ports
 # Get CIDR net_gange, List of port_list, message to send, verbosity
 class RangeScan(threading.Thread):
-    def __init__(self, net_range, port_list, message, verbose=True, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, net_range, port_list, message, verbose = True, timeout = DEFAULT_TIMEOUT):
         threading.Thread.__init__(self)
         self.active_hosts = []                                      # IP Host list with at least one open port
         self.ip_net = ipaddress.ip_network(net_range)               # Create the network
@@ -104,79 +109,67 @@ class RangeScan(threading.Thread):
         self.message = message                                      # Message to send
         self.threads = []                                           # Thread list
         self.verbose = verbose                                      # Verbose
+        self.own_host = socket.gethostname()                        # Client Host name
+        self.own_ip = socket.gethostbyname(self.own_host)           # Client Host ip
+        self.timeout = timeout                                      # Timeout
 
     def run(self):
+        if self.verbose >= 2:
+            print ("This host is %s %s " % (self.own_host, self.own_ip))
+
+        hosts_scanned = 0
         for ip in self.all_hosts:                                   # Scan the network range
             # Thread host port scan
-            hs = HostScan(str(ip), self.port_list, self.message, self.verbose)
+            hs = HostScan(str(ip), self.port_list, self.message, self.verbose, self.timeout)
             hs.start()
             self.threads.append(hs)
+            hosts_scanned += 1
 
         # Finish threads before main thread starts again
         for thread in self.threads:
             thread.join()
+
+        return hosts_scanned
 
 
 # Parse command line parameters
 def parse_params():
     parser = argparse.ArgumentParser(description='Demon\'s Eye Keylogger Network Search',
                                      epilog='You can also use it to scan specific ports on a network.')
-    parser.add_argument("-s", "--scan", action="store_true",
-                        help="Run Net Scan (mandatory). If it is not set, the network scan does not run.",
-                        required=True)
-    parser.add_argument("-r", "--range", type=str, default=NET_ADDRESS,
-                        help="Specify the network range in CIDR format (x.x.x.x/m)\nDefault value: "+NET_ADDRESS)
-    parser.add_argument("-p", "--ports", type=int, nargs='*', default=list(PORT_LIST_SCAN),
-                        help="Specify a list of ports to scan\nDefault value: " + str(PORT_LIST_SCAN))
+    parser.add_argument("-r", "--range", type=str, default=NET_ADDRESS, required=True,
+                        help="Specify the network range in CIDR format. Example: 192.168.1.0/24")
+    parser.add_argument("-p", "--ports", type=int, nargs='+', default=list(PORT_LIST_SCAN),
+                        help="Specify a list of ports to scan. Default value: " + str(PORT_LIST_SCAN))
     parser.add_argument("-m", "--message", type=str, default=MAGIC_MESSAGE,
-                        help="Message to send to host\nDefault value: " + MAGIC_MESSAGE)
+                        help="Message to send to host. If empty, -m '', then not message is sent. Default value: " + MAGIC_MESSAGE)
     parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT,
-                        help="Timeout on port connection\nDefault value: " + str(DEFAULT_TIMEOUT))
-    parser.add_argument("-v", "--verbose", action="store_true", help="Increase output verbosity")
+                        help="Timeout in seconds on port connection. Default value: " + str(DEFAULT_TIMEOUT))
+    parser.add_argument("-v", "--verbose", type=int, choices=[0,1,2], default=0,
+                        help="Increase output verbosity. Default value: 0")
     args = parser.parse_args()
-
-    if not args.scan:
-        parser.print_help()
-
     return args
 
 
 def main():
     # Check and parse parameters
     args = parse_params()
-    if args.scan==False:                    # If the parameter --scan is not passed, the scan is not executed.
-        exit(1)
     verbose = args.verbose
-
-    if verbose:
-        print("Verbose Enabled")
-        print("Network range "+args.range)
-        print("Ports list "+str(args.ports))
-        print("Message to send '"+args.message+"'")
-        print("Timeout %d seconds" % (args.timeout))
-
     net_range = args.range
     port_list = args.ports
     message = args.message
     timeout = args.timeout
 
-    exit(0)
-    # Classic system, without threads
-    '''
-    print("Scaning with no-thread")
+    print("Verbose level "+str(VERBOSE_LEVELS[verbose]))
+    print("Network range "+args.range)
+    print("Ports list "+str(args.ports))
+    print("Message to send '"+args.message+"'")
+    print("Timeout %d seconds" % (args.timeout))
+    print("Scanning ...")
     start = time.perf_counter()
-    network_scan(NET_ADDRESS,KEYLOGGER_PORT,MAGIC_MESSAGE)
-    end = time.perf_counter()
-    print("Time ",end-start)
-    '''
-
-    # Threaded metode scan
-    print("Scaning with threads")
-    start = time.perf_counter()
-    scanner = RangeScan(net_range,port_list,message,verbose,timeout)
-    scanner.run()
-    end = time.perf_counter()
-    print("Time ",end-start)
+    scanner = RangeScan(net_range, port_list, message, verbose, timeout)
+    total_hosts = scanner.run()
+    totaltime = time.perf_counter() - start
+    print("Scanned %d hosts at %s in %6.2f seconds " % (total_hosts, args.range, totaltime))
 
 if __name__ == '__main__':
     main()

