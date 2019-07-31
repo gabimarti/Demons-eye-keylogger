@@ -25,6 +25,8 @@ import time
 ########################################################
 # CONSTANTS
 ########################################################
+APPNAME = "Demon's Eye Keylogger Network Search"                    # Just a name
+VERSION = "1.0"                                                     # Version
 NET_ADDRESS="192.168.10.0/24"                                       # Network adress range to scan (CIDR)
 KEYLOGGER_PORT = 6666                                               # Port of keylogger
 PORT_LIST_SCAN = [ KEYLOGGER_PORT ]                                 # List of ports to Scan. For testing multiple ports
