@@ -67,6 +67,8 @@ class HostScan(threading.Thread):
             s.settimeout(self.timeout)                                  # Sets timeout
             s.connect((host, port))
             if len(self.message)>0:
+                if self.verbose >= 1:
+                    print("Send message %s " % (self.message))
                 s.send(self.message)
                 response = s.recv(BUFFER_SIZE)
             else:

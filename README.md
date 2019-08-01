@@ -42,7 +42,7 @@ The same is explained in the FAQ.
     * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
     * Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
     * PyLoggy https://github.com/D4Vinci/PyLoggy
-    * PyLogger [https://github.com/pmsosa/pylogger](https://github.com/pmsosa/pylogger)
+    * PyLogger https://github.com/pmsosa/pylogger
 
 # Final Notes
 This code has been tested, developed and designed to work in a Windows environment.
