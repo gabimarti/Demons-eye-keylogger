@@ -45,6 +45,7 @@ net_range = NET_ADDRESS                                             # Network Ra
 port_list = []                                                      # Port list for command line test
 timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
 
+
 # Scan a host (ip), for open ports in port_list
 # optionally, sends a message to host and wait response
 # can activate more verbosity for errors and control messages
