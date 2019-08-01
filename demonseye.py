@@ -84,7 +84,7 @@ import wx
 APPNAME = 'Demon\'s Eye Keylogger'      # Just a name
 VERSION = '1.0'                         # Version
 LOGGING_LEVEL = logging.DEBUG           # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG_FILENAME = 'DEKlogger.log'          # Log filename (This is log for program info and debug, not keys log)
+LOG_FILENAME = 'DEKlogger.log'          # Log filename (This is log for program info and debuge, not keys log)
 CRLF = '\n'                             # salto de linea - line feed
 KLGPRE = 'klg_'                         # prefijo nombre ficheros de log - prefix name for log files
 KLGEXT = '.dek'                         # extension nombre ficheros keylogger - extension for keylogger file
