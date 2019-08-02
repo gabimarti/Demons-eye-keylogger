@@ -136,7 +136,7 @@ class RangeScan(threading.Thread):
             self.threads.append(hs)
             hosts_scanned += 1
 
-        # Finish threads before main thread starts again
+        # Wait to finish threads before main thread starts again
         for thread in self.threads:
             thread.join()
 
