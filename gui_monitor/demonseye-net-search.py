@@ -48,6 +48,10 @@ port_list = []                                                      # Port list 
 timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
 
 
+########################################################
+# CLASSES
+########################################################
+
 # Scan a host (ip), for open ports in port_list
 # optionally, sends a message to host and wait response
 # can activate more verbosity for errors and control messages
@@ -138,6 +142,10 @@ class RangeScan(threading.Thread):
 
         return hosts_scanned
 
+
+########################################################
+# FUNCTIONS
+########################################################
 
 # Parse command line parameters
 def parse_params():
