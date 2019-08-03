@@ -186,7 +186,7 @@ class ClientThread(threading.Thread):
         log_verbose(msg, logging.INFO, 1)
 
         while True:
-            data = str(self.conn.recv(2048))
+            data = str(self.conn.recv(2048).decode)
             msg = 'Se ha recibido: ' + data
             log_verbose(msg, logging.DEBUG, 2)
             if data == MAGIC_MESSAGE:
@@ -239,17 +239,17 @@ class ServerListenerThread(threading.Thread):
 # verbose_level = 0, 1, 2, 3
 def log_verbose(msg, log_level, verbose_level):
     try:
-        msg = msg.encode('utf-8')
+        msg_encoded = msg.encode('utf-8')
         if log_level == logging.DEBUG:
-            logging.debug(msg)
+            logging.debug(msg_encoded)
         elif log_level == logging.INFO:
-            logging.info(msg)
+            logging.info(msg_encoded)
         elif log_level == logging.WARNING:
-            logging.warning(msg)
+            logging.warning(msg_encoded)
         elif log_level == logging.ERROR:
-            logging.error(msg)
+            logging.error(msg_encoded)
         elif log_level == logging.CRITICAL:
-            logging.critical(msg)
+            logging.critical(msg_encoded)
 
         if verbose >= verbose_level:
             print(msg)

@@ -36,7 +36,7 @@ MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
 ENCODING = 'utf-8'                                                  # Encodinf for message sended
-VERBOSE_LEVELS = ["none", "error", "insane debug"]                  # Verbose levels
+VERBOSE_LEVELS = ["none", "a bit", "insane debug"]                  # Verbose levels
 
 
 ########################################################
@@ -61,7 +61,7 @@ max_concurrent_threads = 0                                          # Store max 
 # can activate more verbosity for errors and control messages
 # can define a timeout for connection
 class HostScan(threading.Thread):
-    def __init__(self, ip, port_list, message = "", verbose = True, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, ip, port_list, message, verbose = True, timeout = DEFAULT_TIMEOUT):
         threading.Thread.__init__(self)
         self.open_ports = []
         self.ports = port_list                              # All ports can be self.ports = range(1, 0xffff + 1)
@@ -87,14 +87,16 @@ class HostScan(threading.Thread):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       # ipv4 (AF_INET) tcp (SOCK_STREAM)
             s.settimeout(self.timeout)                                  # Sets timeout
             s.connect((host, port))
-            if len(self.message) > 0:
-                if self.verbose >= 1:
-                    print("Send message %s " % (self.message))
-                s.send(self.message)
-                response = s.recv(BUFFER_SIZE)
-            else:
-                response = ""
-            self.open_ports.append("Host %s Port %s [Open] %s" % (host, port, response))
+            try:
+                if len(str(self.message)) > 0:
+                    if self.verbose >= 1:
+                        print("Sending message %s to %s:%s " % (self.message, host, port))
+                    s.send(self.message.encode())
+                    response = s.recv(BUFFER_SIZE).decode()
+                else:
+                    response = ""
+            finally:
+                self.open_ports.append("Host %s Port %s [Open] %s" % (host, port, response))
         except Exception as ex:
             if self.verbose >= 1:
                 print("Host %s Port %d Exception %s " % (host, port, ex))
@@ -106,7 +108,6 @@ class HostScan(threading.Thread):
         self.lock.acquire()
         total_current_threads_running -= 1
         self.lock.release()
-
 
     def write(self):
         for op in self.open_ports:
