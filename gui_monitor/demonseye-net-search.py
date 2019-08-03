@@ -16,8 +16,8 @@
 #-----------------------------------------------------------------------------------------------------------
 #
 
-import ipaddress
 import argparse
+import ipaddress
 import socket
 import threading
 import time
@@ -36,7 +36,7 @@ MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
 ENCODING = 'utf-8'                                                  # Encodinf for message sended
-VERBOSE_LEVELS = [ "none", "error", "insane debug" ]                # Verbose levels
+VERBOSE_LEVELS = ["none", "error", "insane debug"]                  # Verbose levels
 
 
 ########################################################
@@ -47,6 +47,9 @@ verbose = 0                                                         # Verbosity 
 net_range = NET_ADDRESS                                             # Network Range for command line test
 port_list = []                                                      # Port list for command line test
 timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
+total_threads_launched = 0                                          # Total threads launched
+total_current_threads_running = 0                                   # Total threads running at one moment
+max_concurrent_threads = 0                                          # Store max concurrent threads
 
 
 ########################################################
@@ -67,13 +70,24 @@ class HostScan(threading.Thread):
         self.threads = []                                   # Thread list
         self.timeout = timeout                              # Timeout - alternative: socket.setdefaulttimeout(timeout)
         self.verbose = verbose                              # Verbose
+        self.lock = threading.Lock()                        # thread lock
 
     def scan(self, host, port):
+        global total_threads_launched, total_current_threads_running, max_concurrent_threads
+
+        # Increment running threads counter and max concurrent threads
+        self.lock.acquire()
+        total_threads_launched += 1
+        total_current_threads_running += 1
+        if total_current_threads_running > max_concurrent_threads:
+            max_concurrent_threads = total_current_threads_running
+        self.lock.release()
+
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       # ipv4 (AF_INET) tcp (SOCK_STREAM)
             s.settimeout(self.timeout)                                  # Sets timeout
             s.connect((host, port))
-            if len(self.message)>0:
+            if len(self.message) > 0:
                 if self.verbose >= 1:
                     print("Send message %s " % (self.message))
                 s.send(self.message)
@@ -87,6 +101,12 @@ class HostScan(threading.Thread):
             pass
         finally:
             s.close()
+
+        # Decrement running threads counter
+        self.lock.acquire()
+        total_current_threads_running -= 1
+        self.lock.release()
+
 
     def write(self):
         for op in self.open_ports:
@@ -109,6 +129,7 @@ class HostScan(threading.Thread):
         # Write out the ports that are open
         self.write()
 
+
 # Scan a range of IPs for open ports
 # Get CIDR net_gange, List of port_list, message to send, verbosity
 class RangeScan(threading.Thread):
@@ -124,24 +145,23 @@ class RangeScan(threading.Thread):
         self.own_host = socket.gethostname()                        # Client Host name
         self.own_ip = socket.gethostbyname(self.own_host)           # Client Host ip
         self.timeout = timeout                                      # Timeout
+        self.hosts_scanned = 0                                      # Total hosts scanned
 
-    def scan(self):
+    def start(self):
         if self.verbose >= 2:
-            print ("This host is %s %s " % (self.own_host, self.own_ip))
+            print("This host is %s %s " % (self.own_host, self.own_ip))
 
-        hosts_scanned = 0
+        self.hosts_scanned = 0
         for ip in self.all_hosts:                                   # Scan the network range
             # Thread host port scan
             hs = HostScan(str(ip), self.port_list, self.message, self.verbose, self.timeout)
             hs.start()
             self.threads.append(hs)
-            hosts_scanned += 1
+            self.hosts_scanned += 1
 
         # Wait to finish threads before main thread starts again
         for thread in self.threads:
             thread.join()
-
-        return hosts_scanned
 
 
 ########################################################
@@ -196,10 +216,13 @@ def main():
     print("Scanning ...")
     start = time.perf_counter()
     scanner = RangeScan(net_range, port_list, message, verbose, timeout)
-    total_hosts = scanner.scan()
-    totaltime = time.perf_counter() - start
-    print("Scanned %d hosts at %s in %6.2f seconds " % (total_hosts, args.range, totaltime))
-
+    scanner.start()
+    total_hosts = scanner.hosts_scanned
+    total_time = time.perf_counter() - start
+    print("Scanned %d hosts at %s in %6.2f seconds " % (total_hosts, args.range, total_time))
+    print("Total %d threads launched, and max simultaneous was %d threads" % (total_threads_launched, max_concurrent_threads))
+    if total_current_threads_running > 0:
+        print("Something strange happes because the threads running is %d " % (total_current_threads_running))
 
 if __name__ == '__main__':
     main()
