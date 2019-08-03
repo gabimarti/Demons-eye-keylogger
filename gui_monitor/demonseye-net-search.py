@@ -21,6 +21,7 @@ import argparse
 import socket
 import threading
 import time
+import urllib.request
 
 ########################################################
 # CONSTANTS
@@ -124,7 +125,7 @@ class RangeScan(threading.Thread):
         self.own_ip = socket.gethostbyname(self.own_host)           # Client Host ip
         self.timeout = timeout                                      # Timeout
 
-    def run(self):
+    def scan(self):
         if self.verbose >= 2:
             print ("This host is %s %s " % (self.own_host, self.own_ip))
 
@@ -146,6 +147,12 @@ class RangeScan(threading.Thread):
 ########################################################
 # FUNCTIONS
 ########################################################
+
+# Obtiene la ip externa - Get the external ip
+def get_external_ip():
+    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    return external_ip
+
 
 # Parse command line parameters
 def parse_params():
@@ -174,17 +181,25 @@ def main():
     message = args.message
     timeout = args.timeout
 
+    # Host info
+    hostname = socket.gethostname()
+    localip = socket.gethostbyname(hostname)
+    externalip = get_external_ip()
+
     print("Verbose level "+str(VERBOSE_LEVELS[verbose]))
     print("Network range "+args.range)
     print("Ports list "+str(args.ports))
     print("Message to send '"+args.message+"'")
     print("Timeout %d seconds" % (args.timeout))
+    print("---")
+    print("This Host %s : IP local %s : IP wan %s" % (hostname, localip, externalip))
     print("Scanning ...")
     start = time.perf_counter()
     scanner = RangeScan(net_range, port_list, message, verbose, timeout)
-    total_hosts = scanner.run()
+    total_hosts = scanner.scan()
     totaltime = time.perf_counter() - start
     print("Scanned %d hosts at %s in %6.2f seconds " % (total_hosts, args.range, totaltime))
+
 
 if __name__ == '__main__':
     main()
