@@ -3,8 +3,7 @@
 #
 #-----------------------------------------------------------------------------------------------------------
 # Name:         tinyserver.py
-# Purpose:      Small Server using threads that listen to port
-#               Small server using threads that listens on a default port and returns a response
+# Purpose:      Small server using threads that listens on a default port and returns a response
 #               with echo of the same message received and additional information.
 #
 # Author:       Gabriel Marti Fuentes
