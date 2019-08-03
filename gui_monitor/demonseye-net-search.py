@@ -35,7 +35,7 @@ PORT_LIST_SCAN = [ KEYLOGGER_PORT ]                                 # List of po
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to indentify to keylogger
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
-ENCODING = 'utf-8'                                                  # Encodinf for message sended
+ENCODING = 'utf-8'                                                  # Encoding for message sended
 VERBOSE_LEVELS = ["none", "a bit", "insane debug"]                  # Verbose levels
 
 
@@ -91,14 +91,14 @@ class HostScan(threading.Thread):
                 if len(str(self.message)) > 0:
                     if self.verbose >= 1:
                         print("Sending message %s to %s:%s " % (self.message, host, port))
-                    s.send(self.message.encode())
-                    response = s.recv(BUFFER_SIZE).decode()
+                    s.send(self.message.encode(ENCODING))
+                    response = s.recv(BUFFER_SIZE).decode(ENCODING)
                 else:
                     response = ""
             finally:
                 self.open_ports.append("Host %s Port %s [Open] %s" % (host, port, response))
         except Exception as ex:
-            if self.verbose >= 1:
+            if self.verbose >= 2:
                 print("Host %s Port %d Exception %s " % (host, port, ex))
             pass
         finally:
