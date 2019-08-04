@@ -29,7 +29,7 @@ import traceback
 ########################################################
 DESCRIPTION = 'Tiny Client'
 EPILOG = 'Connect, send and receive. Simply.'
-DEFAULT_VERBOSE_LEVEL = 2                                   # Default verbose level.
+DEFAULT_VERBOSE_LEVEL = 1                                   # Default verbose level.
 VERBOSE_LEVEL_DESCRIPTION = ['basic',                       # Arbitrary values to adjust
                              'a few',
                              'insane info']                 # Verbose levels description
@@ -132,7 +132,6 @@ def start_client():
     except Exception as e:
         print('An error has occurred.')
         print('Exception : ' + str(e))
-        # print('Sys Error Info : ' + str(sys.exc_info()))
     finally:
         s.close()
 
@@ -140,6 +139,7 @@ def start_client():
     total_time = time.perf_counter() - time_start
     print('The process has happened in {:3.2f} seconds'.format(total_time))
     sys.exit()
+
 
 if __name__ == '__main__':
     start_client()

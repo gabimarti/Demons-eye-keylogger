@@ -31,7 +31,7 @@ import traceback
 DESCRIPTION = 'Tiny Server'
 EPILOG = 'Listen and respond. Simply.'
 DEFAULT_MAXCLIENTS = 10                                     # Aka MAXTHREADS, every Client is a thread
-DEFAULT_VERBOSE_LEVEL = 2                                   # Default verbose level
+DEFAULT_VERBOSE_LEVEL = 1                                   # Default verbose level
 VERBOSE_LEVEL_DESCRIPTION = ['basic',
                              'a few',
                              'insane info']                 # Verbose levels description
@@ -54,9 +54,10 @@ kill_message = DEFAULT_KILL_MESSAGE
 verbose = DEFAULT_VERBOSE_LEVEL                             # Verbose level
 thread_counter = 0                                          # Total executed threads / clients
 thread_active_counter = 0                                   # active threads / clients
-thread_list = []                                            # List of active threads
+thread_client_list = []                                     # List of active threads
 time_start = 0                                              # For Timer counter
 shutdown = False                                            # It will be True when the server has to be closed.
+server = None                                               # Global server socket
 
 
 ########################################################
@@ -69,19 +70,20 @@ def print_verbose(msg, verbose_level, established_verbose):
         print(msg)
 
 
-# Wait for the indicated time in milliseconds
-def delay_milliseconds(millisec):
-    if millisec == 0:
-        return None                                         # Avoid making unnecessary call
-    time.sleep(millisec / 1000)
+# Kill all client active sockets
+def kill_client_sockets():
+    global thread_client_list
+    print_verbose('Killing clients ...', 1, verbose)
+    for client in thread_client_list:
+        try:
+            client.shutdown(socket.SHUT_RDWR)
+            client.close()
+        except socket.error:
+            pass                    # socket already closed. don't worry
 
 
 # Client input string processing
 def do_client_input_string_processing(input_string, verbose):
-    """
-    This is where all the processing happens.
-    Let's just read the string backwards
-    """
     print_verbose('Processing '+str(input_string), 1, verbose)
     # Reverse message
     input_processed = input_string[::-1]
@@ -90,16 +92,28 @@ def do_client_input_string_processing(input_string, verbose):
 
 # Client thread for each new connection
 def client_thread(conn, ip, port, buffer_size, verbose, kill_message):
-    global shutdown
+    global shutdown, thread_active_counter, thread_client_list, server
+
+    # Lock for shared counters operations
+    lock = threading.Lock()
+    lock.acquire()
+    thread_active_counter += 1
+    thread_client_list.append(conn)
+    lock.release()
+
+    print_verbose('Total clients {} | Current active clients {}'.format(thread_counter, thread_active_counter),
+                  1, verbose)
 
     # the input is in bytes, so decode it
     input_from_client_bytes = conn.recv(max_buffer_size)
+    if not input_from_client_bytes:
+        print_verbose('No data. from {}:{}'.format(ip,port), 1, verbose)
 
     # max_buffer_size indicates how big the message can be
     # this is test if it's sufficiently big
     siz = sys.getsizeof(input_from_client_bytes)
     if siz >= buffer_size:
-        print_verbose('The length of input is probably too long: {}'.format(siz), 0, verbose)
+        print_verbose('The length of input is probably too long: {}'.format(siz), 1, verbose)
 
     # decode input and strip the end of line
     input_from_client = input_from_client_bytes.decode(ENCODING).rstrip()
@@ -111,16 +125,32 @@ def client_thread(conn, ip, port, buffer_size, verbose, kill_message):
         res = SHUTDOWN_RESPONSE
         res_encoded = res.encode(ENCODING)
         conn.sendall(res_encoded)
-        conn.close()
         shutdown = True
-        return
+        try:
+            print_verbose('Shutdown server from Client thread', 1, verbose)
+            server.close()
+        except Exception as e:
+            print_verbose('Can\'t close Server from client thread', 1, verbose)
+            print_verbose('Exception {}'.format(e), 1, verbose)
 
-    res = do_client_input_string_processing(input_from_client, verbose)
-    print_verbose('Result of processing {} is: {}'.format(input_from_client, res), 1, verbose)
+        kill_client_sockets()
+    else:
+        res = do_client_input_string_processing(input_from_client, verbose)
+        print_verbose('Result of processing {} is: {}'.format(input_from_client, res), 1, verbose)
 
-    res_encoded = res.encode(ENCODING)          # encode the result string
-    conn.sendall(res_encoded)                   # send it to client
-    conn.close()                                # close connection
+        res_encoded = res.encode(ENCODING)              # encode the result string
+        try:
+            conn.sendall(res_encoded)                   # send it to client
+            conn.close()                                # close connection
+        except Exception as e:
+            print_verbose('Socket Error: {:s} '.format(e), 1, verbose)
+
+    # Lock for shared counters operations
+    lock.acquire()
+    thread_active_counter -= 1
+    thread_client_list.remove(conn)
+    lock.release()
+
     print_verbose('Connection ' + ip + ':' + port + " ended", 1, verbose)
 
 
@@ -148,20 +178,14 @@ def parse_params():
 def on_close_program():
     global time_start
 
-    pass
-    '''
     totaltime = time.perf_counter() - time_start
-    average_sleep = total_sleep_seconds / thread_counter
-    print('Performed %d threads in %6.2f seconds ' % (thread_counter, totaltime))
-    print('Current active threads %d' % (thread_active_counter))
-    print('Total sleep %d (shared) seconds for all process' % (total_sleep_seconds))
-    print('Average sleep %6.2f seconds' % (average_sleep))
-    '''
+    print('The server has been running for {} seconds.'.format(totaltime))
 
 
 # Main - Start Server
 def start_server():
-    global host_bind, max_clients, server_port, max_buffer_size, kill_message, verbose, time_start, shutdown
+    global host_bind, max_clients, server_port, max_buffer_size, kill_message, verbose, time_start
+    global shutdown, thread_counter, server
 
     # Handler to do actions when application is closed
     atexit.register(on_close_program)
@@ -187,13 +211,13 @@ def start_server():
     print('Starting Server ...')
     time_start = time.perf_counter()
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print_verbose('Socket created', 1, verbose)
 
     # Bind socket to local host and port
     try:
-        s.bind((host_bind, server_port))
+        server.bind((host_bind, server_port))
         print_verbose('Socket bind completed', 2, verbose)
     except socket.error as msg:
         print('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
@@ -201,27 +225,42 @@ def start_server():
         sys.exit()
 
     # Start listening on socket
-    s.listen(max_clients)
+    server.listen(max_clients)
     print_verbose('Socket now listening', 2, verbose)
 
     # Now keep talking with the client while no shutdown message is received
     while not shutdown:
-        # wait to accept a connection - blocking call
-        conn, addr = s.accept()
+        # Wait to accept a connection - blocking call
+        try:
+            conn, addr = server.accept()
+        except:
+            break                                   # Possibly closed server
+
         ip, port = str(addr[0]), str(addr[1])
         print('Accepting connection from ' + ip + ':' + port)
+        thread_counter += 1
         try:
             client = threading.Thread(target=client_thread,
                                       args=(conn, ip, port, max_buffer_size, verbose, kill_message))
             client.start()
         except Exception as e:
-            print('Terrible error! '+str(e))
+            print('WTF Error! '+str(e))
             traceback.print_exc()
 
     # Shutting down server
-    print("Shutdown server")
-    s.close()
+    try:
+        print("Shutdown server")
+        server.shutdown(socket.SHUT_RDWR)
+        server.close()
+    except Exception as e:
+        print_verbose("Server already closed from client thread", 1, verbose)
+        print_verbose("Exception {}".format(e), 2, verbose)
+
+    print_verbose('At shutdown, total clients {} | Current active {}'.format(thread_counter,
+                                                                             thread_active_counter),
+                  1, verbose)
     sys.exit(1)
+
 
 if __name__ == '__main__':
     start_server()
