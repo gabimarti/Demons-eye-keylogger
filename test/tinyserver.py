@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # Name:         tinyserver.py
 # Purpose:      Small server using threads that listens on a default port and returns a response
 #               with echo of the same message received and additional information.
@@ -11,7 +11,9 @@
 # GitHub:       https://github.com/gabimarti
 # Created:      03/08/2019
 # License:      GPLv3
-#-----------------------------------------------------------------------------------------------------------
+# Notes:        Inspired by Daniel Hnyk's tutorial
+#               http://danielhnyk.cz/simple-server-client-aplication-python-3/
+# -----------------------------------------------------------------------------------------------------------
 #
 
 
@@ -38,6 +40,7 @@ DEFAULT_PORT = 6666                                         # Default port
 DEFAULT_KILL_MESSAGE = 'kill'                               # If this message is received, the server will end.
 DEFAULT_MAX_BUFFER_SIZE = 4096                              # Default max buffer size
 ENCODING = 'utf-8'                                          # EncodinG for message communication
+SHUTDOWN_RESPONSE = 'Shutting down the server'              # Shutdown response to client
 
 
 ########################################################
@@ -53,6 +56,7 @@ thread_counter = 0                                          # Total executed thr
 thread_active_counter = 0                                   # active threads / clients
 thread_list = []                                            # List of active threads
 time_start = 0                                              # For Timer counter
+shutdown = False                                            # It will be True when the server has to be closed.
 
 
 ########################################################
@@ -86,6 +90,8 @@ def do_client_input_string_processing(input_string, verbose):
 
 # Client thread for each new connection
 def client_thread(conn, ip, port, buffer_size, verbose, kill_message):
+    global shutdown
+
     # the input is in bytes, so decode it
     input_from_client_bytes = conn.recv(max_buffer_size)
 
@@ -96,17 +102,23 @@ def client_thread(conn, ip, port, buffer_size, verbose, kill_message):
         print_verbose('The length of input is probably too long: {}'.format(siz), 0, verbose)
 
     # decode input and strip the end of line
-    input_from_client = input_from_client_bytes.decode('utf8').rstrip()
+    input_from_client = input_from_client_bytes.decode(ENCODING).rstrip()
 
     # check if message is received to kill server
     if input_from_client == kill_message:
-        print("Kill message received. Shutdown server")
-        sys.exit(1)
+        print_verbose('Killing message received \'{}\''.format(input_from_client), 1, verbose)
+        # response shutdown to client
+        res = SHUTDOWN_RESPONSE
+        res_encoded = res.encode(ENCODING)
+        conn.sendall(res_encoded)
+        conn.close()
+        shutdown = True
+        return
 
     res = do_client_input_string_processing(input_from_client, verbose)
     print_verbose('Result of processing {} is: {}'.format(input_from_client, res), 1, verbose)
 
-    res_encoded = res.encode('utf8')            # encode the result string
+    res_encoded = res.encode(ENCODING)          # encode the result string
     conn.sendall(res_encoded)                   # send it to client
     conn.close()                                # close connection
     print_verbose('Connection ' + ip + ':' + port + " ended", 1, verbose)
@@ -121,17 +133,13 @@ def parse_params():
                         help='Indicates the maximum number of clients/threads. Default value: %s '
                              % str(DEFAULT_MAXCLIENTS))
     parser.add_argument('-p', '--serverport', type=int, default=DEFAULT_PORT,
-                        help='Port to listen. Default value: %s '
-                             % str(DEFAULT_PORT))
+                        help='Port to listen. Default value: %s ' % str(DEFAULT_PORT))
     parser.add_argument('-b', '--buffersize', type=int, default=DEFAULT_MAX_BUFFER_SIZE,
-                        help='Buffer size. Default value: %s '
-                             % str(DEFAULT_MAX_BUFFER_SIZE))
+                        help='Buffer size. Default value: %s ' % str(DEFAULT_MAX_BUFFER_SIZE))
     parser.add_argument('-k', '--killmessage', type=str, default=DEFAULT_KILL_MESSAGE,
-                        help='Message to kill server. Default value: \'%s\''
-                             % str(DEFAULT_KILL_MESSAGE))
+                        help='Message to kill server. Default value: \'%s\'' % str(DEFAULT_KILL_MESSAGE))
     parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2], default=DEFAULT_VERBOSE_LEVEL,
-                        help='Increase output verbosity. Default value: %s'
-                            % DEFAULT_VERBOSE_LEVEL)
+                        help='Increase output verbosity. Default value: %s' % DEFAULT_VERBOSE_LEVEL)
     args = parser.parse_args()
     return args
 
@@ -153,7 +161,7 @@ def on_close_program():
 
 # Main - Start Server
 def start_server():
-    global host_bind, max_clients, server_port, max_buffer_size, kill_message, verbose, time_start
+    global host_bind, max_clients, server_port, max_buffer_size, kill_message, verbose, time_start, shutdown
 
     # Handler to do actions when application is closed
     atexit.register(on_close_program)
@@ -196,8 +204,8 @@ def start_server():
     s.listen(max_clients)
     print_verbose('Socket now listening', 2, verbose)
 
-    # now keep talking with the client
-    while True:
+    # Now keep talking with the client while no shutdown message is received
+    while not shutdown:
         # wait to accept a connection - blocking call
         conn, addr = s.accept()
         ip, port = str(addr[0]), str(addr[1])
@@ -207,10 +215,13 @@ def start_server():
                                       args=(conn, ip, port, max_buffer_size, verbose, kill_message))
             client.start()
         except Exception as e:
-            print('Terible error! '+str(e))
+            print('Terrible error! '+str(e))
             traceback.print_exc()
 
+    # Shutting down server
+    print("Shutdown server")
     s.close()
+    sys.exit(1)
 
 if __name__ == '__main__':
     start_server()

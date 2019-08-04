@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # Name:         demonseye-net-search.py
 # Purpose:      Search for possible active keyloggers in a network range.
 #               Alternatively, it can be used as a normal network scanner, since it allows you to specify
@@ -13,7 +13,7 @@
 # GitHub:       https://github.com/gabimarti
 # Created:      29/07/2019
 # License:      GPLv3
-#-----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 #
 
 import argparse
