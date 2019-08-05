@@ -8,6 +8,7 @@ pyscripter/
 .idea/
 
 # Misc folders and files to ignore
+_backups_older_versions
 cuts_and_old_things/
 wxFormBuilder/
 *.log
