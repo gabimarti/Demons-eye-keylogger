@@ -39,7 +39,7 @@ DEFAULT_HOST_BIND = ''                                      # Bind to all ports
 DEFAULT_PORT = 6666                                         # Default port
 DEFAULT_KILL_MESSAGE = 'kill'                               # If this message is received, the server will end.
 DEFAULT_MAX_BUFFER_SIZE = 4096                              # Default max buffer size
-ENCODING = 'utf-8'                                          # EncodinG for message communication
+ENCODING = 'utf-8'                                          # Encoding for message communication
 SHUTDOWN_RESPONSE = 'Shutting down the server'              # Shutdown response to client
 
 
@@ -249,12 +249,12 @@ def start_server():
 
     # Shutting down server
     try:
-        print("Shutdown server")
+        print('Shutdown server')
         server.shutdown(socket.SHUT_RDWR)
         server.close()
     except Exception as e:
-        print_verbose("Server already closed from client thread", 1, verbose)
-        print_verbose("Exception {}".format(e), 2, verbose)
+        print_verbose('Server already closed from client thread', 1, verbose)
+        print_verbose('Exception {}'.format(e), 2, verbose)
 
     print_verbose('At shutdown, total clients {} | Current active {}'.format(thread_counter,
                                                                              thread_active_counter),

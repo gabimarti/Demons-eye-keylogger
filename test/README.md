@@ -17,6 +17,8 @@ In this folder you can find (for now):
                       
     * tinyclient.py - Client to use with tinyserver.py and to be able to do communication tests. 
                       It also allows you to configure the host, port and message to send.
-                
+                      
+    These two modules now have their own repository in:
+        https://github.com/gabimarti/TinyServerClient            
 
 # ===+===+===+===+===

