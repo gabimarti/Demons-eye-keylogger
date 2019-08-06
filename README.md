@@ -60,12 +60,11 @@ Finished on ??????
 
 ## Known issues 
 
-    KIS001  Special accents keys are not detected correctly and two accents appear 
-            in a row when trying to accent a letter.
+    KIS001  Special accents keys are not detected correctly and two accents appear in a row when 
+            trying to accent a letter.
             [Pending to solve]
     
-    KIS002  The log file cannot be sent because the system detects that the file 
-            is in use.
+    KIS002  The log file cannot be sent because the system detects that the file is in use.
             [Pending to solve]
             
     KIS003  The TCP connection to the Monitor is rejected.
