@@ -9,7 +9,7 @@ Keylogger proof of concept for the TFM of the La Salle MCS (2019).
                                                    |___/                 |___/         |___/ |___/           
 
 
-# About the code and sources
+## About the code and sources
 This code is part of the Final Project of the Master in Cybersecurity (2019) by Gabriel Martí Fuentes. The Master is taught at the University of La Salle - Ramon Llull.
 
 For the elaboration of this code, multiple sources have been consulted, including some codes already existing in GitHub, but it is not the branch of any of them. It is prepared from scratch from the ideas and observed code of the other projects.
@@ -18,7 +18,7 @@ In the section "Useful references" I mention the most important sources of code 
 
 If you have any questions, interest in clarifying anything about the project, or contributing ideas, you can contact me at the following address: gabimarti + github at gmail dot com
 
-# About the name
+## About the name
 Why "Demon's Eye"? ...and why not? :)
 
 Well, the truth is that everyone knows that computer scientists and those who are passionate about technology have a balance between paranoid, weird and freaky, and that when we name something it also makes some sense (and relationships with something).
@@ -29,7 +29,7 @@ But, in addition, it is the title of a Deep Purple song (which is a group that I
 
 The same is explained in the FAQ.
 
-# Features     
+## Features     
     * Record keystrokes
     * Periodic screen capture
     * Send data to a remote computer with Monitor App (to do)
@@ -38,13 +38,13 @@ The same is explained in the FAQ.
     * Paste data to a Paste service/site (to do)
     * Server included for remote monitoring on the same local network. (doing)
 
-# Useful references
+## Useful references
     * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
     * Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
     * PyLoggy https://github.com/D4Vinci/PyLoggy
     * PyLogger https://github.com/pmsosa/pylogger
 
-# Final Notes
+## Final Notes
 This code has been tested, developed and designed to work in a Windows environment.
 Its purpose is only educational.
 
@@ -53,11 +53,16 @@ I hardly knew anything about Python before starting this project, so any constru
 
 But don't be cruel. :)
     
-# Versions
+## Versions
 * v1.0 first version. Private. 
 Started on 19/may/2019.
 Finished on ??????
 
+## Known issues
 
-  
+    KIS001  Special accents keys are not detected correctly and two accents appear 
+            in a row when trying to accent a letter.
+            [Pending to solve]
+            
+           
 
