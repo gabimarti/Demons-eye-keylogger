@@ -53,12 +53,12 @@ I hardly knew anything about Python before starting this project, so any constru
 
 But don't be cruel. :)
     
-## Versions
+## Versions 
 * v1.0 first version. Private. 
 Started on 19/may/2019.
 Finished on ??????
 
-## Known issues
+## Known issues 
 
     KIS001  Special accents keys are not detected correctly and two accents appear 
             in a row when trying to accent a letter.
