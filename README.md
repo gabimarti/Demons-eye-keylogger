@@ -52,7 +52,7 @@ The same is explained in the FAQ.
 
 
 ## License
-Please read [LICENSE NOTE] (https://github.com/gabimarti/Demons-eye-keylogger/blob/master/LICENSE)
+Please read [LICENSE NOTE](https://github.com/gabimarti/Demons-eye-keylogger/blob/master/LICENSE)
 
     
 ## Final Notes
@@ -84,7 +84,11 @@ But don't be cruel. :)
             2019-08-07 Solved.
         
      
-            
+## Contact
+- Follow me on Twitter [@gmarti](https://twitter.com/gmarti)
+- email gabimarti (at) gmail (dot) com
+ 
+        
     
            
 
