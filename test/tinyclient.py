@@ -11,10 +11,9 @@
 # GitHub:       https://github.com/gabimarti
 # Created:      04/08/2019
 # License:      GPLv3
-# Notes:        Inspired by Daniel Hnyk's tutorial
-#               http://danielhnyk.cz/simple-server-client-aplication-python-3/
+# Note:         Early version for test. This version may have many inconsistencies.
+#               Newer version in https://github.com/gabimarti/TinyServerClient
 # -----------------------------------------------------------------------------------------------------------
-#
 
 
 import argparse

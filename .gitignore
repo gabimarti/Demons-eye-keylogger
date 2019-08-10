@@ -7,6 +7,9 @@ pyscripter/
 # PyCharm
 .idea/
 
+# Personal configuration
+config_gm.py
+
 # Misc folders and files to ignore
 _backups_older_versions
 cuts_and_old_things/
