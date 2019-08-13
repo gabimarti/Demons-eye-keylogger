@@ -45,17 +45,14 @@
 # Updates:
 #
 # -----------------------------------------------------------------------------------------------------------
-#
-#   Reminder for future features to do:
-#           - auto clone app / copy to windows tmp
-#           - install in win registry
-#           - send info to paste service
-#           - send info to twitter
-#           - hide app
-#           - command line params: install registry, hide, etc.
-#           - system disk info
-#           - memory info
-#           - server witch sockets connection
+#  TODO:
+#       - auto clone app / copy to windows tmp
+#       - install in win registry
+#       - hide app (changing name in tasklist)
+#       - command line params: install registry, hide, etc.
+#       - monitor commands (get file list, get file contents, etc)
+#       - system disk info
+#       - memory info
 # -----------------------------------------------------------------------------------------------------------
 
 import config_gm as config
