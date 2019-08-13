@@ -37,15 +37,15 @@ The same is explained in the FAQ.
 ## Features     
     * Record keystrokes
     * Periodic screen capture
-    * Send data to a remote computer with Monitor App (to do)
-    * Send data to an email account (to do)
-    * Send data to a Twitter account (to do)
-    * Paste data to a Paste service/site (to do)
-    * Server included for remote monitoring on the same local network. (doing)
+    * Server included for remote monitoring on the same local network.
+    * Send data to a remote computer with Monitor App 
+    * Send data to an email account 
+    * Paste data to a Paste service (pastebin.com, pastecode.xyz)
+    * Send data to a Telegram Channel with a Telegram Bot.
+   
 
-
-## Useful references
-    * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
+## Some useful references
+    * [Radium Keylogger](https://github.com/mehulj94/Radium-Keylogger)
     * Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
     * PyLoggy https://github.com/D4Vinci/PyLoggy
     * PyLogger https://github.com/pmsosa/pylogger
@@ -78,10 +78,10 @@ But don't be cruel. :)
             [Pending to solve]
     
     KIS002  The log file cannot be sent because the system detects that the file is in use.
-            [Pending to solve]
+            *[2019-08-12 Solved]*
             
     KIS003  The TCP connection to the Monitor is rejected.
-            2019-08-07 Solved.
+            *[2019-08-07 Solved]*
         
      
 ## Contact
