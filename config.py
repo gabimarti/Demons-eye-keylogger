@@ -25,7 +25,6 @@ SEND_EMAIL_TLS = True                                           # Can be True or
 # paste services ids
 PASTE_PASTEBIN = 1                                              # Pastebin
 PASTE_PASTECODE = 2                                             # Pastecode
-PASTE_TELEGRAM = 3                                              # Telegram
 
 # Pastebin
 PASTEBIN_ENABLED = True                                         # Enable or disable Pastebin send
