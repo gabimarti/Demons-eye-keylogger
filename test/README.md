@@ -12,17 +12,23 @@ You can always learn some of the old code and help in the creation of new code.
 
 In this folder you can find (for now):
 
+    TPC Communication Client & Server.
+    These two modules now have their own repository in:
+        https://github.com/gabimarti/TinyServerClient    
+        
     * tinyserver.py         - Small multi-threaded server, with configurable port, number of clients, 
                               buffer size, and message to receive that kills the process.
                       
     * tinyclient.py         - Client to use with tinyserver.py and to be able to do communication tests. 
                               It also allows you to configure the host, port and message to send.
                       
-    These two modules now have their own repository in:
-        https://github.com/gabimarti/TinyServerClient    
+    
+     Examples of short keyloggers code.    
         
     * tinykeylogger01.py    - Shortest example of keylogger in Python. 
                               Exactly eleven lines of pure code.        
                               
+    * tinykeylogger02.py    - Second shortest example of keylogger in Python.
+                              Now with eight lines of code.                   
 
 

