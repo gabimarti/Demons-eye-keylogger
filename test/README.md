@@ -12,13 +12,17 @@ You can always learn some of the old code and help in the creation of new code.
 
 In this folder you can find (for now):
 
-    * tinyserver.py - Small multi-threaded server, with configurable port, number of clients, 
-                      buffer size, and message to receive that kills the process.
+    * tinyserver.py         - Small multi-threaded server, with configurable port, number of clients, 
+                              buffer size, and message to receive that kills the process.
                       
-    * tinyclient.py - Client to use with tinyserver.py and to be able to do communication tests. 
-                      It also allows you to configure the host, port and message to send.
+    * tinyclient.py         - Client to use with tinyserver.py and to be able to do communication tests. 
+                              It also allows you to configure the host, port and message to send.
                       
     These two modules now have their own repository in:
-        https://github.com/gabimarti/TinyServerClient            
+        https://github.com/gabimarti/TinyServerClient    
+        
+    * tinykeylogger01.py    - Shortest example of keylogger in Python. 
+                              Exactly eleven lines of pure code.        
+                              
 
-# ===+===+===+===+===
+
