@@ -11,8 +11,8 @@ pyscripter/
 config_gm.py
 
 # Misc folders and files to ignore
-_gui_monitor/
-_snippets/
+_gui_monitor/*
+_snippets/*
 _backups_older_versions/
 cuts_and_old_things/
 wxFormBuilder/
