@@ -17,7 +17,6 @@ cuts_and_old_things/
 wxFormBuilder/
 test/*.txt
 *.log
-*.bat
 *.out
 *.png
 

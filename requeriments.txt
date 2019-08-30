@@ -4,3 +4,4 @@ win32gui
 requests>=2.18.4
 wxPython>=4.06
 python-telegram-bot
+pypiwin32
