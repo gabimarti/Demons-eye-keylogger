@@ -58,5 +58,6 @@ TELEGRAM_BOT_GETME = 'getMe'                                    # To get info ab
 TELEGRAM_BOT_UPDATES = 'getUpdates'                             # To get channel updates > not user
 TELEGRAM_BOT_SEND = 'sendMessage'                               # To send a message to channel
 TELEGRAM_BOT_SENDPHOTO = 'sendPhoto'                            # To send a photo to channel
+TELEGRAM_BOT_SENDFILE = 'sendFile'                              # To send a file to channel
 
 
