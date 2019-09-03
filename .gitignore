@@ -11,6 +11,7 @@ pyscripter/
 config_gm.py
 
 # Misc folders and files to ignore
+/build-graph.bat
 _gui_monitor/*
 _snippets/*
 _backups_older_versions/
@@ -20,6 +21,7 @@ test/*.txt
 *.log
 *.out
 *.png
+*.dot
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -58,4 +60,5 @@ pip-delete-this-directory.txt
 # virtualenv
 venv/
 ENV/
+
 

