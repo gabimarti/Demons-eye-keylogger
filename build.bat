@@ -8,4 +8,5 @@ rem pyinstaller -F --noupx --clean demonseye.py
 pyinstaller -F --clean demonseye.py
 
 rem Compress with UPX
-d:\apps\upx\upx --best -v -o demonseye-c.exe demonseye.exe
+
+d:\apps\upx\upx --best -v -o .\dist\demonseye-c.exe .\dist\demonseye.exe

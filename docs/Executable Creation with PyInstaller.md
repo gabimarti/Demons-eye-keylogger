@@ -4,7 +4,10 @@ To create the executable in Windows, PyInstaller has been used.
 
 Executable compression is disabled and the creation of a single file is forced.
 
-You can build simply with *build.bat* file included
+Simply type: pyinstaller --noupx -F demonseye.py
+
+You can automate with *build.bat* file included
+
 
 ### Pynstaller installation
 
