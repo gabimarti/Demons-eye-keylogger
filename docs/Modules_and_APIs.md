@@ -4,17 +4,19 @@ I will try to summarize here the most important *URL*s related to the use of the
 
 ## Modules
 
+Please, check my file *requirements.txt* which shows all the modules I had installed when I made the development, although it is more than likely that there is a module in the list that is not necessary.
+
+The module that I indicate below are the ones that are sure to be essential.
+
 Install with "pip install module-name-required"
 
-    pywin32, pyWinhook, win32gui, requests, wxPython, urllib2, mss
-                 pywin32>=224
-pyWinhook>=1.6.1
-win32gui
-requests>=2.18.4
-wxPython>=4.06
-python-telegram-bot
-pypiwin32
-mss
+    * pywin32
+    * pyWinhook
+    * win32gui
+    * requests 
+    * urllib2
+    * mss
+    * python-telegram-bot
 
 
 ### Hook Manager
