@@ -14,6 +14,7 @@ config_gm.py
 /build-graph.bat
 _gui_monitor/*
 _snippets/*
+_snippets/registry.py
 _backups_older_versions/
 cuts_and_old_things/
 wxFormBuilder/
@@ -23,7 +24,7 @@ test/*.txt
 *.png
 *.dot
 *.dek
-registry.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
