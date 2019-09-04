@@ -13,7 +13,7 @@ config_gm.py
 # Misc folders and files to ignore
 /build-graph.bat
 _gui_monitor/*
-_snippets/*
+/_snippets/
 _backups_older_versions/
 cuts_and_old_things/
 wxFormBuilder/
@@ -62,3 +62,5 @@ venv/
 ENV/
 
 
+
+*.dek

