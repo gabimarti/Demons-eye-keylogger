@@ -26,7 +26,7 @@ def AddToRegistry():
     pth = os.path.dirname(os.path.realpath(__file__))
 
     # name of the python file with extension
-    s_name = "mYscript.py"
+    s_name = "MyScript.py"
 
     # joins the file name to end of path address
     address = os.join(pth, s_name)
