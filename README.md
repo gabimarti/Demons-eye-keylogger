@@ -39,10 +39,10 @@ The same is explained in the FAQ.
     * Periodic screen capture
     * Server included for remote monitoring on the same local network.
     * Send data to a remote computer with Monitor App 
-    * Send data to an email account 
     * Paste data to a Paste service (pastebin.com, pastecode.xyz)
-    * Send data to a Telegram Channel with a Telegram Bot.
-   
+    * Send data to a Telegram Channel with a Telegram Bot. (send url of Pastes and screenshots)
+    * Two methods of keystroke capture using different modules
+                 
 
 ## Some useful references
     * [Radium Keylogger](https://github.com/mehulj94/Radium-Keylogger)
@@ -67,8 +67,8 @@ But don't be cruel. :)
     
 ## Versions 
 * 0.0.1 First version. Private. 
-    Started on 19/may/2019.
-    Finished on ??????
+    Started on 19/may/2019
+    Finished on 04/sep/2019
 
 
 ## Known issues 
