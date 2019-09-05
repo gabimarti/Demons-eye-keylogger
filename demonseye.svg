@@ -39,7 +39,7 @@
 <text text-anchor="middle" x="4776.35" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">ClientThread</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__ClientThread -->
-<g id="edge24" class="edge"><title>demonseye&#45;&gt;demonseye__ClientThread</title>
+<g id="edge22" class="edge"><title>demonseye&#45;&gt;demonseye__ClientThread</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2511.37,-3939.37C3016.05,-3901.29 4638.12,-3750.19 4949.35,-3363.28 4990.31,-3312.37 4957.01,-2251.85 4948.35,-2187.09 4917.22,-1954.4 4830.33,-1686.22 4793.35,-1578.81"/>
 <polygon fill="none" stroke="none" points="4796.62,-1577.53 4790.04,-1569.22 4790,-1579.82 4796.62,-1577.53"/>
 </g>
@@ -49,7 +49,7 @@
 <text text-anchor="middle" x="2387.35" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">ScreenShootThread</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__ScreenShootThread -->
-<g id="edge21" class="edge"><title>demonseye&#45;&gt;demonseye__ScreenShootThread</title>
+<g id="edge15" class="edge"><title>demonseye&#45;&gt;demonseye__ScreenShootThread</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2219.82,-3933.74C1775.9,-3880.58 424.995,-3693.81 164.349,-3363.28 123.875,-3311.96 97.1297,-2239.38 136.349,-2187.09 386.121,-1854.08 1673.48,-1634.21 2181.16,-1559.24"/>
 <polygon fill="none" stroke="none" points="2181.78,-1562.69 2191.17,-1557.77 2180.76,-1555.77 2181.78,-1562.69"/>
 </g>
@@ -59,12 +59,12 @@
 <text text-anchor="middle" x="4579.35" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">ServerListenerThread</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__ServerListenerThread -->
-<g id="edge25" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread</title>
+<g id="edge28" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2509.49,-3937.79C2997.71,-3895.7 4541.52,-3735.82 4836.35,-3363.28 5109.02,-3018.74 4728.33,-2442.39 4611.47,-2274.75"/>
 <polygon fill="none" stroke="none" points="4614.05,-2272.34 4605.45,-2266.15 4608.32,-2276.35 4614.05,-2272.34"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__ServerListenerThread -->
-<g id="edge52" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread</title>
+<g id="edge47" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread</title>
 <path fill="none" stroke="#000000" d="M2510,-3938.37C3001.29,-3897.19 4558.14,-3737.56 4854.35,-3363.28 5127.29,-3018.4 4745.57,-2441.25 4618.13,-2274.25"/>
 <polygon fill="#000000" stroke="#000000" points="4620.76,-2271.94 4611.89,-2266.15 4615.22,-2276.21 4620.76,-2271.94"/>
 </g>
@@ -74,7 +74,7 @@
 <text text-anchor="middle" x="2574.35" y="-2729.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">add_key_to_buffer_pyWinHook</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__add_key_to_buffer_pyWinHook -->
-<g id="edge16" class="edge"><title>demonseye&#45;&gt;demonseye__add_key_to_buffer_pyWinHook</title>
+<g id="edge18" class="edge"><title>demonseye&#45;&gt;demonseye__add_key_to_buffer_pyWinHook</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2223.42,-3932.01C1800.32,-3874.7 535.057,-3679.22 296.349,-3363.28 276.496,-3337.01 275.566,-3240.63 296.349,-3215.09 424.752,-3057.26 1762.09,-2854.63 2325.88,-2775.48"/>
 <polygon fill="none" stroke="none" points="2326.76,-2778.89 2336.18,-2774.03 2325.79,-2771.96 2326.76,-2778.89"/>
 </g>
@@ -84,12 +84,12 @@
 <text text-anchor="middle" x="4446.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">add_keylogger_to_startup</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__add_keylogger_to_startup -->
-<g id="edge6" class="edge"><title>demonseye&#45;&gt;demonseye__add_keylogger_to_startup</title>
+<g id="edge30" class="edge"><title>demonseye&#45;&gt;demonseye__add_keylogger_to_startup</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2452.31,-3918.4C2785.82,-3805.78 3941.66,-3421.01 4323.14,-3295.58"/>
 <polygon fill="none" stroke="none" points="4324.43,-3298.84 4332.83,-3292.39 4322.24,-3292.19 4324.43,-3298.84"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__add_keylogger_to_startup -->
-<g id="edge49" class="edge"><title>demonseye&#45;&gt;demonseye__add_keylogger_to_startup</title>
+<g id="edge42" class="edge"><title>demonseye&#45;&gt;demonseye__add_keylogger_to_startup</title>
 <path fill="none" stroke="#000000" d="M2456.28,-3919.08C2796.79,-3807.37 3956.11,-3421.53 4329.49,-3295.7"/>
 <polygon fill="#000000" stroke="#000000" points="4330.61,-3299.02 4338.96,-3292.51 4328.37,-3292.39 4330.61,-3299.02"/>
 </g>
@@ -99,7 +99,7 @@
 <text text-anchor="middle" x="2007.35" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">capture_screen</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__capture_screen -->
-<g id="edge14" class="edge"><title>demonseye&#45;&gt;demonseye__capture_screen</title>
+<g id="edge17" class="edge"><title>demonseye&#45;&gt;demonseye__capture_screen</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2220.79,-3933.24C1784.05,-3878.96 464.872,-3690.14 215.349,-3363.28 101.985,-3214.79 491.648,-2831.58 688.349,-2701.09 1066.41,-2450.28 1593.56,-2313.67 1852,-2257.97"/>
 <polygon fill="none" stroke="none" points="1852.79,-2261.38 1861.83,-2255.86 1851.32,-2254.54 1852.79,-2261.38"/>
 </g>
@@ -109,12 +109,12 @@
 <text text-anchor="middle" x="397.349" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">create_keylog_file</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__create_keylog_file -->
-<g id="edge3" class="edge"><title>demonseye&#45;&gt;demonseye__create_keylog_file</title>
+<g id="edge24" class="edge"><title>demonseye&#45;&gt;demonseye__create_keylog_file</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2219.33,-3933.96C1776.52,-3881.08 435.676,-3694.15 182.349,-3363.28 47.7392,-3187.47 299.11,-2468.78 376.112,-2275.65"/>
 <polygon fill="none" stroke="none" points="379.379,-2276.91 379.86,-2266.33 372.884,-2274.3 379.379,-2276.91"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__create_keylog_file -->
-<g id="edge38" class="edge"><title>demonseye&#45;&gt;demonseye__create_keylog_file</title>
+<g id="edge41" class="edge"><title>demonseye&#45;&gt;demonseye__create_keylog_file</title>
 <path fill="none" stroke="#000000" d="M2220.75,-3933.21C1781.99,-3879.33 452.49,-3692.6 200.349,-3363.28 65.806,-3187.56 316.86,-2469.5 382.431,-2275.94"/>
 <polygon fill="#000000" stroke="#000000" points="385.795,-2276.92 385.68,-2266.33 379.163,-2274.68 385.795,-2276.92"/>
 </g>
@@ -124,12 +124,12 @@
 <text text-anchor="middle" x="981.349" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">delete_keylog_tempfile</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__delete_keylog_tempfile -->
-<g id="edge27" class="edge"><title>demonseye&#45;&gt;demonseye__delete_keylog_tempfile</title>
+<g id="edge29" class="edge"><title>demonseye&#45;&gt;demonseye__delete_keylog_tempfile</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2220.07,-3933.62C1781.25,-3879.85 456.458,-3690.91 206.349,-3363.28 46.6022,-3154.03 736.12,-2457.32 931.229,-2272.84"/>
 <polygon fill="none" stroke="none" points="933.631,-2275.38 938.507,-2265.98 928.83,-2270.29 933.631,-2275.38"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__delete_keylog_tempfile -->
-<g id="edge44" class="edge"><title>demonseye&#45;&gt;demonseye__delete_keylog_tempfile</title>
+<g id="edge46" class="edge"><title>demonseye&#45;&gt;demonseye__delete_keylog_tempfile</title>
 <path fill="none" stroke="#000000" d="M2221.56,-3932.85C1786.86,-3878.07 473.286,-3689.37 224.349,-3363.28 64.7702,-3154.25 752.671,-2458.79 937.004,-2273.42"/>
 <polygon fill="#000000" stroke="#000000" points="939.549,-2275.82 944.119,-2266.27 934.586,-2270.89 939.549,-2275.82"/>
 </g>
@@ -139,7 +139,7 @@
 <text text-anchor="middle" x="3253.35" y="-2729.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">exit_demonseye</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__exit_demonseye -->
-<g id="edge19" class="edge"><title>demonseye&#45;&gt;demonseye__exit_demonseye</title>
+<g id="edge27" class="edge"><title>demonseye&#45;&gt;demonseye__exit_demonseye</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2508.65,-3937.43C2992.31,-3894.34 4517.3,-3732 4808.35,-3363.28 4828.75,-3337.43 4827.97,-3241.53 4808.35,-3215.09 4640.97,-2989.54 3796.85,-2829.69 3427.16,-2768.84"/>
 <polygon fill="none" stroke="none" points="3427.61,-2765.36 3417.17,-2767.2 3426.47,-2772.27 3427.61,-2765.36"/>
 </g>
@@ -154,7 +154,7 @@
 <text text-anchor="middle" x="2591.35" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">flush_key_buffer_to_disk</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__flush_key_buffer_to_disk -->
-<g id="edge2" class="edge"><title>demonseye&#45;&gt;demonseye__flush_key_buffer_to_disk</title>
+<g id="edge4" class="edge"><title>demonseye&#45;&gt;demonseye__flush_key_buffer_to_disk</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2221.44,-3933.01C1787.52,-3878.16 478.759,-3688.01 231.349,-3363.28 211.39,-3337.09 217.486,-3244.96 231.349,-3215.09 380.3,-2894.12 525.958,-2865.38 839.349,-2701.09 1342.04,-2437.55 2004.8,-2310.49 2353.44,-2258.33"/>
 <polygon fill="none" stroke="none" points="2354.03,-2261.78 2363.4,-2256.85 2353,-2254.86 2354.03,-2261.78"/>
 </g>
@@ -164,12 +164,12 @@
 <text text-anchor="middle" x="4832.35" y="-786.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">get_external_ip</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__get_external_ip -->
-<g id="edge30" class="edge"><title>demonseye&#45;&gt;demonseye__get_external_ip</title>
+<g id="edge2" class="edge"><title>demonseye&#45;&gt;demonseye__get_external_ip</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2511.1,-3939.04C3016.94,-3900.15 4648.28,-3747.42 4970.35,-3363.28 5148.02,-3151.37 4998.35,-3018.23 4998.35,-2741.69 4998.35,-2741.69 4998.35,-2741.69 4998.35,-2225.69 4998.35,-1895.1 5021.57,-1810.09 4980.35,-1482.09 4949.95,-1240.21 4871.05,-958.584 4842.43,-847.39"/>
 <polygon fill="none" stroke="none" points="4845.76,-846.304 4839.9,-837.481 4838.98,-848.036 4845.76,-846.304"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__get_external_ip -->
-<g id="edge46" class="edge"><title>demonseye&#45;&gt;demonseye__get_external_ip</title>
+<g id="edge38" class="edge"><title>demonseye&#45;&gt;demonseye__get_external_ip</title>
 <path fill="none" stroke="#000000" d="M2511.72,-3939.54C3020.71,-3901.48 4664.88,-3749.1 4988.35,-3363.28 5166.02,-3151.37 5016.35,-3018.23 5016.35,-2741.69 5016.35,-2741.69 5016.35,-2741.69 5016.35,-2225.69 5016.35,-1895.1 5039.57,-1810.09 4998.35,-1482.09 4967.92,-1239.97 4888.89,-958.017 4851.7,-847.055"/>
 <polygon fill="#000000" stroke="#000000" points="4854.98,-845.825 4848.45,-837.481 4848.35,-848.075 4854.98,-845.825"/>
 </g>
@@ -179,12 +179,12 @@
 <text text-anchor="middle" x="3885.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">hide_console</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__hide_console -->
-<g id="edge5" class="edge"><title>demonseye&#45;&gt;demonseye__hide_console</title>
+<g id="edge10" class="edge"><title>demonseye&#45;&gt;demonseye__hide_console</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2440.26,-3916.5C2647.6,-3831.35 3223.29,-3595.43 3686.35,-3363.28 3727.27,-3342.77 3771.87,-3317.66 3808.51,-3296.86"/>
 <polygon fill="none" stroke="none" points="3810.68,-3299.66 3817.65,-3291.67 3807.22,-3293.57 3810.68,-3299.66"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__hide_console -->
-<g id="edge42" class="edge"><title>demonseye&#45;&gt;demonseye__hide_console</title>
+<g id="edge39" class="edge"><title>demonseye&#45;&gt;demonseye__hide_console</title>
 <path fill="none" stroke="#000000" d="M2446.69,-3917.43C2661.38,-3833.07 3239.6,-3596.28 3704.35,-3363.28 3744.48,-3343.17 3788.14,-3318.64 3822.58,-3298.08"/>
 <polygon fill="#000000" stroke="#000000" points="3824.82,-3300.82 3831.59,-3292.67 3821.21,-3294.82 3824.82,-3300.82"/>
 </g>
@@ -194,7 +194,7 @@
 <text text-anchor="middle" x="4579.35" y="-2729.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">kill_server_clients</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__kill_server_clients -->
-<g id="edge18" class="edge"><title>demonseye&#45;&gt;demonseye__kill_server_clients</title>
+<g id="edge8" class="edge"><title>demonseye&#45;&gt;demonseye__kill_server_clients</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2509.25,-3937.89C2996.35,-3895.69 4535.99,-3734.52 4829.35,-3363.28 4870.19,-3311.61 4845.19,-3279.02 4829.35,-3215.09 4787.39,-3045.79 4672.61,-2870.31 4614.31,-2788.69"/>
 <polygon fill="none" stroke="none" points="4616.85,-2786.22 4608.17,-2780.14 4611.17,-2790.3 4616.85,-2786.22"/>
 </g>
@@ -204,7 +204,7 @@
 <text text-anchor="middle" x="218.349" y="-786.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">load_file</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__load_file -->
-<g id="edge20" class="edge"><title>demonseye&#45;&gt;demonseye__load_file</title>
+<g id="edge26" class="edge"><title>demonseye&#45;&gt;demonseye__load_file</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2217.67,-3935.01C1760.24,-3885.08 352.004,-3705.58 80.3488,-3363.28 -91.434,-3146.83 66.3488,-3018.02 66.3488,-2741.69 66.3488,-2741.69 66.3488,-2741.69 66.3488,-2225.69 66.3488,-1895.17 40.3418,-1810.64 76.3488,-1482.09 102.817,-1240.58 174.923,-958.187 204.948,-847.08"/>
 <polygon fill="none" stroke="none" points="208.393,-847.749 207.635,-837.181 201.638,-845.915 208.393,-847.749"/>
 </g>
@@ -224,12 +224,12 @@
 <text text-anchor="middle" x="3237.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">on_keyboard_event_pyWinHook</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook -->
-<g id="edge10" class="edge"><title>demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook</title>
+<g id="edge6" class="edge"><title>demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2404.88,-3912.62C2549.19,-3794.67 3011.53,-3428.32 3177.44,-3300.35"/>
 <polygon fill="none" stroke="none" points="3179.8,-3302.95 3185.59,-3294.07 3175.53,-3297.4 3179.8,-3302.95"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook -->
-<g id="edge41" class="edge"><title>demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook</title>
+<g id="edge50" class="edge"><title>demonseye&#45;&gt;demonseye__on_keyboard_event_pyWinHook</title>
 <path fill="none" stroke="#000000" d="M2410.75,-3913.11C2563.37,-3795.83 3025.99,-3429.41 3183.91,-3300.83"/>
 <polygon fill="#000000" stroke="#000000" points="3186.56,-3303.19 3192.1,-3294.16 3182.13,-3297.76 3186.56,-3303.19"/>
 </g>
@@ -239,12 +239,12 @@
 <text text-anchor="middle" x="2361.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">on_mouse_event_pyWinHook</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook -->
-<g id="edge9" class="edge"><title>demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook</title>
+<g id="edge3" class="edge"><title>demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2358.03,-3910.89C2353.58,-3792.49 2353.46,-3435.94 2357.67,-3304.79"/>
 <polygon fill="none" stroke="none" points="2361.17,-3304.75 2358.02,-3294.64 2354.18,-3304.51 2361.17,-3304.75"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook -->
-<g id="edge50" class="edge"><title>demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook</title>
+<g id="edge43" class="edge"><title>demonseye&#45;&gt;demonseye__on_mouse_event_pyWinHook</title>
 <path fill="none" stroke="#000000" d="M2364.67,-3910.89C2369.12,-3792.49 2369.24,-3435.94 2365.03,-3304.79"/>
 <polygon fill="#000000" stroke="#000000" points="2368.52,-3304.51 2364.67,-3294.64 2361.52,-3304.75 2368.52,-3304.51"/>
 </g>
@@ -254,12 +254,12 @@
 <text text-anchor="middle" x="1150.35" y="-2729.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">on_press_key_pynput</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_press_key_pynput -->
-<g id="edge29" class="edge"><title>demonseye&#45;&gt;demonseye__on_press_key_pynput</title>
+<g id="edge25" class="edge"><title>demonseye&#45;&gt;demonseye__on_press_key_pynput</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2221.33,-3932.96C1789.75,-3877.53 494.549,-3684.93 250.349,-3363.28 210.521,-3310.82 216.417,-3271.54 250.349,-3215.09 406.99,-2954.48 760.853,-2829.64 975.273,-2776.26"/>
 <polygon fill="none" stroke="none" points="976.187,-2779.64 985.059,-2773.85 974.512,-2772.84 976.187,-2779.64"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__on_press_key_pynput -->
-<g id="edge43" class="edge"><title>demonseye&#45;&gt;demonseye__on_press_key_pynput</title>
+<g id="edge44" class="edge"><title>demonseye&#45;&gt;demonseye__on_press_key_pynput</title>
 <path fill="none" stroke="#000000" d="M2222.95,-3932.17C1795.63,-3875.72 511.403,-3683.42 268.349,-3363.28 228.521,-3310.82 234.417,-3271.54 268.349,-3215.09 424.135,-2955.91 774.997,-2831 984.23,-2777.14"/>
 <polygon fill="#000000" stroke="#000000" points="985.259,-2780.49 994.085,-2774.63 983.53,-2773.71 985.259,-2780.49"/>
 </g>
@@ -269,12 +269,12 @@
 <text text-anchor="middle" x="1733.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">parse_params</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__parse_params -->
-<g id="edge7" class="edge"><title>demonseye&#45;&gt;demonseye__parse_params</title>
+<g id="edge21" class="edge"><title>demonseye&#45;&gt;demonseye__parse_params</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2323.86,-3911.88C2212.28,-3793.58 1883.8,-3430.68 1771.44,-3301.74"/>
 <polygon fill="none" stroke="none" points="1773.88,-3299.2 1764.68,-3293.95 1768.59,-3303.79 1773.88,-3299.2"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__parse_params -->
-<g id="edge39" class="edge"><title>demonseye&#45;&gt;demonseye__parse_params</title>
+<g id="edge52" class="edge"><title>demonseye&#45;&gt;demonseye__parse_params</title>
 <path fill="none" stroke="#000000" d="M2329.99,-3911.38C2226.85,-3792.42 1898.61,-3429.59 1778.15,-3301.25"/>
 <polygon fill="#000000" stroke="#000000" points="1780.6,-3298.75 1771.2,-3293.87 1775.5,-3303.55 1780.6,-3298.75"/>
 </g>
@@ -284,7 +284,7 @@
 <text text-anchor="middle" x="224.349" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">paste_file</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__paste_file -->
-<g id="edge22" class="edge"><title>demonseye&#45;&gt;demonseye__paste_file</title>
+<g id="edge19" class="edge"><title>demonseye&#45;&gt;demonseye__paste_file</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2218.67,-3934.5C1766.99,-3883.24 382.48,-3700.66 115.349,-3363.28 34.2218,-3260.82 97.017,-2317.19 109.349,-2187.09 131.108,-1957.51 188.698,-1687.51 213.133,-1579.21"/>
 <polygon fill="none" stroke="none" points="216.596,-1579.76 215.392,-1569.24 209.769,-1578.22 216.596,-1579.76"/>
 </g>
@@ -294,7 +294,7 @@
 <text text-anchor="middle" x="668.349" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">register_system_info</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__register_system_info -->
-<g id="edge17" class="edge"><title>demonseye&#45;&gt;demonseye__register_system_info</title>
+<g id="edge11" class="edge"><title>demonseye&#45;&gt;demonseye__register_system_info</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2219.54,-3934C1772.24,-3881.38 404.912,-3695.52 138.349,-3363.28 97.4516,-3312.31 97.7753,-2248.42 120.349,-2187.09 221.478,-1912.33 492.024,-1671.34 610.936,-1575.16"/>
 <polygon fill="none" stroke="none" points="613.292,-1577.75 618.888,-1568.76 608.903,-1572.3 613.292,-1577.75"/>
 </g>
@@ -304,7 +304,7 @@
 <text text-anchor="middle" x="1792.35" y="-2729.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">register_window_name</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__register_window_name -->
-<g id="edge23" class="edge"><title>demonseye&#45;&gt;demonseye__register_window_name</title>
+<g id="edge14" class="edge"><title>demonseye&#45;&gt;demonseye__register_window_name</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2222.54,-3932.27C1795.98,-3875.63 518.543,-3681.71 277.349,-3363.28 257.464,-3337.03 257.841,-3241.62 277.349,-3215.09 435.047,-3000.59 1217.78,-2840.2 1592.18,-2774.43"/>
 <polygon fill="none" stroke="none" points="1592.79,-2777.88 1602.04,-2772.7 1591.58,-2770.98 1592.79,-2777.88"/>
 </g>
@@ -314,7 +314,7 @@
 <text text-anchor="middle" x="3885.35" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">save_special_control_key</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__save_special_control_key -->
-<g id="edge8" class="edge"><title>demonseye&#45;&gt;demonseye__save_special_control_key</title>
+<g id="edge7" class="edge"><title>demonseye&#45;&gt;demonseye__save_special_control_key</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2510.06,-3938.46C3003.62,-3897.84 4573.07,-3740.51 4872.35,-3363.28 4910.18,-3315.6 4991.45,-2899.04 4865.35,-2701.09 4694.21,-2432.44 4323.5,-2312.32 4090.27,-2261.61"/>
 <polygon fill="none" stroke="none" points="4090.82,-2258.15 4080.31,-2259.47 4089.35,-2264.99 4090.82,-2258.15"/>
 </g>
@@ -324,12 +324,12 @@
 <text text-anchor="middle" x="1326.35" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">self_replicate</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__self_replicate -->
-<g id="edge28" class="edge"><title>demonseye&#45;&gt;demonseye__self_replicate</title>
+<g id="edge1" class="edge"><title>demonseye&#45;&gt;demonseye__self_replicate</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2304.31,-3913.59C2124.55,-3796.16 1571.35,-3425.28 1386.87,-3298.6"/>
 <polygon fill="none" stroke="none" points="1388.59,-3295.53 1378.37,-3292.75 1384.63,-3301.3 1388.59,-3295.53"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__self_replicate -->
-<g id="edge47" class="edge"><title>demonseye&#45;&gt;demonseye__self_replicate</title>
+<g id="edge49" class="edge"><title>demonseye&#45;&gt;demonseye__self_replicate</title>
 <path fill="none" stroke="#000000" d="M2310.03,-3913.11C2138.49,-3794.99 1585.48,-3424.13 1393.05,-3298.09"/>
 <polygon fill="#000000" stroke="#000000" points="1394.72,-3295 1384.43,-3292.46 1390.88,-3300.86 1394.72,-3295"/>
 </g>
@@ -339,7 +339,7 @@
 <text text-anchor="middle" x="959.349" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">send_email</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__send_email -->
-<g id="edge26" class="edge"><title>demonseye&#45;&gt;demonseye__send_email</title>
+<g id="edge20" class="edge"><title>demonseye&#45;&gt;demonseye__send_email</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2282.96,-3916.3C2085.51,-3831.37 1553.22,-3597.2 1129.35,-3363.28 1092.87,-3343.15 1053.48,-3318.42 1021.8,-3297.75"/>
 <polygon fill="none" stroke="none" points="1023.37,-3294.59 1013.09,-3292.03 1019.53,-3300.44 1023.37,-3294.59"/>
 </g>
@@ -349,7 +349,7 @@
 <text text-anchor="middle" x="1544.35" y="-2215.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">send_keylog_file</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__send_keylog_file -->
-<g id="edge12" class="edge"><title>demonseye&#45;&gt;demonseye__send_keylog_file</title>
+<g id="edge5" class="edge"><title>demonseye&#45;&gt;demonseye__send_keylog_file</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2220.02,-3933.59C1779.25,-3880.2 444.083,-3693.38 191.349,-3363.28 151.308,-3310.99 170.385,-3277.53 191.349,-3215.09 282.536,-2943.5 359.342,-2883.39 580.349,-2701.09 847.859,-2480.43 1235.48,-2330.52 1427.5,-2265.03"/>
 <polygon fill="none" stroke="none" points="1428.71,-2268.32 1437.06,-2261.79 1426.46,-2261.69 1428.71,-2268.32"/>
 </g>
@@ -359,12 +359,12 @@
 <text text-anchor="middle" x="543.349" y="-3243.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">set_logging_level</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__set_logging_level -->
-<g id="edge4" class="edge"><title>demonseye&#45;&gt;demonseye__set_logging_level</title>
+<g id="edge23" class="edge"><title>demonseye&#45;&gt;demonseye__set_logging_level</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2268.69,-3918.64C2023.76,-3833.89 1339.92,-3589.83 780.349,-3363.28 728.405,-3342.25 670.998,-3317.25 625.645,-3296.64"/>
 <polygon fill="none" stroke="none" points="627,-3293.41 616.449,-3292.44 624.095,-3299.78 627,-3293.41"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__set_logging_level -->
-<g id="edge48" class="edge"><title>demonseye&#45;&gt;demonseye__set_logging_level</title>
+<g id="edge40" class="edge"><title>demonseye&#45;&gt;demonseye__set_logging_level</title>
 <path fill="none" stroke="#000000" d="M2274.57,-3917.71C2036.81,-3832.13 1355.9,-3589.01 798.349,-3363.28 745.588,-3341.92 687.19,-3316.46 639.56,-3295.67"/>
 <polygon fill="#000000" stroke="#000000" points="640.748,-3292.37 630.182,-3291.57 637.947,-3298.78 640.748,-3292.37"/>
 </g>
@@ -374,7 +374,7 @@
 <text text-anchor="middle" x="4252.35" y="-786.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">telegram_bot_get_chatid</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__telegram_bot_get_chatid -->
-<g id="edge1" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_get_chatid</title>
+<g id="edge16" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_get_chatid</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2511.2,-3939.14C3016.32,-3900.25 4642.9,-3746.71 4962.35,-3363.28 5006.59,-3310.18 4987.35,-2810.81 4987.35,-2741.69 4987.35,-2741.69 4987.35,-2741.69 4987.35,-2225.69 4987.35,-2143.06 5010.6,-1557.73 4977.35,-1482.09 4840.45,-1170.69 4486.04,-934.429 4329.09,-841.629"/>
 <polygon fill="none" stroke="none" points="4330.8,-838.572 4320.41,-836.52 4327.25,-844.606 4330.8,-838.572"/>
 </g>
@@ -384,7 +384,7 @@
 <text text-anchor="middle" x="3629.35" y="-272.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">telegram_bot_image</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__telegram_bot_image -->
-<g id="edge11" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_image</title>
+<g id="edge9" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_image</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2511.42,-3939.47C3023.31,-3901.34 4687.51,-3749.17 5022.35,-3363.28 5203.92,-3154.02 5069.35,-3018.74 5069.35,-2741.69 5069.35,-2741.69 5069.35,-2741.69 5069.35,-1528.69 5069.35,-1182.61 5264.49,-1028.8 5059.35,-750.087 4908.93,-545.728 4162.49,-383.387 3811.87,-317.076"/>
 <polygon fill="none" stroke="none" points="3812.34,-313.604 3801.87,-315.191 3811.04,-320.483 3812.34,-313.604"/>
 </g>
@@ -394,12 +394,12 @@
 <text text-anchor="middle" x="4252.35" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">telegram_bot_message</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__telegram_bot_message -->
-<g id="edge15" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_message</title>
+<g id="edge12" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_message</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2510.51,-3938.51C3006.7,-3898.37 4587.23,-3743.2 4889.35,-3363.28 4904.49,-3344.25 4993.18,-2442.98 4888.35,-2187.09 4769.7,-1897.46 4454.94,-1666.72 4317.72,-1574.35"/>
 <polygon fill="none" stroke="none" points="4319.6,-1571.39 4309.34,-1568.73 4315.7,-1577.2 4319.6,-1571.39"/>
 </g>
 <!-- demonseye&#45;&gt;demonseye__telegram_bot_message -->
-<g id="edge51" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_message</title>
+<g id="edge48" class="edge"><title>demonseye&#45;&gt;demonseye__telegram_bot_message</title>
 <path fill="none" stroke="#000000" d="M2510.88,-3939.06C3009.96,-3899.81 4603.82,-3744.97 4907.35,-3363.28 4922.49,-3344.25 5011.18,-2442.98 4906.35,-2187.09 4787.51,-1896.99 4471.92,-1665.98 4326.95,-1573.9"/>
 <polygon fill="#000000" stroke="#000000" points="4328.82,-1570.94 4318.49,-1568.56 4325.08,-1576.86 4328.82,-1570.94"/>
 </g>
@@ -409,7 +409,7 @@
 <text text-anchor="middle" x="3783.35" y="-1518.49" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">__init__</text>
 </g>
 <!-- demonseye&#45;&gt;demonseye__ServerListenerThread____init__ -->
-<g id="edge40" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread____init__</title>
+<g id="edge51" class="edge"><title>demonseye&#45;&gt;demonseye__ServerListenerThread____init__</title>
 <path fill="none" stroke="#000000" d="M2511.51,-3939.35C3015.66,-3901.25 4633.45,-3750.23 4942.35,-3363.28 4952.54,-3350.52 4950.77,-2201.09 4942.35,-2187.09 4673.93,-1740.94 4336.74,-1932.76 3907.35,-1638.28 3879.68,-1619.31 3851.25,-1595.04 3828.6,-1574.35"/>
 <polygon fill="#000000" stroke="#000000" points="3830.87,-1571.69 3821.14,-1567.49 3826.13,-1576.84 3830.87,-1571.69"/>
 </g>
@@ -439,7 +439,7 @@
 <text text-anchor="middle" x="2796.35" y="-786.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">__init__</text>
 </g>
 <!-- demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread____init__ -->
-<g id="edge31" class="edge"><title>demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread____init__</title>
+<g id="edge32" class="edge"><title>demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread____init__</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2409.05,-1489.95C2478.39,-1366.2 2694.44,-980.57 2769.97,-845.772"/>
 <polygon fill="none" stroke="none" points="2773.11,-847.319 2774.95,-836.884 2767.01,-843.897 2773.11,-847.319"/>
 </g>
@@ -449,7 +449,7 @@
 <text text-anchor="middle" x="2492.35" y="-786.485" font-family="Times,serif" font-weight="bold" font-size="44.00" fill="#000000">run</text>
 </g>
 <!-- demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread__run -->
-<g id="edge32" class="edge"><title>demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread__run</title>
+<g id="edge31" class="edge"><title>demonseye__ScreenShootThread&#45;&gt;demonseye__ScreenShootThread__run</title>
 <path fill="none" stroke="none" stroke-dasharray="5,2" d="M2392.92,-1489.95C2410.65,-1366.71 2465.73,-983.772 2485.33,-847.467"/>
 <polygon fill="none" stroke="none" points="2488.83,-847.721 2486.79,-837.325 2481.9,-846.725 2488.83,-847.721"/>
 </g>
@@ -479,12 +479,12 @@
 <polygon fill="none" stroke="none" points="3407.85,-1569.38 3397.52,-1567.03 3404.13,-1575.31 3407.85,-1569.38"/>
 </g>
 <!-- demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__capture_screen -->
-<g id="edge85" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__capture_screen</title>
+<g id="edge84" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__capture_screen</title>
 <path fill="none" stroke="#000000" d="M2531.73,-2701.2C2428.74,-2608.2 2166.73,-2371.61 2056.94,-2272.47"/>
 <polygon fill="#000000" stroke="#000000" points="2059.07,-2269.67 2049.3,-2265.57 2054.38,-2274.87 2059.07,-2269.67"/>
 </g>
 <!-- demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__create_keylog_file -->
-<g id="edge81" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__create_keylog_file</title>
+<g id="edge85" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__create_keylog_file</title>
 <path fill="none" stroke="#000000" d="M2420.4,-2703.48C2017.98,-2608.84 938.678,-2355 544.269,-2262.24"/>
 <polygon fill="#000000" stroke="#000000" points="545.046,-2258.83 534.51,-2259.94 543.443,-2265.64 545.046,-2258.83"/>
 </g>
@@ -494,7 +494,7 @@
 <polygon fill="#000000" stroke="#000000" points="2593.23,-2276.64 2590.06,-2266.53 2586.23,-2276.41 2593.23,-2276.64"/>
 </g>
 <!-- demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__monitor_data_send -->
-<g id="edge84" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__monitor_data_send</title>
+<g id="edge83" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__monitor_data_send</title>
 <path fill="none" stroke="#000000" d="M2623.66,-2701.2C2742.91,-2608.13 3046.42,-2371.24 3173.27,-2272.24"/>
 <polygon fill="#000000" stroke="#000000" points="3175.64,-2274.83 3181.36,-2265.92 3171.33,-2269.31 3175.64,-2274.83"/>
 </g>
@@ -504,7 +504,7 @@
 <polygon fill="#000000" stroke="#000000" points="3782.09,-2271.77 3790.13,-2264.87 3779.55,-2265.25 3782.09,-2271.77"/>
 </g>
 <!-- demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__send_keylog_file -->
-<g id="edge83" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__send_keylog_file</title>
+<g id="edge81" class="edge"><title>demonseye__add_key_to_buffer_pyWinHook&#45;&gt;demonseye__send_keylog_file</title>
 <path fill="none" stroke="#000000" d="M2497.77,-2701.62C2308.92,-2607.74 1822.12,-2365.76 1627.02,-2268.78"/>
 <polygon fill="#000000" stroke="#000000" points="1628.47,-2265.59 1617.96,-2264.27 1625.35,-2271.86 1628.47,-2265.59"/>
 </g>
@@ -539,27 +539,27 @@
 <polygon fill="#000000" stroke="#000000" points="2651.05,-2269.43 2641,-2266.09 2646.77,-2274.97 2651.05,-2269.43"/>
 </g>
 <!-- demonseye__exit_demonseye&#45;&gt;demonseye__send_keylog_file -->
-<g id="edge92" class="edge"><title>demonseye__exit_demonseye&#45;&gt;demonseye__send_keylog_file</title>
+<g id="edge91" class="edge"><title>demonseye__exit_demonseye&#45;&gt;demonseye__send_keylog_file</title>
 <path fill="none" stroke="#000000" d="M3142.2,-2706.39C2836.44,-2614.78 1984.39,-2359.52 1666.24,-2264.2"/>
 <polygon fill="#000000" stroke="#000000" points="1667.1,-2260.81 1656.52,-2261.29 1665.09,-2267.51 1667.1,-2260.81"/>
 </g>
 <!-- demonseye__exit_demonseye&#45;&gt;demonseye__ServerListenerThread__stop_server -->
-<g id="edge91" class="edge"><title>demonseye__exit_demonseye&#45;&gt;demonseye__ServerListenerThread__stop_server</title>
+<g id="edge92" class="edge"><title>demonseye__exit_demonseye&#45;&gt;demonseye__ServerListenerThread__stop_server</title>
 <path fill="none" stroke="#000000" d="M3282.85,-2701.35C3340.15,-2624.2 3464.76,-2442.46 3509.35,-2266.28 3574.77,-2007.79 3429.41,-1695.46 3367.02,-1578.21"/>
 <polygon fill="#000000" stroke="#000000" points="3369.95,-1576.27 3362.14,-1569.12 3363.79,-1579.58 3369.95,-1576.27"/>
 </g>
 <!-- demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread -->
-<g id="edge65" class="edge"><title>demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread</title>
+<g id="edge66" class="edge"><title>demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread</title>
 <path fill="none" stroke="#000000" d="M4579.35,-2700.78C4579.35,-2608.82 4579.35,-2378.18 4579.35,-2276.8"/>
 <polygon fill="#000000" stroke="#000000" points="4582.85,-2276.53 4579.35,-2266.53 4575.85,-2276.53 4582.85,-2276.53"/>
 </g>
 <!-- demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread__stop_server -->
-<g id="edge66" class="edge"><title>demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread__stop_server</title>
+<g id="edge65" class="edge"><title>demonseye__kill_server_clients&#45;&gt;demonseye__ServerListenerThread__stop_server</title>
 <path fill="none" stroke="#000000" d="M4546.69,-2701.3C4482.59,-2624.06 4339.77,-2442.16 4261.35,-2266.28 4246.56,-2233.13 4261.68,-2217.17 4241.35,-2187.09 4183.66,-2101.72 3598.45,-1704.14 3403.3,-1572.87"/>
 <polygon fill="#000000" stroke="#000000" points="3405.11,-1569.87 3394.86,-1567.19 3401.2,-1575.68 3405.11,-1569.87"/>
 </g>
 <!-- demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__add_key_to_buffer_pyWinHook -->
-<g id="edge87" class="edge"><title>demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__add_key_to_buffer_pyWinHook</title>
+<g id="edge88" class="edge"><title>demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__add_key_to_buffer_pyWinHook</title>
 <path fill="none" stroke="#000000" d="M3187.52,-3215.2C3067.14,-3122.24 2760.99,-2885.82 2632.51,-2786.6"/>
 <polygon fill="#000000" stroke="#000000" points="2634.36,-2783.61 2624.31,-2780.27 2630.08,-2789.15 2634.36,-2783.61"/>
 </g>
@@ -569,7 +569,7 @@
 <polygon fill="#000000" stroke="#000000" points="3255.32,-2790.63 3252.13,-2780.53 3248.32,-2790.42 3255.32,-2790.63"/>
 </g>
 <!-- demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__register_window_name -->
-<g id="edge88" class="edge"><title>demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__register_window_name</title>
+<g id="edge87" class="edge"><title>demonseye__on_keyboard_event_pyWinHook&#45;&gt;demonseye__register_window_name</title>
 <path fill="none" stroke="#000000" d="M3131.39,-3216.14C2866.56,-3122.31 2177.63,-2878.2 1905.41,-2781.74"/>
 <polygon fill="#000000" stroke="#000000" points="1906.49,-2778.42 1895.9,-2778.38 1904.16,-2785.01 1906.49,-2778.42"/>
 </g>
@@ -579,12 +579,12 @@
 <polygon fill="#000000" stroke="#000000" points="1845,-2784.35 1835.22,-2780.27 1840.32,-2789.56 1845,-2784.35"/>
 </g>
 <!-- demonseye__on_press_key_pynput&#45;&gt;demonseye__capture_screen -->
-<g id="edge79" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__capture_screen</title>
+<g id="edge78" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__capture_screen</title>
 <path fill="none" stroke="#000000" d="M1213.71,-2701.83C1369.91,-2608.51 1772.6,-2367.93 1936.43,-2270.05"/>
 <polygon fill="#000000" stroke="#000000" points="1938.67,-2272.79 1945.46,-2264.66 1935.08,-2266.78 1938.67,-2272.79"/>
 </g>
 <!-- demonseye__on_press_key_pynput&#45;&gt;demonseye__create_keylog_file -->
-<g id="edge76" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__create_keylog_file</title>
+<g id="edge79" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__create_keylog_file</title>
 <path fill="none" stroke="#000000" d="M1094.37,-2701.62C957.436,-2608.51 606.244,-2369.72 461.343,-2271.2"/>
 <polygon fill="#000000" stroke="#000000" points="463.17,-2268.21 452.933,-2265.48 459.234,-2274 463.17,-2268.21"/>
 </g>
@@ -594,12 +594,12 @@
 <polygon fill="#000000" stroke="#000000" points="2479.15,-2271.26 2487.4,-2264.62 2476.81,-2264.67 2479.15,-2271.26"/>
 </g>
 <!-- demonseye__on_press_key_pynput&#45;&gt;demonseye__monitor_data_send -->
-<g id="edge78" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__monitor_data_send</title>
+<g id="edge77" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__monitor_data_send</title>
 <path fill="none" stroke="#000000" d="M1289.24,-2705.5C1665.44,-2612.89 2701.5,-2357.86 3085.06,-2263.45"/>
 <polygon fill="#000000" stroke="#000000" points="3085.96,-2266.83 3094.83,-2261.04 3084.29,-2260.03 3085.96,-2266.83"/>
 </g>
 <!-- demonseye__on_press_key_pynput&#45;&gt;demonseye__send_keylog_file -->
-<g id="edge77" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__send_keylog_file</title>
+<g id="edge76" class="edge"><title>demonseye__on_press_key_pynput&#45;&gt;demonseye__send_keylog_file</title>
 <path fill="none" stroke="#000000" d="M1179.96,-2701.2C1251.07,-2608.8 1431.26,-2374.65 1508.4,-2274.4"/>
 <polygon fill="#000000" stroke="#000000" points="1511.34,-2276.32 1514.66,-2266.27 1505.79,-2272.06 1511.34,-2276.32"/>
 </g>
@@ -614,12 +614,12 @@
 <polygon fill="#000000" stroke="#000000" points="4760.11,-843.412 4767.32,-835.644 4756.84,-837.223 4760.11,-843.412"/>
 </g>
 <!-- demonseye__send_keylog_file&#45;&gt;demonseye__paste_file -->
-<g id="edge72" class="edge"><title>demonseye__send_keylog_file&#45;&gt;demonseye__paste_file</title>
+<g id="edge73" class="edge"><title>demonseye__send_keylog_file&#45;&gt;demonseye__paste_file</title>
 <path fill="none" stroke="#000000" d="M1460.75,-2189.66C1264.85,-2104.01 763.056,-1877.4 371.349,-1638.28 339.301,-1618.72 305.363,-1594.16 278.181,-1573.45"/>
 <polygon fill="#000000" stroke="#000000" points="280.037,-1570.46 269.972,-1567.15 275.777,-1576.02 280.037,-1570.46"/>
 </g>
 <!-- demonseye__send_keylog_file&#45;&gt;demonseye__telegram_bot_message -->
-<g id="edge73" class="edge"><title>demonseye__send_keylog_file&#45;&gt;demonseye__telegram_bot_message</title>
+<g id="edge72" class="edge"><title>demonseye__send_keylog_file&#45;&gt;demonseye__telegram_bot_message</title>
 <path fill="none" stroke="#000000" d="M1685.47,-2195.35C2056.42,-2114.68 3088.55,-1884.14 3933.35,-1638.28 4003.13,-1617.97 4080.39,-1592.01 4141.39,-1570.67"/>
 <polygon fill="#000000" stroke="#000000" points="4142.76,-1573.9 4151.04,-1567.29 4140.44,-1567.3 4142.76,-1573.9"/>
 </g>
@@ -629,22 +629,22 @@
 <polygon fill="#000000" stroke="#000000" points="4255.85,-847.325 4252.35,-837.325 4248.85,-847.325 4255.85,-847.325"/>
 </g>
 <!-- demonseye__ClientThread____init__&#45;&gt;demonseye__ClientThread____init__ -->
-<g id="edge57" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
+<g id="edge59" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
 <path fill="none" stroke="#000000" d="M3630.9,-836.989C3679.43,-924.479 3751.56,-911.378 3751.56,-797.685 3751.56,-687.99 3684.41,-671.937 3636.1,-749.527"/>
 <polygon fill="#000000" stroke="#000000" points="3632.95,-747.987 3630.9,-758.382 3638.98,-751.532 3632.95,-747.987"/>
 </g>
 <!-- demonseye__ClientThread____init__&#45;&gt;demonseye__ScreenShootThread____init__ -->
-<g id="edge59" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ScreenShootThread____init__</title>
+<g id="edge58" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ScreenShootThread____init__</title>
 <path fill="none" stroke="#000000" d="M3492.95,-797.685C3304.29,-797.685 3115.62,-797.685 2926.95,-797.685"/>
 <polygon fill="#000000" stroke="#000000" points="2926.82,-794.186 2916.82,-797.685 2926.82,-801.186 2926.82,-794.186"/>
 </g>
 <!-- demonseye__ClientThread____init__&#45;&gt;demonseye__ServerListenerThread____init__ -->
-<g id="edge58" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
+<g id="edge57" class="edge"><title>demonseye__ClientThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
 <path fill="none" stroke="#000000" d="M3625.59,-837.325C3658.82,-960.436 3748.11,-1343.37 3775.56,-1479.8"/>
 <polygon fill="#000000" stroke="#000000" points="3772.19,-1480.83 3777.57,-1489.95 3779.06,-1479.46 3772.19,-1480.83"/>
 </g>
 <!-- demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ClientThread____init__ -->
-<g id="edge53" class="edge"><title>demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
+<g id="edge54" class="edge"><title>demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
 <path fill="none" stroke="#000000" d="M2916.82,-797.685C3105.49,-797.685 3294.16,-797.685 3482.83,-797.685"/>
 <polygon fill="#000000" stroke="#000000" points="3482.95,-801.186 3492.95,-797.685 3482.95,-794.186 3482.95,-801.186"/>
 </g>
@@ -654,7 +654,7 @@
 <polygon fill="#000000" stroke="#000000" points="2815.95,-747.987 2813.9,-758.382 2821.98,-751.532 2815.95,-747.987"/>
 </g>
 <!-- demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ServerListenerThread____init__ -->
-<g id="edge54" class="edge"><title>demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
+<g id="edge53" class="edge"><title>demonseye__ScreenShootThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
 <path fill="none" stroke="#000000" d="M2846.76,-833.679C3015.24,-954.755 3557.31,-1355.61 3730.02,-1486.76"/>
 <polygon fill="#000000" stroke="#000000" points="3728.13,-1489.71 3738.2,-1492.98 3732.36,-1484.14 3728.13,-1489.71"/>
 </g>
@@ -664,17 +664,17 @@
 <polygon fill="#000000" stroke="#000000" points="3539.67,-328.907 3547.35,-321.61 3536.8,-322.525 3539.67,-328.907"/>
 </g>
 <!-- demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ClientThread____init__ -->
-<g id="edge60" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
+<g id="edge62" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ClientThread____init__</title>
 <path fill="none" stroke="#000000" d="M3771.15,-1490.21C3737.96,-1367.26 3648.58,-983.964 3621.13,-847.519"/>
 <polygon fill="#000000" stroke="#000000" points="3624.5,-846.493 3619.11,-837.366 3617.63,-847.857 3624.5,-846.493"/>
 </g>
 <!-- demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ScreenShootThread____init__ -->
-<g id="edge62" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ScreenShootThread____init__</title>
+<g id="edge61" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ScreenShootThread____init__</title>
 <path fill="none" stroke="#000000" d="M3732.98,-1493.72C3564.57,-1372.7 3022.54,-971.867 2849.74,-840.662"/>
 <polygon fill="#000000" stroke="#000000" points="2851.63,-837.702 2841.55,-834.435 2847.4,-843.274 2851.63,-837.702"/>
 </g>
 <!-- demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ServerListenerThread____init__ -->
-<g id="edge61" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
+<g id="edge60" class="edge"><title>demonseye__ServerListenerThread____init__&#45;&gt;demonseye__ServerListenerThread____init__</title>
 <path fill="none" stroke="#000000" d="M3795.69,-1569.42C3844.08,-1702.49 3921.56,-1689.24 3921.56,-1529.69 3921.56,-1374.02 3847.82,-1357.62 3799.29,-1480.47"/>
 <polygon fill="#000000" stroke="#000000" points="3795.97,-1479.36 3795.69,-1489.95 3802.51,-1481.84 3795.97,-1479.36"/>
 </g>
