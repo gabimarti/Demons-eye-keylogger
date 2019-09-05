@@ -12,16 +12,6 @@
 # CONSTANTS
 ########################################################
 
-# email
-SEND_EMAIL_ENABLED = True                                       # If you want email sending enabled
-SEND_EMAIL_FROM = 'sender@gmail.com'                            # From email
-SEND_EMAIL_DESTINATION_ADDRS = 'dest@gmail.com'                 # Destination email (can be the same as From)
-SEND_EMAIL_USERNAME = 'username'                                # Username
-SEND_EMAIL_PASSWORD = 'password'                                # Password
-SEND_EMAIL_SMTP = 'smtp.gmail.com'                              # SMTP Server, like smtp.gmail.com
-SEND_EMAIL_PORT = '587'                                         # SMTP Port, like 587
-SEND_EMAIL_TLS = True                                           # Can be True or False
-
 # paste services ids
 PASTE_PASTEBIN = 1                                              # Pastebin
 PASTE_PASTECODE = 2                                             # Pastecode
