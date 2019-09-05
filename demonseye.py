@@ -41,7 +41,6 @@
 
 import config_gm as config
 import argparse
-# import atexit
 import base64
 import datetime
 import getpass
