@@ -39,5 +39,5 @@ Install with "pip install module-name-required"
 
 - [Telegram Bot API](https://core.telegram.org/bots/api)
  
- http://www.bernaerts-nicolas.fr/linux/75-debian/351-debian-send-telegram-notification
+
  

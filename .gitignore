@@ -69,3 +69,5 @@ ENV/
 
 backup.bat
 gui_monitor/build_dns.bat
+/exportToHTML/
+private_info
