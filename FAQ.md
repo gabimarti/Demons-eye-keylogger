@@ -39,3 +39,4 @@ Here you can see that many stupid tests appear that have simply helped me to exp
 And in this virtual machine I have not used any personal account, since in addition to the development of the keylogger, 
 I have done other tests with malware and other cybersecurity issues. 
 So as a precaution, connections to GitHub were made with a different account.
+ 
