@@ -66,22 +66,17 @@ But don't be cruel. :)
 
     
 ## Versions 
-* 0.0.1 First version. Private. 
+-   0.0.1 First version. Private. 
     Started on 19/may/2019
     Finished on 04/sep/2019
 
+-   0.0.2 Second version. Minor updates and corrections. 08/sep/2019
 
 ## Known issues 
 
-    KIS001  Special accents keys are not detected correctly and two accents appear in a row when 
-            trying to accent a letter.
-            [Pending to solve]
-    
-    KIS002  The log file cannot be sent because the system detects that the file is in use.
-            *[2019-08-12 Solved]*
-            
-    KIS003  The TCP connection to the Monitor is rejected.
-            *[2019-08-07 Solved]*
+-   Special accents keys are not detected correctly and two accents appear in a row when 
+    trying to accent a letter when using **pyWinHook**. To solve this use **pynput** mode.
+     
         
      
 ## Contact
