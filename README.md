@@ -35,13 +35,14 @@ The same is explained in the FAQ.
 
 
 ## Features     
-    * Record keystrokes
+    * Record keystrokes 
     * Periodic screen capture
     * Server included for remote monitoring on the same local network.
-    * Send data to a remote computer with Monitor App 
-    * Paste data to a Paste service (pastebin.com, pastecode.xyz)
+    * Server runs in a separate thread.
+    * Send data to a remote computer with Monitor App (only keystrokes) 
+    * Paste data (keystrokes) to a Paste service (pastebin.com, pastecode.xyz)
     * Send data to a Telegram Channel with a Telegram Bot. (send url of Pastes and screenshots)
-    * Two methods of keystroke capture using different modules
+    * Two methods of keystroke capture using different modules (pyWinHook & pynput)
                  
 
 ## Some useful references
@@ -72,12 +73,12 @@ But don't be cruel. :)
 
 -   0.0.2 Second version. Minor updates and corrections. 08/sep/2019
 
+
 ## Known issues 
 
 -   Special accents keys are not detected correctly and two accents appear in a row when 
     trying to accent a letter when using **pyWinHook**. To solve this use **pynput** mode.
      
-        
      
 ## Contact
 - Follow me on Twitter [@gmarti](https://twitter.com/gmarti)
