@@ -52,6 +52,11 @@ The same is explained in the FAQ.
     * PyLogger https://github.com/pmsosa/pylogger
 
 
+## Functions call graph
+
+![demonseye functions call graph](demonseye.svg "Functions call graph") 
+
+
 ## License
 Please read [LICENSE NOTE](https://github.com/gabimarti/Demons-eye-keylogger/blob/master/LICENSE)
 
