@@ -47,7 +47,7 @@ The same is explained in the FAQ.
                  
 
 ## Some useful references
-    * [Radium Keylogger](https://github.com/mehulj94/Radium-Keylogger)
+    * Radium Keylogger https://github.com/mehulj94/Radium-Keylogger
     * Xenotix Python Keylogger https://github.com/ajinabraham/Xenotix-Python-Keylogger
     * PyLoggy https://github.com/D4Vinci/PyLoggy
     * PyLogger https://github.com/pmsosa/pylogger
