@@ -86,6 +86,12 @@ But don't be cruel. :)
 
 -   Special accents keys are not detected correctly and two accents appear in a row when 
     trying to accent a letter when using **pyWinHook**. To solve this use **pynput** mode.
+
+
+## Disclaimer
+
+I will not be responsible for the irresponsible use of this project. 
+**ONLY this should be used for educational purposes.**
      
      
 ## Contact
