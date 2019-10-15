@@ -9,10 +9,11 @@
 
 
 ## What is this?
-Keylogger proof of concept for the TFM of the La Salle MCS (2019).
+Keylogger proof of concept for the [**TFM of the La Salle MCS (2019)**](https://www.salleurl.edu/es/estudios/master-en-ciberseguridad).
 
 This code is part of the Final Project of the Master in Cybersecurity (2019) by Gabriel Martí Fuentes. The Master is taught at the University of La Salle - Ramon Llull.
 
+The **TFM** document can be found at the following [URL](https://github.com/gabimarti/TFM-Analisis-Keyloggers-Ingenieria-Inversa)
 
 ## About the code and sources
 For the elaboration of this code, multiple sources have been consulted, including some codes already existing in GitHub, but it is not the branch of any of them. It is prepared from scratch from the ideas and observed code of the other projects.
@@ -23,13 +24,13 @@ If you have any questions, interest in clarifying anything about the project, or
 
 
 ## About the name
-Why "Demon's Eye"? ...and why not? :)
+Why "**Demon's Eye**"? ...and why not? :)
 
 Well, the truth is that everyone knows that computer scientists and those who are passionate about technology have a balance between paranoid, weird and freaky, and that when we name something it also makes some sense (and relationships with something).
 
 In this case, the fact of being able to see what another person writes is something diabolical (and malicious, why not say it). So this name is just what it deserves. 
 
-But, in addition, it is the title of a Deep Purple song (which is a group that I like), and this becomes the second reason.
+But, in addition, it is the title of a [**Deep Purple** song](https://www.youtube.com/watch?v=ZwdVcMrYUrA) (which is a group that I like), and this becomes the second reason.
 
 The same is explained in the FAQ.
 
@@ -60,10 +61,12 @@ The same is explained in the FAQ.
 ## License
 Please read [LICENSE NOTE](https://github.com/gabimarti/Demons-eye-keylogger/blob/master/LICENSE)
 
+You are free to use this work or the information here, but be polite and cite the source. Thank you.
+
     
 ## Final Notes
 This code has been tested, developed and designed to work in a Windows environment.
-Its purpose is only educational.
+**Its purpose is only educational.**
 
 You can be critical with my code.
 I hardly knew anything about Python before starting this project, so any constructive comment would be welcome.
