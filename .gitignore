@@ -46,7 +46,7 @@ lib64/
 parts/
 sdist/
 dist/
-resources/
+resources/ 
 var/
 *.egg-info/
 .installed.cfg
@@ -67,8 +67,7 @@ venv/
 ENV/
 
 
-
-
+# other
 backup.bat
 gui_monitor/build_dns.bat
 /exportToHTML/
