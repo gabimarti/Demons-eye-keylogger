@@ -9,7 +9,7 @@ certifi==2019.6.16
 cffi==1.12.3
 chardet==3.0.4
 colorama==0.4.0
-cryptography==2.7
+cryptography==3.2
 Eel==0.10.4
 future==0.17.1
 gevent==1.4.0
