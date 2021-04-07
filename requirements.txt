@@ -3,7 +3,7 @@ asn1crypto==0.24.0
 astroid==2.0.4
 auto-py-to-exe==2.6.5
 autopep8==1.4.3
-bottle==0.12.17
+bottle==0.12.19
 bottle-websocket==0.2.9
 certifi==2019.6.16
 cffi==1.12.3
