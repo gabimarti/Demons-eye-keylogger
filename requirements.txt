@@ -37,7 +37,7 @@ pylint==2.1.1
 pynput==1.4.2
 pypiwin32==223
 python-telegram-bot==11.1.0
-pywin32==224
+pywin32==301
 pywin32-ctypes==0.2.0
 pyWinhook==1.6.1
 requests==2.22.0
