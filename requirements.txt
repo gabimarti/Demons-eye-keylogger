@@ -5,7 +5,7 @@ auto-py-to-exe==2.6.5
 autopep8==1.4.3
 bottle==0.12.17
 bottle-websocket==0.2.9
-certifi==2019.6.16
+certifi==2022.12.7
 cffi==1.12.3
 chardet==3.0.4
 colorama==0.4.0
